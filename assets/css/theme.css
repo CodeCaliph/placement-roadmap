@@ -1,0 +1,140 @@
+/* ==========================================================================
+   theme.css — design tokens only. No layout, no components.
+   Palette values are the validated data-viz reference instance.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* surfaces */
+  --plane:        #f9f9f7;
+  --surface-1:    #fcfcfb;
+  --surface-2:    #f2f1ed;
+  --surface-3:    #e9e8e2;
+  --overlay:      rgba(11, 11, 11, .38);
+
+  /* ink */
+  --ink:          #0b0b0b;
+  --ink-2:        #52514e;
+  --ink-3:        #898781;
+
+  /* lines */
+  --line:         #e1e0d9;
+  --line-2:       #c3c2b7;
+  --ring:         rgba(11, 11, 11, .10);
+
+  /* categorical slots (validated order) */
+  --s1: #2a78d6;  --s2: #eb6834;  --s3: #1baf7a;  --s4: #eda100;
+  --s5: #e87ba4;  --s6: #008300;  --s7: #4a3aa7;  --s8: #e34948;
+
+  /* sequential blue ramp */
+  --b100: #cde2fb; --b150: #b7d3f6; --b200: #9ec5f4; --b250: #86b6ef;
+  --b300: #6da7ec; --b400: #3987e5; --b450: #2a78d6; --b550: #1c5cab;
+  --b650: #104281;
+
+  /* status — fixed, never themed */
+  --good:     #0ca30c;
+  --warning:  #fab219;
+  --serious:  #ec835a;
+  --critical: #d03b3b;
+  --good-text: #006300;
+
+  /* accents */
+  --accent:      var(--b450);
+  --accent-soft: rgba(42, 120, 214, .10);
+  --accent-line: rgba(42, 120, 214, .28);
+
+  /* slot hues for the four daily blocks */
+  --morning:   #eda100;
+  --afternoon: #2a78d6;
+  --evening:   #4a3aa7;
+  --night:     #52514e;
+
+  /* geometry */
+  --r-sm: 6px;  --r-md: 10px;  --r-lg: 14px;  --r-xl: 20px;
+  --sp-1: 4px;  --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px;  --sp-7: 48px;
+
+  --shadow-1: 0 1px 2px rgba(11, 11, 11, .05);
+  --shadow-2: 0 4px 16px rgba(11, 11, 11, .08);
+  --shadow-3: 0 16px 48px rgba(11, 11, 11, .16);
+
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+
+  --sidebar-w: 250px;
+  --topbar-h: 56px;
+}
+
+/* ---- dark: selected steps, not an inversion ---------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --plane:     #0d0d0d;
+    --surface-1: #1a1a19;
+    --surface-2: #222221;
+    --surface-3: #2c2c2a;
+    --overlay:   rgba(0, 0, 0, .60);
+
+    --ink:   #ffffff;
+    --ink-2: #c3c2b7;
+    --ink-3: #898781;
+
+    --line:   #2c2c2a;
+    --line-2: #383835;
+    --ring:   rgba(255, 255, 255, .10);
+
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+
+    --accent:      #3987e5;
+    --accent-soft: rgba(57, 135, 229, .14);
+    --accent-line: rgba(57, 135, 229, .34);
+
+    --good-text: #0ca30c;
+
+    --morning:   #c98500;
+    --afternoon: #3987e5;
+    --evening:   #9085e9;
+    --night:     #898781;
+
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .40);
+    --shadow-2: 0 4px 16px rgba(0, 0, 0, .50);
+    --shadow-3: 0 16px 48px rgba(0, 0, 0, .64);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane:     #0d0d0d;
+  --surface-1: #1a1a19;
+  --surface-2: #222221;
+  --surface-3: #2c2c2a;
+  --overlay:   rgba(0, 0, 0, .60);
+
+  --ink:   #ffffff;
+  --ink-2: #c3c2b7;
+  --ink-3: #898781;
+
+  --line:   #2c2c2a;
+  --line-2: #383835;
+  --ring:   rgba(255, 255, 255, .10);
+
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+
+  --accent:      #3987e5;
+  --accent-soft: rgba(57, 135, 229, .14);
+  --accent-line: rgba(57, 135, 229, .34);
+
+  --good-text: #0ca30c;
+
+  --morning:   #c98500;
+  --afternoon: #3987e5;
+  --evening:   #9085e9;
+  --night:     #898781;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .40);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, .50);
+  --shadow-3: 0 16px 48px rgba(0, 0, 0, .64);
+}
