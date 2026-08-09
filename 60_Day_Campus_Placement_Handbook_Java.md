@@ -115,12 +115,12 @@ Format for each topic: **Patterns to master → Signature problems → Mistakes 
 ### 1. Arrays — HIGH · 90% · 60 Q
 **Patterns:** traversal + in-place modification · Kadane (max subarray) · Dutch National Flag · cyclic sort / index-as-hash · rotation (reversal trick) · merge intervals · prefix/suffix product · majority element (Boyer-Moore) · next permutation · rain-water trapping.
 **Signature problems:** Two Sum, Best Time to Buy & Sell Stock I/II/III, Maximum Subarray, Sort Colors, Set Matrix Zeroes, Rotate Array, Product of Array Except Self, Find Duplicate Number, Missing Number, Next Permutation, Merge Intervals, Trapping Rain Water, Majority Element I/II, Maximum Product Subarray, 3Sum, 4Sum, Container With Most Water, Subarray Sum Equals K.
-**Mistakes:** integer overflow (`int` × `int` — use `long long`); off-by-one in `l/r` bounds; modifying while iterating; not asking "is the array sorted? can it have duplicates? negatives? empty?"; forgetting O(1)-space constraint means index-as-hash or sign-marking.
+**Mistakes:** integer overflow (`int` × `int` silently wraps in Java — write `(long) a * b`, because `a * b` is computed in `int` *before* any cast); off-by-one in `l/r` bounds; modifying while iterating; not asking "is the array sorted? can it have duplicates? negatives? empty?"; forgetting O(1)-space constraint means index-as-hash or sign-marking.
 
 ### 2. Strings — HIGH · 60% · 35 Q
 **Patterns:** frequency array (26/128) · two pointers on chars · palindrome expand-around-center · anagram grouping via sorted key or count key · string parsing/tokenising · rolling hash (basic) · run-length encoding · string builder / in-place compaction.
 **Signature:** Valid Anagram, Group Anagrams, Longest Palindromic Substring, Longest Common Prefix, Valid Palindrome I/II, String to Integer (atoi), Roman↔Integer, Compare Version Numbers, Multiply Strings, Add Binary, Count and Say, Reverse Words in a String, Isomorphic Strings, Repeated Substring Pattern, Minimum Window Substring, Longest Substring Without Repeating Characters.
-**Mistakes:** using `string + char` in a loop (O(n²)) instead of `push_back`/`reserve`; forgetting Unicode/case assumptions unasked; `s.substr()` inside a loop creating hidden O(n²); assuming only lowercase letters without confirming.
+**Mistakes:** building a string with `+=` inside a loop (`String` is immutable, so this is O(n²) — use `StringBuilder.append`); comparing strings with `==` instead of `.equals()`; forgetting Unicode/case assumptions unasked; `s.substring()` inside a loop creating hidden O(n²); assuming only lowercase letters without confirming.
 
 ### 3. Hashing — HIGH · 85% · 25 Q
 **Patterns:** count map · seen-set · prefix-sum + map (subarray sum k) · map of char→index · grouping key design · custom hash for `pair`/`vector` · two-pass vs one-pass hashing.
@@ -148,19 +148,19 @@ Format for each topic: **Patterns to master → Signature problems → Mistakes 
 **Mistakes:** `mid = (l+r)/2` overflow — use `l + (r-l)/2`; infinite loop from wrong `l = mid` vs `l = mid+1`; not being able to state the invariant ("everything left of `l` is bad"); failing to recognise "minimise the maximum" as BS-on-answer; predicate not monotonic.
 
 ### 8. Sorting — HIGH · 50% · 15 Q
-**Know cold:** merge sort (and it powers inversion count), quick sort + partition (and Quickselect for Kth largest), heap sort, counting/radix sort, stability, `sort` vs `stable_sort`, custom comparators (strict weak ordering!), sorting structs, sorting by multiple keys.
+**Know cold:** merge sort (and it powers inversion count), quick sort + partition (and Quickselect for Kth largest), heap sort, counting/radix sort, stability (`Arrays.sort` on primitives is dual-pivot quicksort and **not** stable; on objects it is TimSort and **is** stable), custom comparators, sorting objects, sorting by multiple keys with `Comparator.comparing().thenComparing()`.
 **Signature:** Merge Sort, Quickselect / Kth Largest Element, Count Inversions, Sort Colors, Largest Number, Meeting Rooms I/II, Custom Sort String, H-Index, Relative Sort Array, Wiggle Sort.
-**Mistakes:** comparator returning `true` for equal elements → UB/crash in `std::sort`; using `sort` with a lambda that captures wrongly; not knowing `sort` is introsort O(n log n) worst case; forgetting stability matters in "sort by X keeping original order of Y".
+**Mistakes:** an inconsistent comparator → `IllegalArgumentException: Comparison method violates its general contract!` thrown by TimSort; writing `(a, b) -> a - b` and overflowing on large values (use `Integer.compare(a, b)`); not knowing `Arrays.sort(int[])` is O(n²) in the worst case on an adversarial test (shuffle first, or box to `Integer[]` for guaranteed O(n log n)); forgetting stability matters in "sort by X keeping original order of Y".
 
 ### 9. Recursion & Backtracking — HIGH · 45% · 35 Q
 **Patterns:** subsets (pick/not-pick) · permutations (swap vs used-array) · combinations with/without repetition · N-Queens style constraint boards · grid path with visited · palindrome partitioning · word search · sudoku · generating parentheses · recursion-tree → memo conversion.
 **Signature:** Subsets I/II, Permutations I/II, Combination Sum I/II/III, Palindrome Partitioning, N-Queens, Sudoku Solver, Word Search, Generate Parentheses, Letter Combinations of a Phone Number, Rat in a Maze, Restore IP Addresses, Word Break II, Expression Add Operators.
-**Mistakes:** forgetting to undo state on backtrack (the single most common bug); duplicate subsets because input wasn't sorted / skip-duplicate condition missing; passing large vectors by value (copy cost); no base case or unreachable base case; not pruning (TLE).
+**Mistakes:** forgetting to undo state on backtrack (the single most common bug); duplicate subsets because input wasn't sorted / skip-duplicate condition missing; **adding `path` itself to the result instead of `new ArrayList<>(path)`** — you store a reference to a list you keep mutating, so every answer ends up identical or empty; no base case or unreachable base case; not pruning (TLE).
 
 ### 10. Linked List — HIGH · 50% · 30 Q
 **Patterns:** dummy head · fast/slow pointers · reverse (iterative + recursive) · reverse in k-groups · merge two/K sorted lists · detect + remove cycle (Floyd) · find middle · palindrome check · remove Nth from end · flatten multilevel · copy list with random pointer · LRU via list+map.
 **Signature:** Reverse Linked List I/II, Merge Two Sorted Lists, Merge K Sorted Lists, Linked List Cycle I/II, Remove Nth Node From End, Reorder List, Palindrome Linked List, Add Two Numbers, Copy List with Random Pointer, Rotate List, Odd Even Linked List, Sort List (merge sort on list), Flatten a Multilevel List, LRU Cache.
-**Mistakes:** losing the head pointer; null dereference on `fast->next->next`; not using a dummy node and then writing 15 lines of edge-case handling; memory leak in `delete` questions; drawing nothing on paper before coding (draw it — always).
+**Mistakes:** losing the head reference; `NullPointerException` on `fast.next.next` (check `fast != null && fast.next != null`); not using a dummy node and then writing 15 lines of edge-case handling; when asked about memory, forgetting that unlinking a node is enough for GC only if nothing else still references it — set the removed node's `next` to `null`; drawing nothing on paper before coding (draw it — always).
 
 ### 11. Stack & Monotonic Stack — HIGH · 45% · 30 Q
 **Patterns:** balanced parentheses · expression evaluation (infix/postfix/prefix) · min-stack (aux stack or encoded value) · stack via queues · **monotonic increasing/decreasing** for Next Greater/Smaller · histogram / max rectangle · stock span · asteroid collision · remove-k-digits (greedy + stack) · iterative tree traversals.
@@ -170,7 +170,7 @@ Format for each topic: **Patterns to master → Signature problems → Mistakes 
 ### 12. Queue / Deque / Monotonic Queue — MED · 25% · 15 Q
 **Patterns:** BFS queue · circular queue implementation · queue via stacks · **monotonic deque** for sliding-window max/min · multi-source BFS · deque for 0-1 BFS.
 **Signature:** Implement Queue using Stacks, Design Circular Queue, Sliding Window Maximum, Shortest Subarray with Sum at Least K, First Negative in Every Window, Rotting Oranges, Number of Recent Calls, Design Hit Counter.
-**Mistakes:** storing values instead of indices in the deque (then you cannot expire the window); forgetting to pop the front when it leaves the window; using `queue` when you need both ends.
+**Mistakes:** storing values instead of indices in the deque (then you cannot expire the window); forgetting to pop the front when it leaves the window; reaching for `Queue`/`LinkedList` when you need both ends — use `ArrayDeque`.
 
 ### 13. Heap / Priority Queue — HIGH · 40% · 25 Q
 **Patterns:** top-K (min-heap of size k) · K-way merge · two heaps (median) · heap + hashmap (task scheduler) · lazy deletion · custom comparator structs · heapify O(n) · Dijkstra's engine.
@@ -237,19 +237,19 @@ Format for each topic: **Patterns to master → Signature problems → Mistakes 
 **Mistakes:** jumping to tabulation without the recurrence; wrong base cases; wrong iteration order in tabulation; not identifying the *state* (the biggest failure — state = "what do I need to know to decide the rest?"); memo array not reset / wrong sentinel (`-1` fails when the answer can be −1); space-optimising before it works; overflow.
 
 ### 23. Bit Manipulation — MED · 35% · 20 Q
-**Patterns:** `x & (x-1)` clears lowest set bit · `x & -x` isolates it · XOR properties (a^a=0) · counting set bits (Brian Kernighan, `__builtin_popcount`) · subset enumeration `for (int s = m; s; s = (s-1) & m)` · bitmask as state · single number family · power-of-two check · swapping without temp · bit DP.
+**Patterns:** `x & (x-1)` clears lowest set bit · `x & -x` isolates it · XOR properties (a^a=0) · counting set bits (Brian Kernighan, or `Integer.bitCount`/`Long.bitCount`) · subset enumeration `for (int s = m; s; s = (s-1) & m)` · bitmask as state · single number family · power-of-two check · swapping without temp · bit DP.
 **Signature:** Single Number I/II/III, Number of 1 Bits, Counting Bits, Reverse Bits, Missing Number, Power of Two/Four, Sum of Two Integers without +, Subsets via bitmask, Maximum XOR of Two Numbers (Trie), Divide Two Integers, Bitwise AND of Range, Minimum Flips.
-**Mistakes:** shifting by ≥32 on `int` (UB); signed right-shift on negatives; forgetting `1LL << k` for k ≥ 31; precedence bugs (`a & 1 == 0` parses wrong — parenthesise!).
+**Mistakes:** shifting an `int` by ≥32 — Java masks the shift count mod 32, so `x << 32` gives back `x`, not 0; using `>>` where you need the unsigned `>>>` on negatives; forgetting `1L << k` for k ≥ 31; precedence bugs (`a & 1 == 0` parses wrong — parenthesise!).
 
 ### 24. Math / Number Theory — MED · 35% · 25 Q
 **Cover:** GCD/LCM (Euclid), Sieve of Eratosthenes + smallest prime factor, prime factorisation, modular arithmetic (`mod` add/mul/pow), modular inverse (Fermat), fast exponentiation, combinatorics nCr with mod, factorials, catalan (brief), base conversion, integer overflow handling, floor/ceil division tricks, random/probability basics, matrix exponentiation (only if time permits).
 **Signature:** Count Primes, Power(x,n), Sqrt(x), Happy Number, Excel Sheet Column Number/Title, Ugly Number, Factorial Trailing Zeroes, GCD of Strings, Fraction to Recurring Decimal, Permutation Sequence, Reverse Integer, Palindrome Number, Add Digits, Multiply Strings.
-**Mistakes:** `pow()` on integers (floating error — write your own fast power); negative modulo; overflow in `a*b % m` (use `__int128` or `long long` carefully); off-by-one in the sieve.
+**Mistakes:** `Math.pow` on integers (it returns a `double` — floating error; write your own fast power on `long`); negative modulo (`%` keeps the *dividend's* sign in Java, so use `((x % m) + m) % m`); overflow in `a * b % m` (cast to `long`; past that use `BigInteger` or `Math.multiplyHigh`); off-by-one in the sieve.
 
 ### 25. Trie — MED · 20% · 12 Q
 **Patterns:** insert/search/startsWith · Trie node with 26 children vs map · word dictionary with `.` wildcard (DFS in trie) · autocomplete top-K · **binary trie for max XOR** · replace words / longest word · word search II (trie + backtracking on grid) · prefix counting.
 **Signature:** Implement Trie, Design Add and Search Words, Word Search II, Maximum XOR of Two Numbers in an Array, Replace Words, Longest Word in Dictionary, Search Suggestions System, Map Sum Pairs, Count Distinct Substrings.
-**Mistakes:** memory blow-up (26 children × 10⁵ words) without discussing it; forgetting the `isEnd` flag; not deleting/using smart pointers when asked about memory; not realising Word Search II is trie + backtracking (pure backtracking TLEs).
+**Mistakes:** memory blow-up (26 children × 10⁵ words) without discussing it; forgetting the `isEnd` flag; when asked about memory, not knowing the trade-off between `TrieNode[26]` children (fast, wasteful) and a `HashMap<Character, TrieNode>` (compact, slower) — and that dropping the root reference is all it takes for GC to reclaim the whole tree; not realising Word Search II is trie + backtracking (pure backtracking TLEs).
 
 ### 26. Intervals / Sweep Line — MED · 25% · 15 Q
 **Patterns:** sort by start (merge) · sort by end (max non-overlapping) · min-heap of end times (rooms) · event points +1/−1 sorted sweep · difference array on time · interval insertion.
@@ -764,7 +764,7 @@ Present (who you are, year, branch, focus) → Journey (what got you into softwa
 2. Solve the easiest with certainty first. A fully-passing easy > a half-passing hard.
 3. **Write brute force first if you're stuck** — partial test cases often give partial credit, and a brute force sometimes reveals the pattern.
 4. **Read constraints before designing.** n ≤ 10³ → O(n²) is fine. n ≤ 10⁵ → you need O(n log n). n ≤ 20 → bitmask/exponential is intended. n ≤ 10¹⁸ → maths/binary search/log. This single habit prevents most wrong-approach disasters.
-5. Test with: the given samples, empty/single element, all-same, max size, negatives, overflow (`long long`!).
+5. Test with: the given samples, empty/single element, all-same, max size, negatives, overflow (reach for `long`!).
 6. **Time-box.** If a problem is eating >35% of total time with no working solution, submit what you have and move on. Come back only with spare time.
 7. Handle I/O exactly as specified; a wrong output format scores zero on a correct algorithm.
 8. Keep 5 minutes at the end to re-submit and confirm everything saved.
@@ -903,13 +903,13 @@ Present (who you are, year, branch, focus) → Journey (what got you into softwa
 ### Day 3 — Strings · 10h
 - **Morning (4h):** String handling in Java: immutability and why `+=` in a loop is O(n²), `StringBuilder`, `substring`, `toCharArray`, `split`, `String.join`, `char` arithmetic (`s.charAt(i) - 'a'`), `int[26]` frequency arrays, `equals` vs `==`. Solve **4E + 3M**: Valid Anagram, Valid Palindrome, Longest Common Prefix, Reverse Words in a String, Longest Palindromic Substring (M), String to Integer/atoi (M), Isomorphic Strings.
 - **Afternoon (3h):** Solve **4M**: Group Anagrams (redo unaided), Palindromic Substrings, Multiply Strings, Compare Version Numbers. Pattern: *expand-around-centre, frequency-key grouping, parsing*.
-- **Evening (2h):** OOP: constructors, destructors, copy vs deep copy, Rule of 0/3/5, `static`/`const`/`friend`. Code a `class Matrix` with a copy constructor and assignment operator.
+- **Evening (2h):** OOP in Java: constructors & constructor overloading, `this()`/`super()` chaining, initialisation order (static block → instance block → constructor), `static` vs instance members, `final` on a variable/method/class, and shallow vs deep copy. Code a `Matrix` class with a copy constructor, a real deep copy, and `equals()`/`hashCode()`/`toString()` overridden together. Then write an **immutable** version of it: final class, private final fields, no setters, defensive copies in both the constructor and the getters.
 - **Night (1h):** Update tracker. Rewrite yesterday's failures. Aptitude: 10 Q Time-Speed-Distance.
 
 ### Day 4 — Two Pointers · 10h
 - **Morning (4h):** Two-pointer taxonomy: opposite ends, fast/slow, same-direction read/write, k-sum reduction. Solve **1E + 4M**: Two Sum II, 3Sum, 3Sum Closest, Container With Most Water, Sort Colors (unaided redo).
 - **Afternoon (3h):** Solve **2E + 3M**: Squares of a Sorted Array, Valid Palindrome II, 4Sum (M), Remove Duplicates from Sorted Array II (M), Boats to Save People (M). **Focus: duplicate-skipping logic in 3Sum/4Sum — write it 3 times until automatic.**
-- **Evening (2h):** OOP: inheritance types, polymorphism, vtable/vptr, virtual destructor, diamond problem. Code a Shape→Circle/Rect hierarchy with a virtual `area()` and virtual destructor.
+- **Evening (2h):** OOP in Java: `extends` and single class inheritance, overriding rules (covariant return types, access cannot be reduced, no broader *checked* exceptions, `@Override`), overloading vs overriding vs **static method hiding**, dynamic method dispatch — in Java every non-static, non-final, non-private method is virtual by default — abstract class vs interface *after* Java 8 `default` methods, and the diamond problem resolved with `Interface.super.method()`. Code an `abstract class Shape` → `Circle`/`Rectangle` with `area()`, an `@Override toString()`, and a `Comparable<Shape>` ordering by area.
 - **Night (1h):** Notes: "Two Pointer decision tree — when is it valid?" Aptitude: 10 Q Profit & Loss.
 
 ### Day 5 — Sliding Window · 10h
@@ -1663,7 +1663,7 @@ Score below 3 on any dimension twice in a row → that becomes the focus of the 
 36. **Spending 70% of the OA on one hard problem.** → Time-box at 35% of total time, then move on.
 37. **No brute force when stuck.** → A brute force earns partial credit and often reveals the pattern.
 38. **Not testing edge cases before submitting.** → Empty, single element, all-same, max size, negatives, overflow.
-39. **Integer overflow.** → `long long` by default when values or sums can exceed ~2×10⁹.
+39. **Integer overflow.** → `long` by default when values or sums can exceed ~2×10⁹ — and write `(long) a * b`, because `a * b` is computed in `int` and wraps *before* the cast.
 40. **`mid = (l+r)/2` overflow.** → `l + (r-l)/2`, always.
 41. **Off-by-one in loops and binary search.** → State the invariant in a comment before writing the loop.
 42. **Forgetting to reset globals between test cases.** → Reset inside `solve()`, not at declaration.

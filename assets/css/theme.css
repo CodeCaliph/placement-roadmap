@@ -1,102 +1,164 @@
 /* ==========================================================================
    theme.css — design tokens only. No layout, no components.
-   Palette values are the validated data-viz reference instance.
+
+   How theming works
+   -----------------
+   "System" removes [data-theme] entirely, so the media query below decides
+   between light and dark. Every *named* theme sets [data-theme] and defines
+   the full token set, so it wins in both directions with no fighting.
+
+   Categorical series colours (--s1…--s8) are the validated data-viz palette
+   and stay fixed per light/dark family — the accent may change per theme, the
+   chart series may not. Status colours are never themed.
    ========================================================================== */
 
 :root {
-  color-scheme: light;
+  /* ---- fixed across every theme ---- */
+  --good:      #0ca30c;
+  --warning:   #fab219;
+  --serious:   #ec835a;
+  --critical:  #d03b3b;
 
-  /* surfaces */
-  --plane:        #f9f9f7;
-  --surface-1:    #fcfcfb;
-  --surface-2:    #f2f1ed;
-  --surface-3:    #e9e8e2;
-  --overlay:      rgba(11, 11, 11, .38);
-
-  /* ink */
-  --ink:          #0b0b0b;
-  --ink-2:        #52514e;
-  --ink-3:        #898781;
-
-  /* lines */
-  --line:         #e1e0d9;
-  --line-2:       #c3c2b7;
-  --ring:         rgba(11, 11, 11, .10);
-
-  /* categorical slots (validated order) */
-  --s1: #2a78d6;  --s2: #eb6834;  --s3: #1baf7a;  --s4: #eda100;
-  --s5: #e87ba4;  --s6: #008300;  --s7: #4a3aa7;  --s8: #e34948;
-
-  /* sequential blue ramp */
-  --b100: #cde2fb; --b150: #b7d3f6; --b200: #9ec5f4; --b250: #86b6ef;
-  --b300: #6da7ec; --b400: #3987e5; --b450: #2a78d6; --b550: #1c5cab;
-  --b650: #104281;
-
-  /* status — fixed, never themed */
-  --good:     #0ca30c;
-  --warning:  #fab219;
-  --serious:  #ec835a;
-  --critical: #d03b3b;
-  --good-text: #006300;
-
-  /* accents */
-  --accent:      var(--b450);
-  --accent-soft: rgba(42, 120, 214, .10);
-  --accent-line: rgba(42, 120, 214, .28);
-
-  /* slot hues for the four daily blocks */
-  --morning:   #eda100;
-  --afternoon: #2a78d6;
-  --evening:   #4a3aa7;
-  --night:     #52514e;
-
-  /* geometry */
   --r-sm: 6px;  --r-md: 10px;  --r-lg: 14px;  --r-xl: 20px;
   --sp-1: 4px;  --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
   --sp-5: 24px; --sp-6: 32px;  --sp-7: 48px;
 
-  --shadow-1: 0 1px 2px rgba(11, 11, 11, .05);
-  --shadow-2: 0 4px 16px rgba(11, 11, 11, .08);
-  --shadow-3: 0 16px 48px rgba(11, 11, 11, .16);
-
   --font: system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: ui-monospace, "Cascadia Mono", "Consolas", monospace;
 
-  --sidebar-w: 250px;
+  --sidebar-w: 252px;
   --topbar-h: 56px;
+  --read: 92ch;          /* comfortable measure for body copy */
 }
 
-/* ---- dark: selected steps, not an inversion ---------------------------- */
+/* ==========================================================================
+   LIGHT — the default
+   ========================================================================== */
+:root, :root[data-theme="light"] {
+  color-scheme: light;
+
+  --plane:     #f9f9f7;
+  --surface-1: #fcfcfb;
+  --surface-2: #f2f1ed;
+  --surface-3: #e9e8e2;
+  --overlay:   rgba(11, 11, 11, .38);
+
+  --ink:   #0b0b0b;
+  --ink-2: #52514e;
+  --ink-3: #898781;
+
+  --line:   #e1e0d9;
+  --line-2: #c3c2b7;
+  --ring:   rgba(11, 11, 11, .10);
+
+  /* validated categorical set — light steps */
+  --s1: #2a78d6;  --s2: #eb6834;  --s3: #1baf7a;  --s4: #eda100;
+  --s5: #e87ba4;  --s6: #008300;  --s7: #4a3aa7;  --s8: #e34948;
+
+  --accent:      #2a78d6;
+  --accent-2:    #1c5cab;
+  --accent-soft: rgba(42, 120, 214, .10);
+  --accent-line: rgba(42, 120, 214, .28);
+  --on-accent:   #ffffff;
+
+  --track:  #cde2fb;                       /* meter track: light step of the accent ramp */
+  --heat-1: #86b6ef; --heat-2: #3987e5; --heat-3: #1c5cab; --heat-4: #104281;
+
+  --good-text: #006300;
+
+  --morning:   #b57400;
+  --afternoon: #2a78d6;
+  --evening:   #4a3aa7;
+  --night:     #52514e;
+
+  --shadow-1: 0 1px 2px rgba(11, 11, 11, .05);
+  --shadow-2: 0 4px 16px rgba(11, 11, 11, .08);
+  --shadow-3: 0 16px 48px rgba(11, 11, 11, .16);
+}
+
+/* ==========================================================================
+   PAPER — warm light, for long reading sessions
+   ========================================================================== */
+:root[data-theme="paper"] {
+  color-scheme: light;
+
+  --plane:     #f2ebdd;
+  --surface-1: #fffdf7;
+  --surface-2: #f6efe1;
+  --surface-3: #ece2cf;
+  --overlay:   rgba(40, 30, 15, .38);
+
+  --ink:   #241f18;
+  --ink-2: #574e40;
+  --ink-3: #8a7f6c;
+
+  --line:   #e3d9c4;
+  --line-2: #cdc0a5;
+  --ring:   rgba(36, 31, 24, .10);
+
+  --s1: #2a78d6;  --s2: #eb6834;  --s3: #1baf7a;  --s4: #eda100;
+  --s5: #e87ba4;  --s6: #008300;  --s7: #4a3aa7;  --s8: #e34948;
+
+  --accent:      #a1560f;
+  --accent-2:    #7d410a;
+  --accent-soft: rgba(161, 86, 15, .10);
+  --accent-line: rgba(161, 86, 15, .30);
+  --on-accent:   #fffdf7;
+
+  --track:  #ecd9bd;
+  --heat-1: #e0b579; --heat-2: #c98b3c; --heat-3: #a1560f; --heat-4: #6f3a08;
+
+  --good-text: #33660c;
+
+  --morning:   #a1560f;
+  --afternoon: #1e6ea8;
+  --evening:   #6b4a9e;
+  --night:     #574e40;
+
+  --shadow-1: 0 1px 2px rgba(70, 55, 25, .06);
+  --shadow-2: 0 4px 16px rgba(70, 55, 25, .10);
+  --shadow-3: 0 16px 48px rgba(70, 55, 25, .20);
+}
+
+/* ==========================================================================
+   DARK — neutral near-black
+   ========================================================================== */
 @media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) {
+  :root:where(:not([data-theme])) {
     color-scheme: dark;
+
     --plane:     #0d0d0d;
     --surface-1: #1a1a19;
     --surface-2: #222221;
     --surface-3: #2c2c2a;
-    --overlay:   rgba(0, 0, 0, .60);
+    --overlay:   rgba(0, 0, 0, .62);
 
     --ink:   #ffffff;
     --ink-2: #c3c2b7;
-    --ink-3: #898781;
+    --ink-3: #918f88;
 
     --line:   #2c2c2a;
-    --line-2: #383835;
+    --line-2: #3d3d3a;
     --ring:   rgba(255, 255, 255, .10);
 
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
     --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
 
     --accent:      #3987e5;
+    --accent-2:    #5598e7;
     --accent-soft: rgba(57, 135, 229, .14);
-    --accent-line: rgba(57, 135, 229, .34);
+    --accent-line: rgba(57, 135, 229, .36);
+    --on-accent:   #ffffff;
 
-    --good-text: #0ca30c;
+    --track:  #16304d;
+    --heat-1: #1c5cab; --heat-2: #2a78d6; --heat-3: #6da7ec; --heat-4: #b7d3f6;
 
-    --morning:   #c98500;
-    --afternoon: #3987e5;
+    --good-text: #2fbf2f;
+
+    --morning:   #d19a1f;
+    --afternoon: #5598e7;
     --evening:   #9085e9;
-    --night:     #898781;
+    --night:     #918f88;
 
     --shadow-1: 0 1px 2px rgba(0, 0, 0, .40);
     --shadow-2: 0 4px 16px rgba(0, 0, 0, .50);
@@ -106,35 +168,187 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
+
   --plane:     #0d0d0d;
   --surface-1: #1a1a19;
   --surface-2: #222221;
   --surface-3: #2c2c2a;
-  --overlay:   rgba(0, 0, 0, .60);
+  --overlay:   rgba(0, 0, 0, .62);
 
   --ink:   #ffffff;
   --ink-2: #c3c2b7;
-  --ink-3: #898781;
+  --ink-3: #918f88;
 
   --line:   #2c2c2a;
-  --line-2: #383835;
+  --line-2: #3d3d3a;
   --ring:   rgba(255, 255, 255, .10);
 
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
   --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
 
   --accent:      #3987e5;
+  --accent-2:    #5598e7;
   --accent-soft: rgba(57, 135, 229, .14);
-  --accent-line: rgba(57, 135, 229, .34);
+  --accent-line: rgba(57, 135, 229, .36);
+  --on-accent:   #ffffff;
 
-  --good-text: #0ca30c;
+  --track:  #16304d;
+  --heat-1: #1c5cab; --heat-2: #2a78d6; --heat-3: #6da7ec; --heat-4: #b7d3f6;
 
-  --morning:   #c98500;
-  --afternoon: #3987e5;
+  --good-text: #2fbf2f;
+
+  --morning:   #d19a1f;
+  --afternoon: #5598e7;
   --evening:   #9085e9;
-  --night:     #898781;
+  --night:     #918f88;
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, .40);
   --shadow-2: 0 4px 16px rgba(0, 0, 0, .50);
   --shadow-3: 0 16px 48px rgba(0, 0, 0, .64);
+}
+
+/* ==========================================================================
+   MIDNIGHT — deep navy dark
+   ========================================================================== */
+:root[data-theme="midnight"] {
+  color-scheme: dark;
+
+  --plane:     #080d19;
+  --surface-1: #101828;
+  --surface-2: #162034;
+  --surface-3: #1e2a44;
+  --overlay:   rgba(2, 6, 16, .66);
+
+  --ink:   #eaf0fb;
+  --ink-2: #a8b6d1;
+  --ink-3: #7c8aa6;
+
+  --line:   #1e2a44;
+  --line-2: #2c3b5c;
+  --ring:   rgba(234, 240, 251, .10);
+
+  --s1: #5b9dff; --s2: #ff7a45; --s3: #26c08a; --s4: #e0a72e;
+  --s5: #f07aa8; --s6: #2fa84f; --s7: #a99bff; --s8: #ff6b6b;
+
+  --accent:      #5b9dff;
+  --accent-2:    #7db2ff;
+  --accent-soft: rgba(91, 157, 255, .14);
+  --accent-line: rgba(91, 157, 255, .38);
+  --on-accent:   #06122a;
+
+  --track:  #1b2c4d;
+  --heat-1: #24457a; --heat-2: #35659f; --heat-3: #5b9dff; --heat-4: #a8ccff;
+
+  --good-text: #35d17a;
+
+  --morning:   #e0a72e;
+  --afternoon: #5b9dff;
+  --evening:   #a99bff;
+  --night:     #7c8aa6;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .44);
+  --shadow-2: 0 4px 18px rgba(0, 0, 0, .54);
+  --shadow-3: 0 18px 52px rgba(0, 0, 0, .70);
+}
+
+/* ==========================================================================
+   FOREST — muted green dark
+   ========================================================================== */
+:root[data-theme="forest"] {
+  color-scheme: dark;
+
+  --plane:     #08120e;
+  --surface-1: #101b16;
+  --surface-2: #16241d;
+  --surface-3: #1e3128;
+  --overlay:   rgba(2, 10, 6, .66);
+
+  --ink:   #e6f0e9;
+  --ink-2: #a9c0b3;
+  --ink-3: #7d9689;
+
+  --line:   #1e3128;
+  --line-2: #2b4438;
+  --ring:   rgba(230, 240, 233, .10);
+
+  --s1: #4aa3e8; --s2: #e8763c; --s3: #34c08a; --s4: #d9a52c;
+  --s5: #e07fa6; --s6: #43b35c; --s7: #9d92e8; --s8: #e46a6a;
+
+  --accent:      #34c08a;
+  --accent-2:    #58d3a3;
+  --accent-soft: rgba(52, 192, 138, .13);
+  --accent-line: rgba(52, 192, 138, .36);
+  --on-accent:   #05170f;
+
+  --track:  #1a3a2c;
+  --heat-1: #1f5540; --heat-2: #2b7d5c; --heat-3: #34c08a; --heat-4: #9fe8c9;
+
+  --good-text: #4bd694;
+
+  --morning:   #d9a52c;
+  --afternoon: #4aa3e8;
+  --evening:   #9d92e8;
+  --night:     #7d9689;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .44);
+  --shadow-2: 0 4px 18px rgba(0, 0, 0, .54);
+  --shadow-3: 0 18px 52px rgba(0, 0, 0, .70);
+}
+
+/* ==========================================================================
+   CONTRAST — maximum legibility (tired eyes, bright rooms, low-vision)
+   ========================================================================== */
+:root[data-theme="contrast"] {
+  color-scheme: dark;
+
+  --plane:     #000000;
+  --surface-1: #0b0b0b;
+  --surface-2: #161616;
+  --surface-3: #242424;
+  --overlay:   rgba(0, 0, 0, .78);
+
+  --ink:   #ffffff;
+  --ink-2: #e6e6e6;
+  --ink-3: #b8b8b8;
+
+  --line:   #4a4a4a;
+  --line-2: #6e6e6e;
+  --ring:   rgba(255, 255, 255, .22);
+
+  --s1: #63b3ff; --s2: #ff9147; --s3: #3ddc97; --s4: #ffd23f;
+  --s5: #ff8fbe; --s6: #4ade4a; --s7: #b8a9ff; --s8: #ff7b7b;
+
+  --accent:      #63b3ff;
+  --accent-2:    #8ac8ff;
+  --accent-soft: rgba(99, 179, 255, .18);
+  --accent-line: rgba(99, 179, 255, .55);
+  --on-accent:   #001427;
+
+  --track:  #14304f;
+  --heat-1: #24557f; --heat-2: #3d81bf; --heat-3: #63b3ff; --heat-4: #c4e2ff;
+
+  --good-text: #4ade4a;
+
+  --morning:   #ffd23f;
+  --afternoon: #63b3ff;
+  --evening:   #b8a9ff;
+  --night:     #b8b8b8;
+
+  --shadow-1: 0 0 0 1px rgba(255, 255, 255, .10);
+  --shadow-2: 0 4px 18px rgba(0, 0, 0, .70);
+  --shadow-3: 0 18px 52px rgba(0, 0, 0, .85);
+}
+
+/* ---- text-size preference (set on <body>) ------------------------------ */
+body { font-size: 15px; }
+body.txt-compact { font-size: 13.8px; }
+body.txt-large   { font-size: 16.4px; --read: 84ch; }
+
+/* ---- respect reduced motion ------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }

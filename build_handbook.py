@@ -53,12 +53,25 @@ def inline(text: str) -> str:
 
 
 def plain(text: str) -> str:
-    """Strip markdown markers, leaving readable plain text."""
-    s = re.sub(r"`([^`]+)`", r"\1", text)
+    """Strip markdown markers, leaving readable plain text.
+
+    Code spans are held aside first — otherwise a literal asterisk inside one
+    (`(long) a * b`) pairs with another later in the sentence and the emphasis
+    rule eats both.
+    """
+    holds: list[str] = []
+
+    def hold(m: re.Match) -> str:
+        holds.append(m.group(1))
+        return f"\x00{len(holds) - 1}\x00"
+
+    s = re.sub(r"`([^`]+)`", hold, text)
     s = re.sub(r"\*\*\*(.+?)\*\*\*", r"\1", s)
     s = re.sub(r"\*\*(.+?)\*\*", r"\1", s)
     s = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", r"\1", s)
     s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", s)
+    for i, code in enumerate(holds):
+        s = s.replace(f"\x00{i}\x00", code)
     return s.strip()
 
 

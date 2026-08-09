@@ -22,25 +22,117 @@
     { id: "settings", label: "Settings", icon: "⚙", group: "Reference" }
   ];
 
-  /* ---- theme ----------------------------------------------------------- */
+  /* ---- themes ---------------------------------------------------------- */
+  App.THEMES = [
+    { id: "auto",     label: "System",   icon: "◐", swatch: ["#fcfcfb", "#1a1a19", "#2a78d6"], note: "Follows your OS" },
+    { id: "light",    label: "Light",    icon: "☀", swatch: ["#fcfcfb", "#f2f1ed", "#2a78d6"], note: "Clean and bright" },
+    { id: "paper",    label: "Paper",    icon: "◍", swatch: ["#fffdf7", "#f2ebdd", "#a1560f"], note: "Warm, easy for long reading" },
+    { id: "dark",     label: "Dark",     icon: "☾", swatch: ["#1a1a19", "#0d0d0d", "#3987e5"], note: "Neutral near-black" },
+    { id: "midnight", label: "Midnight", icon: "✵", swatch: ["#101828", "#080d19", "#5b9dff"], note: "Deep navy" },
+    { id: "forest",   label: "Forest",   icon: "❧", swatch: ["#101b16", "#08120e", "#34c08a"], note: "Muted green" },
+    { id: "contrast", label: "Contrast", icon: "◑", swatch: ["#0b0b0b", "#000000", "#63b3ff"], note: "Maximum legibility" }
+  ];
+
+  App.SIZES = [
+    { id: "compact", label: "Compact" },
+    { id: "normal", label: "Normal" },
+    { id: "large", label: "Large" }
+  ];
+
   App.setTheme = function (mode) {
     S.state().theme = mode;
     S.save();
     App.applyTheme();
+    App.paintThemePicker();
   };
 
   App.applyTheme = function () {
     var mode = S.state().theme || "auto";
     if (mode === "auto") document.documentElement.removeAttribute("data-theme");
     else document.documentElement.setAttribute("data-theme", mode);
+
+    var t = App.THEMES.filter(function (x) { return x.id === mode; })[0] || App.THEMES[0];
     var btn = U.$("#themebtn");
-    if (btn) btn.textContent = mode === "dark" ? "☾" : mode === "light" ? "☀" : "◐";
+    if (btn) { btn.textContent = t.icon; btn.title = "Theme: " + t.label + " (T)"; }
   };
 
-  App.cycleTheme = function () {
-    var order = ["auto", "light", "dark"];
+  App.setTextSize = function (size) {
+    S.state().textSize = size;
+    S.save();
+    App.applyTextSize();
+    App.paintThemePicker();
+  };
+
+  App.applyTextSize = function () {
+    var size = S.state().textSize || "normal";
+    document.body.classList.remove("txt-compact", "txt-large");
+    if (size === "compact") document.body.classList.add("txt-compact");
+    if (size === "large") document.body.classList.add("txt-large");
+  };
+
+  /* ---- theme popover --------------------------------------------------- */
+  App.themeSwatch = function (t) {
+    return el("span", { class: "swatch" }, [
+      el("i", { style: "background:" + t.swatch[0] }),
+      el("i", { style: "background:" + t.swatch[1] }),
+      el("i", { style: "background:" + t.swatch[2] })
+    ]);
+  };
+
+  App.themeButtons = function () {
     var cur = S.state().theme || "auto";
-    App.setTheme(order[(order.indexOf(cur) + 1) % 3]);
+    return App.THEMES.map(function (t) {
+      return el("button", {
+        class: "themebtn", "aria-pressed": cur === t.id ? "true" : "false",
+        title: t.note, dataset: { theme: t.id },
+        onclick: function () { App.setTheme(t.id); }
+      }, [App.themeSwatch(t), t.label]);
+    });
+  };
+
+  App.paintThemePicker = function () {
+    var grid = U.$("#theme-grid");
+    if (grid) U.clear(grid).appendChild(U.frag(App.themeButtons()));
+    var sizes = U.$("#size-seg");
+    if (sizes) {
+      var cur = S.state().textSize || "normal";
+      U.$$("button", sizes).forEach(function (b) {
+        b.setAttribute("aria-pressed", b.dataset.size === cur ? "true" : "false");
+      });
+    }
+    // Settings view mirrors these controls
+    if ((location.hash || "").indexOf("settings") >= 0 && Views.settings) Views.settings.rerender();
+  };
+
+  function themePopover() {
+    var grid = el("div", { class: "themegrid", id: "theme-grid" }, App.themeButtons());
+    var seg = el("div", { class: "seg", id: "size-seg" }, App.SIZES.map(function (s) {
+      return el("button", {
+        text: s.label, dataset: { size: s.id },
+        "aria-pressed": (S.state().textSize || "normal") === s.id ? "true" : "false",
+        onclick: function () { App.setTextSize(s.id); }
+      });
+    }));
+    return el("div", { class: "pop", id: "theme-pop", hidden: true, role: "dialog", "aria-label": "Appearance" }, [
+      el("div", { class: "pop-title", text: "Theme" }),
+      grid,
+      el("div", { class: "pop-title", style: "padding-top:12px", text: "Text size" }),
+      el("div", { class: "sizerow" }, [seg])
+    ]);
+  }
+
+  App.toggleThemePop = function () {
+    var pop = U.$("#theme-pop"), btn = U.$("#themebtn");
+    if (!pop || !btn) return;
+    if (!pop.hidden) { pop.hidden = true; return; }
+    if (window.M) M.close();
+    pop.hidden = false;
+    var r = btn.getBoundingClientRect();
+    var h = pop.offsetHeight, w = pop.offsetWidth;
+    var top = r.top - h - 10;
+    if (top < 8) top = Math.min(r.bottom + 10, window.innerHeight - h - 8);
+    pop.style.left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8) + "px";
+    pop.style.top = top + "px";
   };
 
   /* ---- routing --------------------------------------------------------- */
@@ -162,15 +254,20 @@
       ]),
       nav,
       el("div", { class: "sidebar-foot" }, [
-        el("div", { class: "small muted", style: "margin-bottom:8px" }, [
+        el("div", { class: "small muted", style: "margin-bottom:10px" }, [
           "Three things decide this: ", el("b", { text: "unaided solving" }), ", ",
           el("b", { text: "revision" }), ", and ", el("b", { text: "talking while you think" }), "."
         ]),
-        el("div", { class: "row", style: "gap:6px" }, [
-          el("button", { class: "iconbtn", id: "themebtn", title: "Theme (T)", onclick: App.cycleTheme, text: "◐" }),
-          el("button", { class: "iconbtn", title: "Print", onclick: function () { window.print(); }, text: "⎙" }),
+        el("div", { class: "row", style: "gap:6px;flex-wrap:nowrap" }, [
+          window.M ? M.button() : null,
+          el("span", { style: "flex:1" }),
           el("button", {
-            class: "iconbtn", title: "Export backup",
+            class: "iconbtn", id: "themebtn", title: "Theme (T)", text: "◐",
+            onclick: function (e) { e.stopPropagation(); App.toggleThemePop(); }
+          }),
+          el("button", { class: "iconbtn", title: "Print this view", onclick: function () { window.print(); }, text: "⎙" }),
+          el("button", {
+            class: "iconbtn", title: "Export a backup",
             onclick: function () { U.download("handbook60-progress-" + U.todayKey() + ".json", S.exportJSON()); U.toast("Backup downloaded", "good"); },
             text: "⭳"
           })
@@ -361,9 +458,31 @@
 
     document.body.appendChild(shell);
     document.body.appendChild(palette());
+    document.body.appendChild(themePopover());
     document.body.appendChild(el("div", { class: "toasts", id: "toasts" }));
 
+    /* back to top — the plan and handbook views get long */
+    var toTop = el("button", {
+      class: "totop", title: "Back to top", "aria-label": "Back to top", text: "↑",
+      onclick: function () { window.scrollTo({ top: 0, behavior: "smooth" }); }
+    });
+    document.body.appendChild(toTop);
+    window.addEventListener("scroll", function () {
+      toTop.classList.toggle("on", window.scrollY > 520);
+    }, { passive: true });
+
+    /* close the theme popover on an outside click */
+    document.addEventListener("click", function (e) {
+      var pop = U.$("#theme-pop");
+      if (!pop || pop.hidden) return;
+      if (pop.contains(e.target) || (e.target.closest && e.target.closest("#themebtn"))) return;
+      pop.hidden = true;
+    });
+
+    if (window.M) M.mount();
+
     App.applyTheme();
+    App.applyTextSize();
 
     /* keyboard */
     document.addEventListener("keydown", function (e) {
@@ -372,7 +491,12 @@
       if (e.key === "Escape") { closePalette(); return; }
       if (typing) return;
       if (e.key === "/") { e.preventDefault(); openPalette(); return; }
-      if (e.key.toLowerCase() === "t") { App.cycleTheme(); return; }
+      if (e.key.toLowerCase() === "t") { App.toggleThemePop(); return; }
+      if (e.key.toLowerCase() === "m") {
+        var mb = U.$("#momentum-btn");
+        if (mb && window.M) M.toggle(mb);
+        return;
+      }
       if (e.key.toLowerCase() === "g") { location.hash = "#/plan/" + S.currentDay(); return; }
       if (e.key >= "1" && e.key <= "9") {
         var r = ROUTES[Number(e.key) - 1];
@@ -384,6 +508,7 @@
     S.onChange(function () { App.refreshChrome(); });
 
     window.addEventListener("hashchange", App.render);
+    if (window.M) setTimeout(M.nudge, 600);
     if (!location.hash) {
       // resume where they left off, but a first run always starts at the Dashboard
       var resume = Object.keys(S.state().done).length ? (S.state().lastView || "dashboard") : "dashboard";

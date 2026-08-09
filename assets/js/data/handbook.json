@@ -276,8 +276,8 @@
      "id": "d3-ev",
      "slot": "Evening",
      "hours": 2.0,
-     "html": "OOP: constructors, destructors, copy vs deep copy, Rule of 0/3/5, <code>static</code>/<code>const</code>/<code>friend</code>. Code a <code>class Matrix</code> with a copy constructor and assignment operator.",
-     "text": "OOP: constructors, destructors, copy vs deep copy, Rule of 0/3/5, static/const/friend. Code a class Matrix with a copy constructor and assignment operator.",
+     "html": "OOP in Java: constructors &amp; constructor overloading, <code>this()</code>/<code>super()</code> chaining, initialisation order (static block → instance block → constructor), <code>static</code> vs instance members, <code>final</code> on a variable/method/class, and shallow vs deep copy. Code a <code>Matrix</code> class with a copy constructor, a real deep copy, and <code>equals()</code>/<code>hashCode()</code>/<code>toString()</code> overridden together. Then write an <strong>immutable</strong> version of it: final class, private final fields, no setters, defensive copies in both the constructor and the getters.",
+     "text": "OOP in Java: constructors & constructor overloading, this()/super() chaining, initialisation order (static block → instance block → constructor), static vs instance members, final on a variable/method/class, and shallow vs deep copy. Code a Matrix class with a copy constructor, a real deep copy, and equals()/hashCode()/toString() overridden together. Then write an immutable version of it: final class, private final fields, no setters, defensive copies in both the constructor and the getters.",
      "problems": [],
      "mocks": []
     },
@@ -336,8 +336,8 @@
      "id": "d4-ev",
      "slot": "Evening",
      "hours": 2.0,
-     "html": "OOP: inheritance types, polymorphism, vtable/vptr, virtual destructor, diamond problem. Code a Shape→Circle/Rect hierarchy with a virtual <code>area()</code> and virtual destructor.",
-     "text": "OOP: inheritance types, polymorphism, vtable/vptr, virtual destructor, diamond problem. Code a Shape→Circle/Rect hierarchy with a virtual area() and virtual destructor.",
+     "html": "OOP in Java: <code>extends</code> and single class inheritance, overriding rules (covariant return types, access cannot be reduced, no broader <em>checked</em> exceptions, <code>@Override</code>), overloading vs overriding vs <strong>static method hiding</strong>, dynamic method dispatch — in Java every non-static, non-final, non-private method is virtual by default — abstract class vs interface <em>after</em> Java 8 <code>default</code> methods, and the diamond problem resolved with <code>Interface.super.method()</code>. Code an <code>abstract class Shape</code> → <code>Circle</code>/<code>Rectangle</code> with <code>area()</code>, an <code>@Override toString()</code>, and a <code>Comparable&lt;Shape&gt;</code> ordering by area.",
+     "text": "OOP in Java: extends and single class inheritance, overriding rules (covariant return types, access cannot be reduced, no broader checked exceptions, @Override), overloading vs overriding vs static method hiding, dynamic method dispatch — in Java every non-static, non-final, non-private method is virtual by default — abstract class vs interface after Java 8 default methods, and the diamond problem resolved with Interface.super.method(). Code an abstract class Shape → Circle/Rectangle with area(), an @Override toString(), and a Comparable<Shape> ordering by area.",
      "problems": [],
      "mocks": []
     },
@@ -5542,8 +5542,8 @@
    "group": "C. Coding & OA execution (35–50)",
    "mistake": "<strong>Integer overflow.</strong>",
    "mistakeText": "Integer overflow.",
-   "fix": "<code>long long</code> by default when values or sums can exceed ~2×10⁹.",
-   "fixText": "long long by default when values or sums can exceed ~2×10⁹."
+   "fix": "<code>long</code> by default when values or sums can exceed ~2×10⁹ — and write <code>(long) a * b</code>, because <code>a * b</code> is computed in <code>int</code> and wraps <em>before</em> the cast.",
+   "fixText": "long by default when values or sums can exceed ~2×10⁹ — and write (long) a * b, because a * b is computed in int and wraps before the cast."
   },
   {
    "n": 40,
@@ -6551,8 +6551,8 @@
     },
     {
      "label": "Mistakes",
-     "html": "integer overflow (<code>int</code> × <code>int</code> — use <code>long long</code>); off-by-one in <code>l/r</code> bounds; modifying while iterating; not asking \"is the array sorted? can it have duplicates? negatives? empty?\"; forgetting O(1)-space constraint means index-as-hash or sign-marking.",
-     "text": "integer overflow (int × int — use long long); off-by-one in l/r bounds; modifying while iterating; not asking \"is the array sorted? can it have duplicates? negatives? empty?\"; forgetting O(1)-space constraint means index-as-hash or sign-marking."
+     "html": "integer overflow (<code>int</code> × <code>int</code> silently wraps in Java — write <code>(long) a * b</code>, because <code>a * b</code> is computed in <code>int</code> <em>before</em> any cast); off-by-one in <code>l/r</code> bounds; modifying while iterating; not asking \"is the array sorted? can it have duplicates? negatives? empty?\"; forgetting O(1)-space constraint means index-as-hash or sign-marking.",
+     "text": "integer overflow (int × int silently wraps in Java — write (long) a * b, because a * b is computed in int before any cast); off-by-one in l/r bounds; modifying while iterating; not asking \"is the array sorted? can it have duplicates? negatives? empty?\"; forgetting O(1)-space constraint means index-as-hash or sign-marking."
     }
    ]
   },
@@ -6575,8 +6575,8 @@
     },
     {
      "label": "Mistakes",
-     "html": "using <code>string + char</code> in a loop (O(n²)) instead of <code>push_back</code>/<code>reserve</code>; forgetting Unicode/case assumptions unasked; <code>s.substr()</code> inside a loop creating hidden O(n²); assuming only lowercase letters without confirming.",
-     "text": "using string + char in a loop (O(n²)) instead of push_back/reserve; forgetting Unicode/case assumptions unasked; s.substr() inside a loop creating hidden O(n²); assuming only lowercase letters without confirming."
+     "html": "building a string with <code>+=</code> inside a loop (<code>String</code> is immutable, so this is O(n²) — use <code>StringBuilder.append</code>); comparing strings with <code>==</code> instead of <code>.equals()</code>; forgetting Unicode/case assumptions unasked; <code>s.substring()</code> inside a loop creating hidden O(n²); assuming only lowercase letters without confirming.",
+     "text": "building a string with += inside a loop (String is immutable, so this is O(n²) — use StringBuilder.append); comparing strings with == instead of .equals(); forgetting Unicode/case assumptions unasked; s.substring() inside a loop creating hidden O(n²); assuming only lowercase letters without confirming."
     }
    ]
   },
@@ -6709,8 +6709,8 @@
    "fields": [
     {
      "label": "Know cold",
-     "html": "merge sort (and it powers inversion count), quick sort + partition (and Quickselect for Kth largest), heap sort, counting/radix sort, stability, <code>sort</code> vs <code>stable_sort</code>, custom comparators (strict weak ordering!), sorting structs, sorting by multiple keys.",
-     "text": "merge sort (and it powers inversion count), quick sort + partition (and Quickselect for Kth largest), heap sort, counting/radix sort, stability, sort vs stable_sort, custom comparators (strict weak ordering!), sorting structs, sorting by multiple keys."
+     "html": "merge sort (and it powers inversion count), quick sort + partition (and Quickselect for Kth largest), heap sort, counting/radix sort, stability (<code>Arrays.sort</code> on primitives is dual-pivot quicksort and <strong>not</strong> stable; on objects it is TimSort and <strong>is</strong> stable), custom comparators, sorting objects, sorting by multiple keys with <code>Comparator.comparing().thenComparing()</code>.",
+     "text": "merge sort (and it powers inversion count), quick sort + partition (and Quickselect for Kth largest), heap sort, counting/radix sort, stability (Arrays.sort on primitives is dual-pivot quicksort and not stable; on objects it is TimSort and is stable), custom comparators, sorting objects, sorting by multiple keys with Comparator.comparing().thenComparing()."
     },
     {
      "label": "Signature",
@@ -6719,8 +6719,8 @@
     },
     {
      "label": "Mistakes",
-     "html": "comparator returning <code>true</code> for equal elements → UB/crash in <code>std::sort</code>; using <code>sort</code> with a lambda that captures wrongly; not knowing <code>sort</code> is introsort O(n log n) worst case; forgetting stability matters in \"sort by X keeping original order of Y\".",
-     "text": "comparator returning true for equal elements → UB/crash in std::sort; using sort with a lambda that captures wrongly; not knowing sort is introsort O(n log n) worst case; forgetting stability matters in \"sort by X keeping original order of Y\"."
+     "html": "an inconsistent comparator → <code>IllegalArgumentException: Comparison method violates its general contract!</code> thrown by TimSort; writing <code>(a, b) -&gt; a - b</code> and overflowing on large values (use <code>Integer.compare(a, b)</code>); not knowing <code>Arrays.sort(int[])</code> is O(n²) in the worst case on an adversarial test (shuffle first, or box to <code>Integer[]</code> for guaranteed O(n log n)); forgetting stability matters in \"sort by X keeping original order of Y\".",
+     "text": "an inconsistent comparator → IllegalArgumentException: Comparison method violates its general contract! thrown by TimSort; writing (a, b) -> a - b and overflowing on large values (use Integer.compare(a, b)); not knowing Arrays.sort(int[]) is O(n²) in the worst case on an adversarial test (shuffle first, or box to Integer[] for guaranteed O(n log n)); forgetting stability matters in \"sort by X keeping original order of Y\"."
     }
    ]
   },
@@ -6743,8 +6743,8 @@
     },
     {
      "label": "Mistakes",
-     "html": "forgetting to undo state on backtrack (the single most common bug); duplicate subsets because input wasn't sorted / skip-duplicate condition missing; passing large vectors by value (copy cost); no base case or unreachable base case; not pruning (TLE).",
-     "text": "forgetting to undo state on backtrack (the single most common bug); duplicate subsets because input wasn't sorted / skip-duplicate condition missing; passing large vectors by value (copy cost); no base case or unreachable base case; not pruning (TLE)."
+     "html": "forgetting to undo state on backtrack (the single most common bug); duplicate subsets because input wasn't sorted / skip-duplicate condition missing; <strong>adding <code>path</code> itself to the result instead of <code>new ArrayList&lt;&gt;(path)</code></strong> — you store a reference to a list you keep mutating, so every answer ends up identical or empty; no base case or unreachable base case; not pruning (TLE).",
+     "text": "forgetting to undo state on backtrack (the single most common bug); duplicate subsets because input wasn't sorted / skip-duplicate condition missing; adding path itself to the result instead of new ArrayList<>(path) — you store a reference to a list you keep mutating, so every answer ends up identical or empty; no base case or unreachable base case; not pruning (TLE)."
     }
    ]
   },
@@ -6767,8 +6767,8 @@
     },
     {
      "label": "Mistakes",
-     "html": "losing the head pointer; null dereference on <code>fast-&gt;next-&gt;next</code>; not using a dummy node and then writing 15 lines of edge-case handling; memory leak in <code>delete</code> questions; drawing nothing on paper before coding (draw it — always).",
-     "text": "losing the head pointer; null dereference on fast->next->next; not using a dummy node and then writing 15 lines of edge-case handling; memory leak in delete questions; drawing nothing on paper before coding (draw it — always)."
+     "html": "losing the head reference; <code>NullPointerException</code> on <code>fast.next.next</code> (check <code>fast != null &amp;&amp; fast.next != null</code>); not using a dummy node and then writing 15 lines of edge-case handling; when asked about memory, forgetting that unlinking a node is enough for GC only if nothing else still references it — set the removed node's <code>next</code> to <code>null</code>; drawing nothing on paper before coding (draw it — always).",
+     "text": "losing the head reference; NullPointerException on fast.next.next (check fast != null && fast.next != null); not using a dummy node and then writing 15 lines of edge-case handling; when asked about memory, forgetting that unlinking a node is enough for GC only if nothing else still references it — set the removed node's next to null; drawing nothing on paper before coding (draw it — always)."
     }
    ]
   },
@@ -6815,8 +6815,8 @@
     },
     {
      "label": "Mistakes",
-     "html": "storing values instead of indices in the deque (then you cannot expire the window); forgetting to pop the front when it leaves the window; using <code>queue</code> when you need both ends.",
-     "text": "storing values instead of indices in the deque (then you cannot expire the window); forgetting to pop the front when it leaves the window; using queue when you need both ends."
+     "html": "storing values instead of indices in the deque (then you cannot expire the window); forgetting to pop the front when it leaves the window; reaching for <code>Queue</code>/<code>LinkedList</code> when you need both ends — use <code>ArrayDeque</code>.",
+     "text": "storing values instead of indices in the deque (then you cannot expire the window); forgetting to pop the front when it leaves the window; reaching for Queue/LinkedList when you need both ends — use ArrayDeque."
     }
    ]
   },
@@ -7127,8 +7127,8 @@
    "fields": [
     {
      "label": "Patterns",
-     "html": "<code>x &amp; (x-1)</code> clears lowest set bit · <code>x &amp; -x</code> isolates it · XOR properties (a^a=0) · counting set bits (Brian Kernighan, <code>__builtin_popcount</code>) · subset enumeration <code>for (int s = m; s; s = (s-1) &amp; m)</code> · bitmask as state · single number family · power-of-two check · swapping without temp · bit DP.",
-     "text": "x & (x-1) clears lowest set bit · x & -x isolates it · XOR properties (a^a=0) · counting set bits (Brian Kernighan, __builtin_popcount) · subset enumeration for (int s = m; s; s = (s-1) & m) · bitmask as state · single number family · power-of-two check · swapping without temp · bit DP."
+     "html": "<code>x &amp; (x-1)</code> clears lowest set bit · <code>x &amp; -x</code> isolates it · XOR properties (a^a=0) · counting set bits (Brian Kernighan, or <code>Integer.bitCount</code>/<code>Long.bitCount</code>) · subset enumeration <code>for (int s = m; s; s = (s-1) &amp; m)</code> · bitmask as state · single number family · power-of-two check · swapping without temp · bit DP.",
+     "text": "x & (x-1) clears lowest set bit · x & -x isolates it · XOR properties (a^a=0) · counting set bits (Brian Kernighan, or Integer.bitCount/Long.bitCount) · subset enumeration for (int s = m; s; s = (s-1) & m) · bitmask as state · single number family · power-of-two check · swapping without temp · bit DP."
     },
     {
      "label": "Signature",
@@ -7137,8 +7137,8 @@
     },
     {
      "label": "Mistakes",
-     "html": "shifting by ≥32 on <code>int</code> (UB); signed right-shift on negatives; forgetting <code>1LL &lt;&lt; k</code> for k ≥ 31; precedence bugs (<code>a &amp; 1 == 0</code> parses wrong — parenthesise!).",
-     "text": "shifting by ≥32 on int (UB); signed right-shift on negatives; forgetting 1LL << k for k ≥ 31; precedence bugs (a & 1 == 0 parses wrong — parenthesise!)."
+     "html": "shifting an <code>int</code> by ≥32 — Java masks the shift count mod 32, so <code>x &lt;&lt; 32</code> gives back <code>x</code>, not 0; using <code>&gt;&gt;</code> where you need the unsigned <code>&gt;&gt;&gt;</code> on negatives; forgetting <code>1L &lt;&lt; k</code> for k ≥ 31; precedence bugs (<code>a &amp; 1 == 0</code> parses wrong — parenthesise!).",
+     "text": "shifting an int by ≥32 — Java masks the shift count mod 32, so x << 32 gives back x, not 0; using >> where you need the unsigned >>> on negatives; forgetting 1L << k for k ≥ 31; precedence bugs (a & 1 == 0 parses wrong — parenthesise!)."
     }
    ]
   },
@@ -7161,8 +7161,8 @@
     },
     {
      "label": "Mistakes",
-     "html": "<code>pow()</code> on integers (floating error — write your own fast power); negative modulo; overflow in <code>a*b % m</code> (use <code>__int128</code> or <code>long long</code> carefully); off-by-one in the sieve.",
-     "text": "pow() on integers (floating error — write your own fast power); negative modulo; overflow in a*b % m (use __int128 or long long carefully); off-by-one in the sieve."
+     "html": "<code>Math.pow</code> on integers (it returns a <code>double</code> — floating error; write your own fast power on <code>long</code>); negative modulo (<code>%</code> keeps the <em>dividend's</em> sign in Java, so use <code>((x % m) + m) % m</code>); overflow in <code>a * b % m</code> (cast to <code>long</code>; past that use <code>BigInteger</code> or <code>Math.multiplyHigh</code>); off-by-one in the sieve.",
+     "text": "Math.pow on integers (it returns a double — floating error; write your own fast power on long); negative modulo (% keeps the dividend's sign in Java, so use ((x % m) + m) % m); overflow in a * b % m (cast to long; past that use BigInteger or Math.multiplyHigh); off-by-one in the sieve."
     }
    ]
   },
@@ -7185,8 +7185,8 @@
     },
     {
      "label": "Mistakes",
-     "html": "memory blow-up (26 children × 10⁵ words) without discussing it; forgetting the <code>isEnd</code> flag; not deleting/using smart pointers when asked about memory; not realising Word Search II is trie + backtracking (pure backtracking TLEs).",
-     "text": "memory blow-up (26 children × 10⁵ words) without discussing it; forgetting the isEnd flag; not deleting/using smart pointers when asked about memory; not realising Word Search II is trie + backtracking (pure backtracking TLEs)."
+     "html": "memory blow-up (26 children × 10⁵ words) without discussing it; forgetting the <code>isEnd</code> flag; when asked about memory, not knowing the trade-off between <code>TrieNode[26]</code> children (fast, wasteful) and a <code>HashMap&lt;Character, TrieNode&gt;</code> (compact, slower) — and that dropping the root reference is all it takes for GC to reclaim the whole tree; not realising Word Search II is trie + backtracking (pure backtracking TLEs).",
+     "text": "memory blow-up (26 children × 10⁵ words) without discussing it; forgetting the isEnd flag; when asked about memory, not knowing the trade-off between TrieNode[26] children (fast, wasteful) and a HashMap<Character, TrieNode> (compact, slower) — and that dropping the root reference is all it takes for GC to reclaim the whole tree; not realising Word Search II is trie + backtracking (pure backtracking TLEs)."
     }
    ]
   },
@@ -9504,8 +9504,8 @@
          "text": "Read constraints before designing. n ≤ 10³ → O(n²) is fine. n ≤ 10⁵ → you need O(n log n). n ≤ 20 → bitmask/exponential is intended. n ≤ 10¹⁸ → maths/binary search/log. This single habit prevents most wrong-approach disasters."
         },
         {
-         "html": "Test with: the given samples, empty/single element, all-same, max size, negatives, overflow (<code>long long</code>!).",
-         "text": "Test with: the given samples, empty/single element, all-same, max size, negatives, overflow (long long!)."
+         "html": "Test with: the given samples, empty/single element, all-same, max size, negatives, overflow (reach for <code>long</code>!).",
+         "text": "Test with: the given samples, empty/single element, all-same, max size, negatives, overflow (reach for long!)."
         },
         {
          "html": "<strong>Time-box.</strong> If a problem is eating &gt;35% of total time with no working solution, submit what you have and move on. Come back only with spare time.",
@@ -11355,8 +11355,8 @@
          "text": "Not testing edge cases before submitting. → Empty, single element, all-same, max size, negatives, overflow."
         },
         {
-         "html": "<strong>Integer overflow.</strong> → <code>long long</code> by default when values or sums can exceed ~2×10⁹.",
-         "text": "Integer overflow. → long long by default when values or sums can exceed ~2×10⁹."
+         "html": "<strong>Integer overflow.</strong> → <code>long</code> by default when values or sums can exceed ~2×10⁹ — and write <code>(long) a * b</code>, because <code>a * b</code> is computed in <code>int</code> and wraps <em>before</em> the cast.",
+         "text": "Integer overflow. → long by default when values or sums can exceed ~2×10⁹ — and write (long) a * b, because a * b is computed in int and wraps before the cast."
         },
         {
          "html": "<strong><code>mid = (l+r)/2</code> overflow.</strong> → <code>l + (r-l)/2</code>, always.",

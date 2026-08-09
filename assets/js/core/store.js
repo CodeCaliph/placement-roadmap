@@ -26,6 +26,8 @@
       createdAt: new Date().toISOString(),
       startDate: null,
       theme: "auto",
+      textSize: "normal",
+      lastNudge: null,
       done: {},
       notes: {},
       scores: {},          // week -> { dims: [10], total, savedAt }

@@ -77,6 +77,36 @@ becomes today — but you choose what carries forward. Your Redo List, your note
 and the mistakes you've already internalised are kept by default, because none
 of that stops being true just because the calendar restarted.
 
+## Momentum panel
+
+The **✦** button at the bottom-left of the sidebar. It leads with a fact computed
+from your own ticks — *"96 of 240 blocks. 40% of the programme is behind you"*,
+*"5-day streak, your best is 7"*, *"3 problems from closing out Tier A"* — then a
+seven-day activity strip, then a line from the handbook itself (a ground rule, the
+closing three questions, or one of the mindset fixes from Part 9). Press `M`, or
+hit **↻ Next** for another.
+
+It also nudges once a day, at most: a small green dot on the button, and one
+toast. Never more than that.
+
+## Themes & readability
+
+Seven themes (`T`, or Settings → Preferences):
+
+| | |
+|---|---|
+| **System** | follows your OS |
+| **Light** | clean and bright |
+| **Paper** | warm cream, easiest for long reading sessions |
+| **Dark** | neutral near-black |
+| **Midnight** | deep navy |
+| **Forest** | muted green |
+| **Contrast** | maximum legibility for tired eyes or a bright room |
+
+Chart series colours stay colour-vision-safe in every theme — the accent changes,
+the data colours don't. Text size has three settings, and body copy is capped to a
+comfortable line length so a wide monitor doesn't hand you 200-character lines.
+
 ## Keyboard
 
 | Key | Action |
@@ -84,8 +114,9 @@ of that stops being true just because the calendar restarted.
 | `Ctrl`/`Cmd` + `K` or `/` | Search everything (days, topics, sets, mistakes) |
 | `1`–`9` | Jump to the nth sidebar tab |
 | `G` | Go to today in the plan |
-| `T` | Cycle theme (system / light / dark) |
-| `Esc` | Close the search palette |
+| `M` | Momentum panel |
+| `T` | Theme picker |
+| `Esc` | Close any panel |
 
 ## Editing the handbook
 
@@ -123,6 +154,7 @@ assets/js/core/util.js                     DOM & formatting helpers
 assets/js/core/store.js                    persistence + all derived progress
 assets/js/ui/render.js                     shared components (meters, rows, chips)
 assets/js/ui/charts.js                     inline-SVG line chart + 60-day grid
+assets/js/ui/momentum.js                   the motivation panel
 assets/js/views/*.js                       one file per tab
 assets/js/app.js                           shell, router, command palette
 ```

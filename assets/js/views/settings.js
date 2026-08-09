@@ -284,17 +284,38 @@
       root.appendChild(restartCard());
       root.appendChild(freshStartCard());
 
-      /* ---- theme ---- */
+      /* ---- appearance ---- */
       root.appendChild(R.sectionHead("Preferences"));
       root.appendChild(el("div", { class: "card card-pad-lg", style: "margin-bottom:14px" }, [
-        el("h3", { style: "font-size:15.5px", text: "Appearance" }),
-        el("div", { class: "row", style: "margin-top:10px" }, [
-          el("div", { class: "seg" }, [["auto", "System"], ["light", "Light"], ["dark", "Dark"]].map(function (o) {
+        el("h3", { style: "font-size:15.5px", text: "Theme" }),
+        el("p", { class: "small dim", style: "margin-top:4px", text:
+          "Seven looks. Paper is the kindest for long reading sessions; Contrast is for tired eyes or a bright room. Chart colours stay colour-vision-safe in all of them." }),
+        el("div", { class: "grid", style: "grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:8px;margin-top:14px" },
+          App.THEMES.map(function (t) {
             return el("button", {
-              text: o[1], "aria-pressed": (st.theme || "auto") === o[0] ? "true" : "false",
-              onclick: function () { App.setTheme(o[0]); Views.settings.rerender(); }
+              class: "themebtn", style: "padding:11px 12px;align-items:flex-start",
+              "aria-pressed": (st.theme || "auto") === t.id ? "true" : "false",
+              onclick: function () { App.setTheme(t.id); }
+            }, [
+              App.themeSwatch(t),
+              el("span", { style: "min-width:0" }, [
+                el("div", { style: "font-weight:620", text: t.label }),
+                el("div", { class: "tiny muted", text: t.note })
+              ])
+            ]);
+          })
+        ),
+        el("h3", { style: "font-size:15.5px;margin-top:22px", text: "Text size" }),
+        el("p", { class: "small dim", style: "margin-top:4px", text:
+          "Body copy is also capped to a comfortable line length, so a wide screen doesn't give you 200-character lines." }),
+        el("div", { class: "row", style: "margin-top:10px" }, [
+          el("div", { class: "seg" }, App.SIZES.map(function (s) {
+            return el("button", {
+              text: s.label, "aria-pressed": (st.textSize || "normal") === s.id ? "true" : "false",
+              onclick: function () { App.setTextSize(s.id); }
             });
-          }))
+          })),
+          el("span", { class: "tiny muted", text: "Shortcuts: T = theme picker · M = momentum panel" })
         ])
       ]));
 
