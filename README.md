@@ -91,21 +91,26 @@ toast. Never more than that.
 
 ## Themes & readability
 
-Seven themes (`T`, or Settings → Preferences):
+Ten themes (`T`, or Settings → Preferences) — five light, four dark:
 
-| | |
-|---|---|
-| **System** | follows your OS |
-| **Light** | clean and bright |
-| **Paper** | warm cream, easiest for long reading sessions |
-| **Dark** | neutral near-black |
-| **Midnight** | deep navy |
-| **Forest** | muted green |
-| **Contrast** | maximum legibility for tired eyes or a bright room |
+| Light | | Dark | |
+|---|---|---|---|
+| **Light** | clean and bright | **Dark** | neutral near-black |
+| **Paper** | warm cream, best for long reading | **Midnight** | deep navy |
+| **Mist** | cool grey-blue, crisp | **Forest** | muted green |
+| **Sage** | soft green, low glare | **Contrast** | maximum legibility |
+| **Blush** | warm light, plum accent | | |
 
-Chart series colours stay colour-vision-safe in every theme — the accent changes,
-the data colours don't. Text size has three settings, and body copy is capped to a
-comfortable line length so a wide monitor doesn't hand you 200-character lines.
+Plus **System**, which follows your OS.
+
+Every theme is checked, not eyeballed. Each one defines the full 41-token set and
+is held to: body ink ≥ 7:1 against its surface, muted ink ≥ 3:1, accent ≥ 3:1, and
+the first step of the 60-day grid's ordinal ramp ≥ 2:1. Chart series colours stay
+the validated colour-vision-safe set in every theme — the accent changes, the data
+colours don't.
+
+Text size has three settings, and body copy is capped to a comfortable line length
+so a wide monitor doesn't hand you 200-character lines.
 
 ## Keyboard
 

@@ -26,7 +26,10 @@
   App.THEMES = [
     { id: "auto",     label: "System",   icon: "◐", swatch: ["#fcfcfb", "#1a1a19", "#2a78d6"], note: "Follows your OS" },
     { id: "light",    label: "Light",    icon: "☀", swatch: ["#fcfcfb", "#f2f1ed", "#2a78d6"], note: "Clean and bright" },
-    { id: "paper",    label: "Paper",    icon: "◍", swatch: ["#fffdf7", "#f2ebdd", "#a1560f"], note: "Warm, easy for long reading" },
+    { id: "paper",    label: "Paper",    icon: "◍", swatch: ["#fffdf7", "#f2ebdd", "#a1560f"], note: "Warm cream, best for long reading" },
+    { id: "mist",     label: "Mist",     icon: "☁", swatch: ["#fbfcfe", "#eef1f6", "#3f5bd9"], note: "Cool grey-blue, crisp" },
+    { id: "sage",     label: "Sage",     icon: "❦", swatch: ["#fbfdfa", "#eaefe9", "#2f7d5b"], note: "Soft green, low glare" },
+    { id: "blush",    label: "Blush",    icon: "✿", swatch: ["#fffcfd", "#f6eef1", "#a63d6e"], note: "Warm light, plum accent" },
     { id: "dark",     label: "Dark",     icon: "☾", swatch: ["#1a1a19", "#0d0d0d", "#3987e5"], note: "Neutral near-black" },
     { id: "midnight", label: "Midnight", icon: "✵", swatch: ["#101828", "#080d19", "#5b9dff"], note: "Deep navy" },
     { id: "forest",   label: "Forest",   icon: "❧", swatch: ["#101b16", "#08120e", "#34c08a"], note: "Muted green" },

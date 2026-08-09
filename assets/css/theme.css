@@ -106,7 +106,7 @@
   --on-accent:   #fffdf7;
 
   --track:  #ecd9bd;
-  --heat-1: #e0b579; --heat-2: #c98b3c; --heat-3: #a1560f; --heat-4: #6f3a08;
+  --heat-1: #daab6a; --heat-2: #c98b3c; --heat-3: #a1560f; --heat-4: #6f3a08;
 
   --good-text: #33660c;
 
@@ -118,6 +118,138 @@
   --shadow-1: 0 1px 2px rgba(70, 55, 25, .06);
   --shadow-2: 0 4px 16px rgba(70, 55, 25, .10);
   --shadow-3: 0 16px 48px rgba(70, 55, 25, .20);
+}
+
+/* ==========================================================================
+   MIST — cool light, grey-blue surfaces with an indigo accent
+   ========================================================================== */
+:root[data-theme="mist"] {
+  color-scheme: light;
+
+  --plane:     #eef1f6;
+  --surface-1: #fbfcfe;
+  --surface-2: #eff2f7;
+  --surface-3: #e3e8f0;
+  --overlay:   rgba(16, 22, 34, .40);
+
+  --ink:   #131822;
+  --ink-2: #4a5468;
+  --ink-3: #7c8798;
+
+  --line:   #dde3ec;
+  --line-2: #c3ccd9;
+  --ring:   rgba(19, 24, 34, .10);
+
+  --s1: #2a78d6;  --s2: #eb6834;  --s3: #1baf7a;  --s4: #eda100;
+  --s5: #e87ba4;  --s6: #008300;  --s7: #4a3aa7;  --s8: #e34948;
+
+  --accent:      #3f5bd9;
+  --accent-2:    #2f47b8;
+  --accent-soft: rgba(63, 91, 217, .10);
+  --accent-line: rgba(63, 91, 217, .30);
+  --on-accent:   #ffffff;
+
+  --track:  #d9e0f8;
+  --heat-1: #93a7ef; --heat-2: #6b83e4; --heat-3: #3f5bd9; --heat-4: #26379c;
+
+  --good-text: #0f6b2a;
+
+  --morning:   #b5730a;
+  --afternoon: #3f5bd9;
+  --evening:   #6d3fbf;
+  --night:     #4a5468;
+
+  --shadow-1: 0 1px 2px rgba(28, 40, 64, .06);
+  --shadow-2: 0 4px 16px rgba(28, 40, 64, .10);
+  --shadow-3: 0 16px 48px rgba(28, 40, 64, .20);
+}
+
+/* ==========================================================================
+   SAGE — soft green light, low glare
+   ========================================================================== */
+:root[data-theme="sage"] {
+  color-scheme: light;
+
+  --plane:     #eaefe9;
+  --surface-1: #fbfdfa;
+  --surface-2: #eef3ec;
+  --surface-3: #e1e9de;
+  --overlay:   rgba(18, 28, 20, .40);
+
+  --ink:   #17201a;
+  --ink-2: #4a5850;
+  --ink-3: #78877e;
+
+  --line:   #dde6da;
+  --line-2: #c2cfbe;
+  --ring:   rgba(23, 32, 26, .10);
+
+  --s1: #2a78d6;  --s2: #eb6834;  --s3: #1baf7a;  --s4: #eda100;
+  --s5: #e87ba4;  --s6: #008300;  --s7: #4a3aa7;  --s8: #e34948;
+
+  --accent:      #2f7d5b;
+  --accent-2:    #226346;
+  --accent-soft: rgba(47, 125, 91, .10);
+  --accent-line: rgba(47, 125, 91, .30);
+  --on-accent:   #ffffff;
+
+  --track:  #cfe4d8;
+  --heat-1: #87bea3; --heat-2: #5aa681; --heat-3: #2f7d5b; --heat-4: #1c5039;
+
+  --good-text: #1b5e20;
+
+  --morning:   #9a6a08;
+  --afternoon: #1f6ea8;
+  --evening:   #5f3f9e;
+  --night:     #4a5850;
+
+  --shadow-1: 0 1px 2px rgba(24, 40, 28, .06);
+  --shadow-2: 0 4px 16px rgba(24, 40, 28, .10);
+  --shadow-3: 0 16px 48px rgba(24, 40, 28, .20);
+}
+
+/* ==========================================================================
+   BLUSH — warm light with a plum accent
+   ========================================================================== */
+:root[data-theme="blush"] {
+  color-scheme: light;
+
+  --plane:     #f6eef1;
+  --surface-1: #fffcfd;
+  --surface-2: #f8f0f3;
+  --surface-3: #efe2e7;
+  --overlay:   rgba(34, 18, 24, .40);
+
+  --ink:   #1f1518;
+  --ink-2: #574750;
+  --ink-3: #89787f;
+
+  --line:   #ebdde3;
+  --line-2: #d6c2ca;
+  --ring:   rgba(31, 21, 24, .10);
+
+  --s1: #2a78d6;  --s2: #eb6834;  --s3: #1baf7a;  --s4: #eda100;
+  --s5: #e87ba4;  --s6: #008300;  --s7: #4a3aa7;  --s8: #e34948;
+
+  --accent:      #a63d6e;
+  --accent-2:    #832b56;
+  --accent-soft: rgba(166, 61, 110, .09);
+  --accent-line: rgba(166, 61, 110, .30);
+  --on-accent:   #fffcfd;
+
+  --track:  #f0d3df;
+  --heat-1: #e0a1bc; --heat-2: #cd7099; --heat-3: #a63d6e; --heat-4: #75204a;
+
+  --good-text: #2f6b2a;
+
+  --morning:   #a8630c;
+  --afternoon: #2a6fc4;
+  --evening:   #7a3fb0;
+  --night:     #574750;
+
+  --shadow-1: 0 1px 2px rgba(60, 30, 42, .06);
+  --shadow-2: 0 4px 16px rgba(60, 30, 42, .10);
+  --shadow-3: 0 16px 48px rgba(60, 30, 42, .20);
 }
 
 /* ==========================================================================
@@ -237,7 +369,7 @@
   --on-accent:   #06122a;
 
   --track:  #1b2c4d;
-  --heat-1: #24457a; --heat-2: #35659f; --heat-3: #5b9dff; --heat-4: #a8ccff;
+  --heat-1: #284c85; --heat-2: #35659f; --heat-3: #5b9dff; --heat-4: #a8ccff;
 
   --good-text: #35d17a;
 
