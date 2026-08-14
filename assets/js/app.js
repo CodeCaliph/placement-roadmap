@@ -230,6 +230,35 @@
     }
   };
 
+  /* ---- brand mark -----------------------------------------------------
+     A rising check: the tick says "done", its long arm carries on upward.
+     Inline SVG so the gradient can read the theme's accent tokens.
+     -------------------------------------------------------------------- */
+  App.logo = function (size) {
+    size = size || 34;
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 32 32");
+    svg.setAttribute("width", size);
+    svg.setAttribute("height", size);
+    svg.setAttribute("class", "logo-mark");
+    svg.setAttribute("aria-hidden", "true");
+    svg.innerHTML =
+      '<defs>' +
+        '<linearGradient id="lg-a" x1="0" y1="0" x2="1" y2="1">' +
+          '<stop offset="0" stop-color="var(--accent-2)"/>' +
+          '<stop offset="1" stop-color="var(--accent)"/>' +
+        '</linearGradient>' +
+      '</defs>' +
+      '<rect width="32" height="32" rx="9" fill="url(#lg-a)"/>' +
+      '<path d="M0 9A9 9 0 0 1 9 0h14a9 9 0 0 1 9 9v4H0Z" fill="#fff" opacity=".13"/>' +
+      '<path d="M8.4 16.9l5.2 5.2L27 6.2" fill="none" stroke="#fff" stroke-opacity=".34" ' +
+        'stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M8.4 16.9l5.2 5.2L23.4 8.2" fill="none" stroke="#fff" ' +
+        'stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>';
+    return svg;
+  };
+
   /* ---- sidebar --------------------------------------------------------- */
   function sidebar() {
     var nav = el("nav", { class: "nav" });
@@ -251,9 +280,14 @@
 
     return el("aside", { class: "sidebar" }, [
       el("div", { class: "brand" }, [
-        el("div", { class: "brand-mark" }, [el("span", { class: "brand-dot", text: "60" }), "Placement Handbook"]),
-        el("div", { class: "brand-title", text: "60 Days to the Offer" }),
-        el("div", { class: "brand-sub", text: (H.meta && H.meta.subtitle) || "Java · SDE · Campus" })
+        el("div", { class: "brand-row" }, [
+          App.logo(34),
+          el("div", { class: "brand-words" }, [
+            el("div", { class: "brand-title", text: "Sixty" }),
+            el("div", { class: "brand-kicker", text: "Placement Handbook" })
+          ])
+        ]),
+        el("div", { class: "brand-sub", text: "Java · SDE · Campus · " + ((H.days || []).length) + " days" })
       ]),
       nav,
       el("div", { class: "sidebar-foot" }, [
@@ -521,6 +555,17 @@
     }
   };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", App.boot);
-  else App.boot();
+  /* If boot itself throws, the rescue watchdog in index.html takes over — but
+     record why first, so the recovery screen can show it. */
+  function safeBoot() {
+    try {
+      App.boot();
+    } catch (e) {
+      window.__bootError = (e && e.message) || String(e);
+      console.error("boot failed:", e);
+    }
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", safeBoot);
+  else safeBoot();
 })();

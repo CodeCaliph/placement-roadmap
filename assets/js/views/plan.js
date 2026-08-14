@@ -101,9 +101,9 @@
     if (probIds.length) {
       var chips = el("div", { class: "chips" });
       var counter = actions.querySelector("span");
-      block.problems.forEach(function (name, i) {
+      block.problems.forEach(function (prob, i) {
         chips.appendChild(R.chip({
-          id: probIds[i], text: name,
+          id: probIds[i], text: prob.n, item: prob,
           onToggle: function () {
             counter.textContent = S.countDone(probIds) + "/" + probIds.length + " problems";
           }
@@ -294,7 +294,7 @@
         if (!q) return true;
         if (String(d.day) === q) return true;
         var hay = d.title + " " + d.phaseName + " " + (d.blocks || []).map(function (b) {
-          return b.text + " " + (b.problems || []).join(" ");
+          return b.text + " " + (b.problems || []).map(function (x) { return x.n; }).join(" ");
         }).join(" ");
         return hay.toLowerCase().indexOf(q) >= 0;
       });

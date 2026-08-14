@@ -77,6 +77,33 @@ becomes today — but you choose what carries forward. Your Redo List, your note
 and the mistakes you've already internalised are kept by default, because none
 of that stops being true just because the calendar restarted.
 
+## Practice links
+
+Every problem carries **LC** and **GfG** pills — on the chips inside each day, and
+on every row of the question banks. 1,282 linked items.
+
+| | |
+|---|---|
+| **504** | direct LeetCode problem links |
+| **193** | LeetCode search links |
+| **1,224** | GeeksforGeeks links |
+
+Why the split: ~900 slugs cannot be verified offline, and **a wrong deep link is
+worse than no link**. So titles that are exactly LeetCode's own become direct
+links; everything else becomes a site-search link, which always lands on the
+right problem in one click and can never 404. Annotations are stripped from the
+query, so *"Maximum Subarray (Kadane)"* still resolves to `maximum-subarray`.
+
+- GFG-only classics (Aggressive Cows, 0/1 Knapsack, Minimum Platforms, Rat in a
+  Maze, …) get **no** LeetCode link, because they aren't there.
+- Theory banks (OS, DBMS, CN, OOP & Java) get **GfG only** — they're not coding
+  problems.
+- The HR bank gets no links.
+
+**To upgrade a search link to a direct one:** add the exact LeetCode title to
+`LC_VERIFIED` in `build_handbook.py` and re-run the build. That's the single place
+link behaviour is decided.
+
 ## Momentum panel
 
 The **✦** button at the bottom-left of the sidebar. It leads with a fact computed
@@ -122,6 +149,33 @@ so a wide monitor doesn't hand you 200-character lines.
 | `M` | Momentum panel |
 | `T` | Theme picker |
 | `Esc` | Close any panel |
+
+## Seeing an old version after an update?
+
+That's the browser cache, never your data. Fix it with a **hard reload:
+`Ctrl`+`Shift`+`R`** (Mac: `Cmd`+`Shift`+`R`). A hard reload does not touch
+localStorage.
+
+Two things now prevent it:
+
+- **Automatic cache busting.** `build_handbook.py` hashes the markdown plus every
+  CSS/JS file and stamps `?v=<build-id>` onto all asset URLs in `index.html`. Any
+  change produces a new URL, so browsers cannot serve stale code. Just re-run the
+  build before you deploy. The current build id is shown in Settings → What's stored.
+- **A rescue watchdog.** If the app hasn't mounted after 3.5 seconds, a
+  dependency-free recovery screen appears with a **⭳ Download my progress** button
+  that reads localStorage directly. Your data can never be trapped behind a blank
+  page, no matter how badly a build breaks.
+
+If you ever do need to clear site data: export first (Settings → Export backup, the
+sidebar **⭳**, or the rescue screen), then restore with Settings → Import backup.
+In a pinch, this console one-liner works on a completely broken page:
+
+```js
+(function(){var d=localStorage.getItem('handbook60.v1');
+var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d],{type:'application/json'}));
+a.download='handbook60-rescue.json';a.click();})()
+```
 
 ## Editing the handbook
 

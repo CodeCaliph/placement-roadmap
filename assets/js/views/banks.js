@@ -121,8 +121,8 @@
           var done = S.isDone(id);
           if (only === "open" && done) return;
           if (only === "done" && !done) return;
-          if (q && item.toLowerCase().indexOf(q.toLowerCase()) < 0) return;
-          rows.push(R.checkRow({ id: id, n: offset + ii + 1, text: item }));
+          if (q && item.n.toLowerCase().indexOf(q.toLowerCase()) < 0) return;
+          rows.push(R.checkRow({ id: id, n: offset + ii + 1, text: item.n, item: item }));
         });
         offset += tier.items.length;
         if (!rows.length) return;

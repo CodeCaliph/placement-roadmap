@@ -16,11 +16,13 @@ so the app can never drift from the source handbook.
 
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import math
 import re
 import sys
+import urllib.parse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -88,6 +90,213 @@ def slug(text: str) -> str:
     s = plain(text).lower()
     s = re.sub(r"[^a-z0-9]+", "-", s)
     return s.strip("-")[:60] or "x"
+
+
+# ---------------------------------------------------------------------------
+# practice links (LeetCode + GeeksforGeeks)
+# ---------------------------------------------------------------------------
+#
+# A wrong deep link is worse than no link, and ~900 slugs cannot be verified
+# offline. So:
+#   * LC_VERIFIED — titles that are exactly LeetCode's own, where the slug is
+#     deterministic. These become direct problem links.
+#   * everything else — a site-search link, which always lands on the right
+#     problem in one click and can never 404.
+#   * GFG_ONLY — classics that simply are not on LeetCode; no LC link at all.
+# To upgrade a search link to a deep link, just add the exact LeetCode title
+# to LC_VERIFIED below and re-run the build.
+
+LC_VERIFIED = {
+    # arrays · strings · hashing · two pointers · sliding window · prefix · BS
+    "Two Sum", "Best Time to Buy and Sell Stock", "Maximum Subarray", "Contains Duplicate",
+    "Product of Array Except Self", "Merge Intervals", "Move Zeroes", "Sort Colors",
+    "Set Matrix Zeroes", "Rotate Array", "Find the Duplicate Number", "Missing Number",
+    "Majority Element", "Majority Element II", "Longest Consecutive Sequence", "3Sum", "3Sum Closest", "4Sum",
+    "Container With Most Water", "Trapping Rain Water", "Longest Substring Without Repeating Characters",
+    "Minimum Window Substring", "Valid Anagram", "Group Anagrams", "Longest Palindromic Substring",
+    "Valid Palindrome", "Valid Palindrome II", "Subarray Sum Equals K", "Binary Search",
+    "Search in Rotated Sorted Array", "Search in Rotated Sorted Array II", "Koko Eating Bananas",
+    "Median of Two Sorted Arrays", "Top K Frequent Elements", "Next Permutation",
+    "Maximum Product Subarray", "Merge Sorted Array", "Remove Duplicates from Sorted Array",
+    "Squares of a Sorted Array", "Boats to Save People", "Longest Repeating Character Replacement",
+    "Fruit Into Baskets", "Permutation in String", "Find All Anagrams in a String",
+    "Minimum Size Subarray Sum", "Sliding Window Maximum", "Subarray Sums Divisible by K",
+    "Continuous Subarray Sum", "Car Pooling", "Search a 2D Matrix", "Search a 2D Matrix II",
+    "Find Peak Element", "Find Minimum in Rotated Sorted Array", "Single Element in a Sorted Array",
+    "Capacity to Ship Packages Within D Days", "Split Array Largest Sum", "Spiral Matrix",
+    "Rotate Image", "Game of Life", "Valid Sudoku", "Longest Common Prefix",
+    "Reverse Words in a String", "Isomorphic Strings", "Multiply Strings", "Add Binary",
+    "Compare Version Numbers", "Repeated Substring Pattern", "Custom Sort String", "Ransom Note",
+    "First Unique Character in a String", "H-Index", "Largest Number", "Partition Labels",
+    "Wiggle Sort II", "Diagonal Traverse", "Count and Say", "Contains Duplicate II", "4Sum II",
+    "Design HashMap", "Kth Smallest Element in a Sorted Matrix", "Perfect Squares",
+    # linked list · stack · queue · heap · greedy · design
+    "Reverse Linked List", "Reverse Linked List II", "Merge Two Sorted Lists", "Merge K Sorted Lists",
+    "Linked List Cycle", "Linked List Cycle II", "Reorder List", "Palindrome Linked List",
+    "Add Two Numbers", "Copy List with Random Pointer", "Rotate List", "Odd Even Linked List",
+    "Sort List", "Intersection of Two Linked Lists", "Reverse Nodes in k-Group",
+    "Valid Parentheses", "Min Stack", "Evaluate Reverse Polish Notation", "Decode String",
+    "Next Greater Element I", "Next Greater Element II", "Daily Temperatures",
+    "Largest Rectangle in Histogram", "Maximal Rectangle", "Asteroid Collision", "Remove K Digits",
+    "Sum of Subarray Minimums", "Car Fleet", "Basic Calculator", "Basic Calculator II",
+    "Implement Queue using Stacks", "Implement Stack using Queues", "Design Circular Queue",
+    "Design Hit Counter", "Shortest Subarray with Sum at Least K",
+    "Kth Largest Element in an Array", "K Closest Points to Origin", "Find Median from Data Stream",
+    "Task Scheduler", "Reorganize String", "Sliding Window Median", "IPO", "Ugly Number II",
+    "Jump Game", "Jump Game II", "Gas Station", "Candy", "Non-overlapping Intervals",
+    "Minimum Number of Arrows to Burst Balloons", "Two City Scheduling", "Assign Cookies",
+    "Insert Interval", "Interval List Intersections", "Employee Free Time", "My Calendar I",
+    "My Calendar II", "My Calendar III", "Maximum Population Year",
+    "LRU Cache", "LFU Cache", "Design Twitter", "Design Underground System",
+    "Time Based Key-Value Store", "Design Browser History", "Snapshot Array",
+    # trees
+    "Maximum Depth of Binary Tree", "Same Tree", "Invert Binary Tree", "Symmetric Tree",
+    "Diameter of Binary Tree", "Balanced Binary Tree", "Path Sum", "Path Sum II", "Path Sum III",
+    "Binary Tree Level Order Traversal", "Binary Tree Level Order Traversal II",
+    "Binary Tree Inorder Traversal", "Binary Tree Maximum Path Sum",
+    "Serialize and Deserialize Binary Tree", "Flatten Binary Tree to Linked List",
+    "Count Complete Tree Nodes", "Sum Root to Leaf Numbers", "Subtree of Another Tree",
+    "Merge Two Binary Trees", "Binary Tree Paths", "Maximum Width of Binary Tree",
+    "Validate Binary Search Tree", "Delete Node in a BST", "Kth Smallest Element in a BST",
+    "Recover Binary Search Tree", "Range Sum of BST", "Vertical Order Traversal",
+    "All Nodes Distance K", "Morris Inorder", "BST Iterator",
+    # graphs
+    "Number of Islands", "Clone Graph", "Course Schedule", "Course Schedule II", "Rotting Oranges",
+    "Max Area of Island", "Flood Fill", "Pacific Atlantic Water Flow", "Surrounded Regions",
+    "Number of Provinces", "Word Ladder", "01 Matrix", "Redundant Connection", "Accounts Merge",
+    "Network Delay Time", "Cheapest Flights Within K Stops", "Path With Minimum Effort",
+    "Shortest Path in Binary Matrix", "Min Cost to Connect All Points", "Alien Dictionary",
+    "Critical Connections in a Network", "Number of Enclaves", "Walls and Gates", "Open the Lock",
+    "Evaluate Division", "Graph Valid Tree", "Number of Islands II",
+    "Most Stones Removed with Same Row or Column", "Satisfiability of Equality Equations",
+    "Smallest String With Swaps", "Swim in Rising Water", "Path with Maximum Probability",
+    "Snakes and Ladders", "Word Search", "Word Search II", "Keys and Rooms",
+    "All Paths From Source to Target", "Shortest Bridge", "Making a Large Island",
+    "Shortest Path Visiting All Nodes", "Minimum Height Trees", "Find Eventual Safe States",
+    "Parallel Courses", "Reconstruct Itinerary", "Bus Routes", "Sliding Puzzle",
+    "Minimum Genetic Mutation", "Water and Jug Problem", "Escape a Large Maze",
+    "Detonate the Maximum Bombs", "Time Needed to Inform All Employees", "Longest Cycle in a Graph",
+    "Redundant Connection II", "Course Schedule IV", "Maximal Network Rank",
+    "Reorder Routes to Make All Paths Lead to City Zero", "Cut Off Trees for Golf Event",
+    "Number of Operations to Make Network Connected", "Regions Cut By Slashes",
+    "Find Closest Node to Given Two Nodes", "As Far from Land as Possible",
+    # DP
+    "Climbing Stairs", "House Robber", "House Robber II", "House Robber III",
+    "Min Cost Climbing Stairs", "Coin Change", "Coin Change II",
+    "Longest Increasing Subsequence", "Longest Common Subsequence", "Edit Distance",
+    "Partition Equal Subset Sum", "Target Sum", "Unique Paths", "Unique Paths II",
+    "Minimum Path Sum", "Word Break", "Word Break II", "Decode Ways", "Decode Ways II",
+    "Longest Palindromic Subsequence", "Jump Game", "Triangle", "Maximal Square",
+    "Burst Balloons", "Integer Break", "Combination Sum IV", "Russian Doll Envelopes",
+    "Maximum Length of Pair Chain", "Longest String Chain", "Shortest Common Supersequence",
+    "Distinct Subsequences", "Delete Operation for Two Strings", "Wildcard Matching",
+    "Regular Expression Matching", "Interleaving String", "Minimum Cost to Cut a Stick",
+    "Palindrome Partitioning", "Palindrome Partitioning II", "Minimum Cost to Merge Stones",
+    "Partition Array for Maximum Sum", "Cherry Pickup", "Cherry Pickup II", "Dungeon Game",
+    "Distribute Coins in Binary Tree", "Partition to K Equal Sum Subsets", "Ones and Zeroes",
+    "Last Stone Weight II", "Tallest Billboard", "Profitable Schemes",
+    "Knight Probability in Chessboard", "Out of Boundary Paths",
+    "Number of Dice Rolls With Target Sum", "Domino and Tromino Tiling", "Predict the Winner",
+    "Best Team With No Conflicts", "Maximum Profit in Job Scheduling",
+    "Constrained Subsequence Sum", "Filling Bookcase Shelves", "Scramble String", "Paint Fence",
+    "Student Attendance Record II", "Champagne Tower", "Minimum Difficulty of a Job Schedule",
+    "Frog Jump", "Count Square Submatrices with All Ones", "Minimum Number of Refueling Stops",
+    "Longest Increasing Path in a Matrix", "Binary Tree Cameras", "Ninja's Training",
+    "Maximum Sum of 3 Non-Overlapping Subarrays", "Best Time to Buy and Sell Stock II",
+    "Best Time to Buy and Sell Stock III", "Best Time to Buy and Sell Stock IV",
+    "Best Time to Buy and Sell Stock with Cooldown", "Best Time to Buy and Sell Stock with Transaction Fee",
+    # recursion · backtracking · bits · math · trie
+    "Subsets", "Subsets II", "Permutations", "Permutations II", "Combination Sum",
+    "Combination Sum II", "Combination Sum III", "Generate Parentheses", "N-Queens",
+    "Sudoku Solver", "Letter Combinations of a Phone Number", "Restore IP Addresses",
+    "Expression Add Operators", "Palindromic Substrings",
+    "Single Number", "Single Number II", "Single Number III", "Number of 1 Bits", "Counting Bits",
+    "Reverse Bits", "Power of Two", "Power of Four", "Sum of Two Integers", "Divide Two Integers",
+    "Minimum Flips", "Count Primes", "Sqrt(x)", "Happy Number",
+    "Excel Sheet Column Title", "Excel Sheet Column Number", "Factorial Trailing Zeroes",
+    "Fraction to Recurring Decimal", "Permutation Sequence", "Reverse Integer",
+    "Palindrome Number", "Add Digits", "GCD of Strings", "Ugly Number",
+    "Implement Trie", "Design Add and Search Words", "Maximum XOR of Two Numbers in an Array",
+    "Replace Words", "Longest Word in Dictionary", "Search Suggestions System", "Map Sum Pairs",
+    "Insert Delete GetRandom O(1)", "Design Tic-Tac-Toe",
+    # advanced
+    "Range Sum Query Mutable", "Range Sum Query 2D Immutable", "Count of Smaller Numbers After Self",
+    "Count of Range Sum", "Reverse Pairs", "Implement strStr()", "Shortest Palindrome",
+    "Longest Happy Prefix", "Repeated String Match", "Corporate Flight Bookings",
+    "Number of Submatrices That Sum to Target", "Count Number of Nice Subarrays",
+    "Subarrays with K Different Integers", "Max Consecutive Ones III", "Relative Sort Array",
+}
+
+# Classics the Indian curriculum uses that LeetCode does not host
+GFG_ONLY = {
+    "Aggressive Cows", "Allocate Books", "Allocate Minimum Pages", "Allocate Minimum Number of Pages",
+    "Minimum Days to Make Bouquets", "Nth Root", "Square Root / Nth Root",
+    "0/1 Knapsack", "Subset Sum", "Count Subsets with Given Sum", "Count Subsets with Sum",
+    "Minimum Subset Sum Difference", "Rod Cutting", "Matrix Chain Multiplication",
+    "Boolean Parenthesization", "Egg Dropping", "Longest Common Substring",
+    "Minimum Insertions to Make Palindrome", "Longest Bitonic Subsequence",
+    "Longest Divisible Subset", "Frog Jump with K Distances", "Maximum Sum of Non-Adjacent Elements",
+    "Minimum Platforms", "Job Sequencing", "Job Sequencing with Deadlines", "Fractional Knapsack",
+    "Huffman Encoding", "Minimum Number of Coins", "Minimum Cost to Connect Ropes",
+    "Minimum Cost to Connect Sticks/Ropes", "Stock Span", "First Negative in Every Window",
+    "First Negative in Window", "Maximum of Minimum for Every Window Size",
+    "Rat in a Maze", "Print all subsequences", "Detect Cycle in Undirected Graph",
+    "Detect Cycle in Directed Graph", "Topological Sort", "Kruskal's MST", "Prim's MST",
+    "Minimum Spanning Tree — Prim's", "Minimum Spanning Tree — Kruskal's",
+    "Bellman-Ford implementation", "Floyd-Warshall implementation",
+    "Strongly Connected Components", "Strongly Connected Components (Kosaraju)",
+    "Tarjan's Articulation Points", "Bridges in a Graph", "Eulerian Path/Circuit check",
+    "Optimize Water Distribution", "Optimize Water Distribution in a Village",
+    "Connecting Cities With Minimum Cost", "Largest Component Size by Common Factor",
+    "Burning Tree", "Minimum Time to Burn", "Top/Bottom View", "Top View / Bottom View of Binary Tree",
+    "Boundary Traversal of Binary Tree", "Children Sum Property",
+    "Floor and Ceil in BST", "Largest BST Subtree", "Inorder Successor", "Inorder Predecessor",
+    "Inorder Successor/Predecessor in BST", "Construct BST from Preorder",
+    "Construct BST from Preorder Traversal", "Count Inversions", "Merge Sort", "Quickselect",
+    "Count Distinct Substrings", "Rate Limiter", "Design Hit Counter",
+    "Number of Recent Calls", "Flatten a Multilevel List", "Flatten Multilevel List",
+    "Range Minimum Query", "Digit DP: Count Numbers with Unique Digits",
+    "Digit DP: Numbers At Most N Given Digit Set", "Paint House I/II", "Paint House",
+    "Travelling Salesman", "Assign Tasks/Cookies with bitmask", "Number of LIS",
+}
+
+LC_SEARCH = "https://leetcode.com/problemset/?search="
+GFG_SEARCH = "https://www.geeksforgeeks.org/?s="
+
+
+def lc_slug(title: str) -> str:
+    s = title.lower().replace("'", "").replace("+", " plus ")
+    s = re.sub(r"[^a-z0-9]+", "-", s)
+    return s.strip("-")
+
+
+def clean_for_search(name: str) -> str:
+    """Drop annotations so the search query is the bare problem name."""
+    s = re.sub(r"\s*\([^)]*\)", "", name)          # "(H — do the partition method)"
+    s = re.sub(r"\s+[—–]\s+.*$", "", s)            # trailing dash notes
+    s = s.split(" / ")[0].split(" or ")[0]         # "A / B" or "A or B" -> A
+    s = re.sub(r"\s*\b(redo|unaided redo|implement)\b\s*$", "", s, flags=re.I)
+    return re.sub(r"\s{2,}", " ", s).strip(" .;:")
+
+
+def problem_links(name: str, mode: str = "both") -> dict:
+    """mode: both | gfg (theory/design — no LeetCode) | none"""
+    item = {"n": name}
+    if mode == "none":
+        return item
+    query = clean_for_search(name)
+    if not query:
+        return item
+
+    if mode == "both" and query not in GFG_ONLY:
+        if query in LC_VERIFIED:
+            item["lc"] = "https://leetcode.com/problems/" + lc_slug(query) + "/"
+        else:
+            item["lc"] = LC_SEARCH + urllib.parse.quote_plus(query)
+            item["lcSearch"] = True
+
+    item["gfg"] = GFG_SEARCH + urllib.parse.quote_plus(query)
+    return item
 
 
 # ---------------------------------------------------------------------------
@@ -462,7 +671,7 @@ def parse_days(part: dict) -> tuple[list[dict], list[dict]]:
                         "hours": bh,
                         "html": inline(txt),
                         "text": plain(txt),
-                        "problems": extract_problems(txt),
+                        "problems": [problem_links(x) for x in extract_problems(txt)],
                         "mocks": mocks,
                     }
                 )
@@ -508,6 +717,25 @@ def split_numbered_inline(text: str) -> list[str]:
         if item:
             out.append(plain(item))
     return out
+
+
+# Which banks are coding problems, which are theory/design
+BANK_LINK_MODE = {
+    "bank-patterns": "gfg", "bank-lld": "gfg", "bank-hld": "gfg",
+    "bank-sqlarch": "both", "bank-dpfam": "gfg", "bank-star": "none",
+    "bank-6-1": "both", "bank-6-2": "both", "bank-6-3": "both", "bank-6-4": "both",
+    "bank-6-5": "both",
+    "bank-6-6": "gfg", "bank-6-7": "gfg", "bank-6-8": "gfg", "bank-6-9": "gfg",
+    "bank-6-10": "none",
+}
+
+
+def link_bank(bank: dict) -> dict:
+    mode = BANK_LINK_MODE.get(bank["id"], "gfg")
+    for tier in bank["tiers"]:
+        tier["items"] = [problem_links(x, mode) for x in tier["items"]]
+    bank["linkMode"] = mode
+    return bank
 
 
 def parse_banks(part: dict) -> list[dict]:
@@ -878,6 +1106,35 @@ def parse_milestones(part4: dict) -> list[dict]:
 # main
 # ---------------------------------------------------------------------------
 
+def stamp_assets(build_id: str) -> int:
+    """Add/refresh ?v=<build_id> on every local asset URL in index.html.
+
+    Without this, a browser that has visited before keeps serving the previous
+    CSS/JS from cache after a redeploy — the page renders with stale code while
+    localStorage is perfectly fine. Re-running the build busts the cache.
+    """
+    page = ROOT / "index.html"
+    if not page.exists():
+        return 0
+    html_text = page.read_text(encoding="utf-8")
+
+    def sub(m: re.Match) -> str:
+        attr, url = m.group(1), m.group(2)
+        if url.startswith(("http://", "https://", "//", "data:")):
+            return m.group(0)
+        clean = url.split("?", 1)[0]
+        return f'{attr}="{clean}?v={build_id}"'
+
+    new_text, n = re.subn(
+        r'(src|href)="((?:assets/)[^"]+)"',
+        sub,
+        html_text,
+    )
+    if new_text != html_text:
+        page.write_text(new_text, encoding="utf-8")
+    return n
+
+
 def main() -> None:
     lines = read_source()
     parts = find_parts(lines)
@@ -995,6 +1252,7 @@ def main() -> None:
 
     if part1:
         banks = curated_lists(part1) + banks
+    banks = [link_bank(b) for b in banks]
 
     payload = {
         "meta": meta,
@@ -1015,12 +1273,25 @@ def main() -> None:
     }
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    payload["buildId"] = ""  # filled in below, once the asset hash is known
+    # build id = hash of the source + every asset, so it changes iff something did
+    hasher = hashlib.sha1()
+    hasher.update(SRC.read_bytes())
+    for path in sorted((ROOT / "assets").rglob("*")):
+        if path.is_file() and path.suffix in (".css", ".js") and path.name != "handbook.data.js":
+            hasher.update(path.name.encode())
+            hasher.update(path.read_bytes())
+    hasher.update(json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8"))
+    build_id = hasher.hexdigest()[:10]
+    payload["buildId"] = build_id
+
     js = "/* generated by build_handbook.py — do not edit by hand */\n"
     js += "window.HANDBOOK = " + json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + ";\n"
     (OUT_DIR / "handbook.data.js").write_text(js, encoding="utf-8")
     (OUT_DIR / "handbook.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8"
     )
+    stamped = stamp_assets(build_id)
 
     # ---- report ----
     blocks_total = sum(len(d["blocks"]) for d in days)
@@ -1043,6 +1314,14 @@ def main() -> None:
     print(f"weeks/milestones  : {len(milestones)}")
     out = OUT_DIR / "handbook.data.js"
     print(f"written           : {out.relative_to(ROOT)}  ({out.stat().st_size/1024:.0f} KB)")
+    print(f"build id          : {build_id}   (stamped onto {stamped} asset URLs in index.html)")
+    day_items = [pr for d in days for b in d["blocks"] for pr in b["problems"]]
+    bank_items = [it for b in banks for t in b["tiers"] for it in t["items"]]
+    allit = day_items + bank_items
+    deep = sum(1 for i in allit if i.get("lc") and not i.get("lcSearch"))
+    srch = sum(1 for i in allit if i.get("lcSearch"))
+    gfg = sum(1 for i in allit if i.get("gfg"))
+    print(f"links             : {len(allit)} items · LC deep {deep} · LC search {srch} · GfG {gfg}")
 
     missing = [d for d in range(1, 61) if d not in {x['day'] for x in days}]
     if missing:

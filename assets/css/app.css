@@ -64,13 +64,17 @@ button { cursor: pointer; }
   font-size: 12px; font-weight: 700; letter-spacing: .09em;
   text-transform: uppercase; color: var(--ink-3);
 }
-.brand-dot {
-  width: 22px; height: 22px; border-radius: 7px; flex: none;
-  background: linear-gradient(140deg, var(--accent), var(--accent-2));
-  display: grid; place-items: center; color: #fff; font-size: 11px; letter-spacing: 0;
+.brand-row { display: flex; align-items: center; gap: 11px; }
+.logo-mark { flex: none; display: block; border-radius: 9px; box-shadow: 0 2px 8px rgba(0,0,0,.16); }
+.brand-words { min-width: 0; }
+.brand-title {
+  font-size: 19px; font-weight: 700; letter-spacing: -.03em; line-height: 1.05;
 }
-.brand-title { margin-top: 10px; font-size: 15.5px; font-weight: 680; letter-spacing: -.015em; }
-.brand-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+.brand-kicker {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-3); margin-top: 3px;
+}
+.brand-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 11px; }
 
 .nav { padding: var(--sp-3) var(--sp-2); flex: 1; }
 .nav-group-label {
@@ -807,3 +811,135 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 20px; }
   .themegrid { grid-template-columns: minmax(0, 1fr); }
 }
 @media print { .totop, .mo, .pop, .momentum-btn { display: none !important; } }
+
+/* ==========================================================================
+   PRACTICE LINKS — LeetCode / GeeksforGeeks
+   ========================================================================== */
+
+.plinks { display: inline-flex; gap: 4px; margin-left: auto; flex: none; padding-left: 8px; }
+.plinks.tight { margin-left: 2px; padding-left: 0; }
+
+.plink {
+  display: inline-flex; align-items: center; height: 17px; padding: 0 5px;
+  border-radius: 5px; border: 1px solid var(--line);
+  background: var(--surface-2); color: var(--ink-3);
+  font-size: 9.5px; font-weight: 800; letter-spacing: .04em;
+  text-decoration: none; line-height: 1; white-space: nowrap;
+  transition: color .12s, border-color .12s, background .12s, transform .12s;
+}
+.plink:hover { text-decoration: none; transform: translateY(-1px); }
+.plink.lc:hover  { color: #fff; background: #f89f1b; border-color: #f89f1b; }
+.plink.gfg:hover { color: #fff; background: #2f8d46; border-color: #2f8d46; }
+.qrow:hover .plink, .chip:hover .plink { border-color: var(--line-2); color: var(--ink-2); }
+.plinks.tight .plink { height: 15px; font-size: 9px; padding: 0 4px; }
+.chip.is-done .plink { opacity: .55; }
+
+/* ==========================================================================
+   POLISH — depth, motion, and the small things that stop it looking generic
+   ========================================================================== */
+
+::selection { background: var(--accent-soft); color: var(--ink); }
+
+/* a 1px top sheen gives cards physical depth without a heavy shadow */
+.card, .day, .tile, .mock, .mistake, .palette, .pop, .mo {
+  position: relative;
+  background-image: linear-gradient(var(--surface-1), var(--surface-1));
+}
+.card::after, .tile::after, .day::after, .mo::after, .pop::after, .palette::after {
+  content: ""; position: absolute; inset: 0 0 auto; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .07) 22%,
+              rgba(255, 255, 255, .07) 78%, transparent);
+  border-radius: inherit;
+}
+:root[data-theme="light"] .card::after, :root[data-theme="paper"] .card::after,
+:root[data-theme="mist"] .card::after, :root[data-theme="sage"] .card::after,
+:root[data-theme="blush"] .card::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.9) 20%, rgba(255,255,255,.9) 80%, transparent); }
+
+/* nav: an active indicator bar reads faster than colour alone */
+.nav-item { position: relative; }
+.nav-item[aria-current="page"]::before {
+  content: ""; position: absolute; left: -2px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 17px; border-radius: 0 3px 3px 0; background: var(--accent);
+}
+.nav-item .nav-ico { transition: transform .16s; }
+.nav-item:hover .nav-ico { transform: scale(1.14); }
+
+/* meters: a gentle gradient reads as "energy" without shouting */
+.meter-fill {
+  background-image: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent) 74%, transparent), var(--accent));
+}
+.meter-fill.is-full {
+  background-image: linear-gradient(90deg,
+    color-mix(in srgb, var(--good) 72%, transparent), var(--good));
+}
+
+/* hero figure: a restrained gradient on the one number that leads the page */
+.hero-fig {
+  background: linear-gradient(160deg, var(--ink), color-mix(in srgb, var(--ink) 62%, var(--accent)));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.hero-fig small { -webkit-text-fill-color: var(--ink-3); }
+
+/* day card: slot-coloured spine while open, and a sweep when it completes */
+.day.is-open { border-left: 3px solid var(--accent); }
+.day.is-done.is-open { border-left-color: var(--good); }
+.day.just-done { animation: sweep .9s ease-out; }
+@keyframes sweep {
+  0%   { box-shadow: inset 0 0 0 0 color-mix(in srgb, var(--good) 30%, transparent); }
+  35%  { box-shadow: inset 0 0 0 300px color-mix(in srgb, var(--good) 20%, transparent); }
+  100% { box-shadow: inset 0 0 0 300px transparent; }
+}
+
+/* checkbox + chip micro-feedback */
+.check:active { transform: scale(.9); }
+.check:checked { animation: pop .2s ease-out; }
+@keyframes pop { 0% { transform: scale(.72); } 60% { transform: scale(1.13); } 100% { transform: scale(1); } }
+.chip { transition: background .14s, border-color .14s, transform .14s; }
+.chip:active { transform: scale(.97); }
+
+/* view entry: a fast, staggered rise. Fast enough to feel responsive, not slow. */
+#view-root > * > .card,
+#view-root > * > .day,
+#view-root > * > .grid,
+#view-root > * > .tablewrap,
+#view-root > * > .mock,
+#view-root > * > .mistake { animation: rise-in .26s cubic-bezier(.2, .7, .3, 1) both; }
+#view-root > * > *:nth-child(2)  { animation-delay: .02s; }
+#view-root > * > *:nth-child(3)  { animation-delay: .04s; }
+#view-root > * > *:nth-child(4)  { animation-delay: .06s; }
+#view-root > * > *:nth-child(5)  { animation-delay: .08s; }
+#view-root > * > *:nth-child(6)  { animation-delay: .10s; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(7px); } }
+
+/* topbar pills: quiet until they matter */
+.pill { transition: border-color .15s, background .15s, color .15s; }
+.searchbtn { transition: border-color .15s, background .15s; }
+.searchbtn:hover { background: var(--surface-2); }
+
+/* buttons get a touch of depth */
+.btn-primary { box-shadow: 0 1px 2px color-mix(in srgb, var(--accent) 40%, transparent); }
+.btn-primary:active, .btn:active { transform: translateY(1px); }
+
+/* phase band: a numbered chip with a gradient reads as a chapter marker */
+.phase-n {
+  background: linear-gradient(140deg, var(--accent), var(--accent-2));
+  color: var(--on-accent); box-shadow: 0 2px 6px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+/* section titles get a small leading rule */
+.section-title { display: inline-flex; align-items: center; gap: 8px; }
+.section-title::before {
+  content: ""; width: 14px; height: 2px; border-radius: 2px;
+  background: var(--accent); opacity: .55;
+}
+
+/* tables: zebra makes long reference tables scannable */
+table.tbl tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface-2) 55%, transparent); }
+table.tbl tbody tr:hover { background: var(--accent-soft); }
+
+@media print {
+  .plink { border: 0; padding: 0; background: none; color: #555; }
+  #view-root > * > * { animation: none !important; }
+}

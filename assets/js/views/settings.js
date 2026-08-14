@@ -386,6 +386,17 @@
           R.tile({ label: "Weekly scores", value: Object.keys(st.scores).length }),
           R.tile({ label: "Timer entries", value: (st.timeLog || []).length })
         ]),
+        el("div", { class: "row", style: "margin-top:14px;padding-top:12px;border-top:1px solid var(--line)" }, [
+          el("span", { class: "tiny muted" }, [
+            "Build ", el("code", { text: H.buildId || "unknown" })
+          ]),
+          el("button", {
+            class: "btn btn-sm btn-ghost", text: "Force-refresh the app",
+            title: "Reloads bypassing the browser cache. Your progress is not touched.",
+            onclick: function () { location.reload(true); }
+          }),
+          el("span", { class: "tiny muted", text: "Seeing an old version after an update? Hard reload with Ctrl+Shift+R." })
+        ]),
         el("p", { class: "tiny muted", style: "margin-top:12px", text: "Checkable items in total: " + (p.plan.total + p.problems.total + p.bank.total + p.checklist.total + p.mistakes.total + p.mocks.total + p.oas.total) + " (240 blocks · " + p.problems.total + " plan problems · " + p.bank.total + " question-bank items · " + p.checklist.total + " checklist · 100 mistakes · 13 mocks · 8 OAs)." })
       ]));
 

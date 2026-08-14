@@ -6,9 +6,11 @@
 <title>60-Day Placement Handbook · Interactive Tracker</title>
 <meta name="description" content="Interactive tracker for the 60-Day Campus Placement Handbook — 60 days, 240 work blocks, 929 question-bank items, mocks, readiness scoring and the final checklist.">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a78d6'/%3E%3Ctext x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'%3E60%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/css/theme.css">
-<link rel="stylesheet" href="assets/css/app.css">
+<!-- brand mark: a rising check — the tick says "done", its long arm carries on upward -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23367fd9'/%3E%3Cstop%20offset='1'%20stop-color='%23163f7d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='32'%20height='32'%20rx='9'%20fill='url(%23g)'/%3E%3Cpath%20d='M0%209A9%209%200%200%201%209%200h14a9%209%200%200%201%209%209v4H0Z'%20fill='%23fff'%20opacity='.13'/%3E%3Cpath%20d='M8.4%2016.9l5.2%205.2L27%206.2'%20fill='none'%20stroke='%23fff'%20stroke-opacity='.34'%20stroke-width='3.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M8.4%2016.9l5.2%205.2L23.4%208.2'%20fill='none'%20stroke='%23fff'%20stroke-width='3.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#2a78d6">
+<link rel="stylesheet" href="assets/css/theme.css?v=f6b3d3bcdf">
+<link rel="stylesheet" href="assets/css/app.css?v=f6b3d3bcdf">
 </head>
 <body>
 
@@ -19,33 +21,93 @@
   </div>
 </noscript>
 
+<!-- ==========================================================================
+     Rescue watchdog. Deliberately dependency-free and defined BEFORE the app,
+     so it still works if a stale cache or a broken build stops the app booting.
+     Your progress must never be trapped behind a blank page.
+     ========================================================================== -->
+<script>
+(function () {
+  var KEY = "handbook60.v1";
+  function raw() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+
+  function save() {
+    var data = raw();
+    if (!data) { alert("No saved progress found in this browser."); return; }
+    try {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([data], { type: "application/json" }));
+      a.download = "handbook60-rescue-" + new Date().toISOString().slice(0, 10) + ".json";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    } catch (e) { alert("Could not download. Copy this instead:\n\n" + data.slice(0, 2000)); }
+  }
+
+  window.__rescueExport = save;
+
+  setTimeout(function () {
+    if (document.querySelector(".shell")) return;              // app booted fine
+    var d = document.createElement("div");
+    d.setAttribute("style",
+      "position:fixed;inset:0;z-index:99999;overflow:auto;padding:9vh 20px;" +
+      "font:15px/1.6 system-ui,-apple-system,'Segoe UI',sans-serif;background:#0d0d0d;color:#fff");
+    d.innerHTML =
+      "<div style='max-width:620px;margin:0 auto'>" +
+      "<h1 style='font-size:22px;margin:0 0 10px'>The app didn't finish loading</h1>" +
+      "<p style='color:#c3c2b7;margin:0 0 18px'>Almost always a stale cache after an update. " +
+      "<b style='color:#fff'>Your saved progress is still here and is not affected.</b></p>" +
+      "<ol style='color:#c3c2b7;padding-left:22px;margin:0 0 22px'>" +
+      "<li style='margin-bottom:8px'>Save a backup with the button below — do this first, always.</li>" +
+      "<li style='margin-bottom:8px'>Hard reload: <b style='color:#fff'>Ctrl+Shift+R</b> " +
+      "(Mac: <b style='color:#fff'>Cmd+Shift+R</b>).</li>" +
+      "<li>Still broken? Clear this site's data, reload, then <b style='color:#fff'>Settings → Import backup</b>.</li>" +
+      "</ol>" +
+      "<button id='__rsc' style='font:inherit;font-weight:600;cursor:pointer;background:#3987e5;color:#fff;" +
+      "border:0;border-radius:10px;padding:11px 18px'>⭳ Download my progress</button>" +
+      "<button id='__rld' style='font:inherit;cursor:pointer;background:transparent;color:#c3c2b7;" +
+      "border:1px solid #3d3d3a;border-radius:10px;padding:11px 18px;margin-left:8px'>Reload</button>" +
+      "<p id='__err' style='color:#918f88;font-size:12.5px;margin-top:20px;white-space:pre-wrap'></p>" +
+      "</div>";
+    document.body.appendChild(d);
+    document.getElementById("__rsc").onclick = save;
+    document.getElementById("__rld").onclick = function () { location.reload(); };
+    if (window.__bootError) {
+      document.getElementById("__err").textContent = "Details: " + window.__bootError;
+    }
+  }, 3500);
+
+  window.addEventListener("error", function (e) {
+    if (!window.__bootError) window.__bootError = (e.message || "script error") + " @ " + (e.filename || "?");
+  });
+})();
+</script>
+
 <!-- generated from the handbook markdown by build_handbook.py -->
-<script src="assets/js/data/handbook.data.js"></script>
+<script src="assets/js/data/handbook.data.js?v=f6b3d3bcdf"></script>
 
 <!-- core -->
-<script src="assets/js/core/util.js"></script>
-<script src="assets/js/core/store.js"></script>
+<script src="assets/js/core/util.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/core/store.js?v=f6b3d3bcdf"></script>
 
 <!-- shared ui -->
-<script src="assets/js/ui/render.js"></script>
-<script src="assets/js/ui/charts.js"></script>
-<script src="assets/js/ui/momentum.js"></script>
+<script src="assets/js/ui/render.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/ui/charts.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/ui/momentum.js?v=f6b3d3bcdf"></script>
 
 <!-- views -->
-<script src="assets/js/views/plan.js"></script>
-<script src="assets/js/views/dashboard.js"></script>
-<script src="assets/js/views/banks.js"></script>
-<script src="assets/js/views/topics.js"></script>
-<script src="assets/js/views/mocks.js"></script>
-<script src="assets/js/views/readiness.js"></script>
-<script src="assets/js/views/checklist.js"></script>
-<script src="assets/js/views/mistakes.js"></script>
-<script src="assets/js/views/trackers.js"></script>
-<script src="assets/js/views/library.js"></script>
-<script src="assets/js/views/settings.js"></script>
+<script src="assets/js/views/plan.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/dashboard.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/banks.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/topics.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/mocks.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/readiness.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/checklist.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/mistakes.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/trackers.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/library.js?v=f6b3d3bcdf"></script>
+<script src="assets/js/views/settings.js?v=f6b3d3bcdf"></script>
 
 <!-- shell + router (last) -->
-<script src="assets/js/app.js"></script>
+<script src="assets/js/app.js?v=f6b3d3bcdf"></script>
 
 </body>
 </html>

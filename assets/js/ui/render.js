@@ -95,6 +95,31 @@
     return el("div", { class: "tablewrap" }, [el("table", { class: "tbl" }, [thead, tbody])]);
   };
 
+  /* ---- practice links -------------------------------------------------- */
+  R.links = function (item, opts) {
+    opts = opts || {};
+    if (!item || (!item.lc && !item.gfg)) return null;
+    var wrap = el("span", { class: "plinks" + (opts.tight ? " tight" : "") });
+    function stop(e) { e.stopPropagation(); }
+    if (item.lc) {
+      wrap.appendChild(el("a", {
+        class: "plink lc", href: item.lc, target: "_blank", rel: "noopener",
+        title: (item.lcSearch ? "Find on LeetCode: " : "Open on LeetCode: ") + item.n,
+        "aria-label": "LeetCode: " + item.n,
+        onclick: stop, text: "LC"
+      }));
+    }
+    if (item.gfg) {
+      wrap.appendChild(el("a", {
+        class: "plink gfg", href: item.gfg, target: "_blank", rel: "noopener",
+        title: "Find on GeeksforGeeks: " + item.n,
+        "aria-label": "GeeksforGeeks: " + item.n,
+        onclick: stop, text: "GfG"
+      }));
+    }
+    return wrap;
+  };
+
   /* ---- checkable row (question banks, checklists) ---------------------- */
   R.checkRow = function (opts) {
     var id = opts.id;
@@ -111,7 +136,8 @@
     var row = el("div", { class: "qrow" + (done ? " is-done" : "") }, [
       opts.n !== undefined ? el("span", { class: "qrow-n", text: opts.n }) : null,
       input,
-      el("label", { class: "qrow-text qrow-lab", html: opts.html || U.esc(opts.text) })
+      el("label", { class: "qrow-text qrow-lab", html: opts.html || U.esc(opts.text) }),
+      opts.item ? R.links(opts.item) : null
     ]);
     row.querySelector("label").addEventListener("click", function () { input.click(); });
     return row;
@@ -134,6 +160,7 @@
         if (opts.onToggle) opts.onToggle(input.checked);
       }
     }, [input, el("span", { class: "chip-t", text: opts.text })]);
+    if (opts.item) chip.appendChild(R.links(opts.item, { tight: true }));
     return chip;
   };
 
