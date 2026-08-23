@@ -130,12 +130,7 @@
     if (!pop.hidden) { pop.hidden = true; return; }
     if (window.M) M.close();
     pop.hidden = false;
-    var r = btn.getBoundingClientRect();
-    var h = pop.offsetHeight, w = pop.offsetWidth;
-    var top = r.top - h - 10;
-    if (top < 8) top = Math.min(r.bottom + 10, window.innerHeight - h - 8);
-    pop.style.left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8) + "px";
-    pop.style.top = top + "px";
+    U.place(pop, btn);
   };
 
   /* ---- routing --------------------------------------------------------- */

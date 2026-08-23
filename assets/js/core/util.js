@@ -149,6 +149,21 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 400);
   };
 
+  /** Place a fixed popover next to an anchor, always clamped inside the
+   *  viewport. Prefers above the anchor, falls back to below, and never lets
+   *  a stale or odd rect push the panel out of sight. */
+  U.place = function (panel, anchor) {
+    var r = anchor.getBoundingClientRect();
+    var w = panel.offsetWidth, h = panel.offsetHeight;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var top = r.top - h - 10;
+    if (top < 8) top = r.bottom + 10;
+    top = Math.max(8, Math.min(top, Math.max(8, vh - h - 8)));
+    var left = Math.max(8, Math.min(r.left, Math.max(8, vw - w - 8)));
+    panel.style.left = left + "px";
+    panel.style.top = top + "px";
+  };
+
   U.toast = function (msg, kind) {
     var host = U.$("#toasts");
     if (!host) return;

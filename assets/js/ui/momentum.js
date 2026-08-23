@@ -268,14 +268,7 @@
     factIdx = 0; lineIdx = Math.floor((new Date().getDate() + new Date().getHours()) % lines().length);
     panel.refresh();
     panel.hidden = false;
-    // position above the anchor, clamped to the viewport
-    var r = anchor.getBoundingClientRect();
-    var w = panel.offsetWidth, h = panel.offsetHeight;
-    var left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8);
-    var top = r.top - h - 10;
-    if (top < 8) top = Math.min(r.bottom + 10, window.innerHeight - h - 8);
-    panel.style.left = left + "px";
-    panel.style.top = top + "px";
+    U.place(panel, anchor);
     var btn = U.$("#momentum-btn");
     if (btn) btn.classList.remove("has-news");
   };

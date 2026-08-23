@@ -840,11 +840,16 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 20px; }
 
 ::selection { background: var(--accent-soft); color: var(--ink); }
 
-/* a 1px top sheen gives cards physical depth without a heavy shadow */
-.card, .day, .tile, .mock, .mistake, .palette, .pop, .mo {
+/* a 1px top sheen gives cards physical depth without a heavy shadow.
+   NOTE: .pop and .mo are deliberately excluded from `position: relative` —
+   they are `position: fixed` popovers, and this rule sits later in the file,
+   so listing them here would override that and drop them out of the viewport.
+   `fixed` already establishes a containing block for the ::after sheen. */
+.card, .day, .tile, .mock, .mistake, .palette {
   position: relative;
   background-image: linear-gradient(var(--surface-1), var(--surface-1));
 }
+.pop, .mo { background-image: linear-gradient(var(--surface-1), var(--surface-1)); }
 .card::after, .tile::after, .day::after, .mo::after, .pop::after, .palette::after {
   content: ""; position: absolute; inset: 0 0 auto; height: 1px; pointer-events: none;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .07) 22%,
@@ -943,3 +948,6 @@ table.tbl tbody tr:hover { background: var(--accent-soft); }
   .plink { border: 0; padding: 0; background: none; color: #555; }
   #view-root > * > * { animation: none !important; }
 }
+
+/* popovers must never outgrow the viewport */
+.pop, .mo { max-height: calc(100vh - 16px); overflow-y: auto; }
