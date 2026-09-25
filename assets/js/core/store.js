@@ -11,6 +11,7 @@
      m:<n>                    one of the 100 mistakes (100)
      mk:<n>                   a mock interview         (13)
      oa:<day>                 a mock OA                 (8)
+     cs:<subject>:<qid>       a mastered core-subject interview question
    ========================================================================== */
 (function () {
   "use strict";
@@ -38,6 +39,10 @@
       mistakeLog: [],      // { id, at, text, category }
       topicSolved: {},     // dsaMaster topic n -> count
       collapsed: {},
+      coreStar: {},        // "<subject>:<questionId>" -> ISO time starred
+      todos: [],           // { id, text, scope, period, done, doneAt, prio, tag, notes, subs, order, at }
+      routines: [],        // { id, text, days: [0-6], tag, at }
+      routineDone: {},     // "YYYY-MM-DD" -> { routineId: ISO }
       lastView: "dashboard"
     };
   }
@@ -141,7 +146,8 @@
     checkItem: function (g, i) { return "c:" + g.id + ":" + i; },
     mistake: function (n) { return "m:" + n; },
     mock: function (n) { return "mk:" + n; },
-    oa: function (day) { return "oa:" + day; }
+    oa: function (day) { return "oa:" + day; },
+    core: function (subjectId, qid) { return "cs:" + subjectId + ":" + qid; }
   };
 
   /* ---- day helpers ----------------------------------------------------- */
@@ -334,6 +340,12 @@
     });
     (state.timeLog || []).forEach(function (l) {
       if (l.at && l.at.length >= 10) set[l.at.slice(0, 10)] = true;
+    });
+    (state.todos || []).forEach(function (t) {
+      if (t.done && t.doneAt && t.doneAt.length >= 10) set[U.todayKey(new Date(t.doneAt))] = true;
+    });
+    Object.keys(state.routineDone || {}).forEach(function (day) {
+      if (Object.keys(state.routineDone[day] || {}).length) set[day] = true;
     });
     return set;
   };

@@ -11,9 +11,11 @@
   var ROUTES = [
     { id: "dashboard", label: "Dashboard", icon: "◉", group: "Daily" },
     { id: "plan", label: "60-Day Plan", icon: "▤", group: "Daily", count: function () { var p = S.progress().plan; return p.done + "/" + p.total; } },
+    { id: "todo", label: "To-Do Planner", icon: "☑", group: "Daily", count: function () { var n = Views.todo ? Views.todo.openToday() : 0; return n ? String(n) : null; } },
     { id: "trackers", label: "Trackers", icon: "⟳", group: "Daily", count: function () { var d = S.redoDue().length; return d ? String(d) : null; } },
     { id: "banks", label: "Problem Sets", icon: "☰", group: "Coverage", count: function () { var p = S.progress().bank; return p.done + "/" + p.total; } },
     { id: "topics", label: "DSA Topics", icon: "◈", group: "Coverage", count: function () { return S.topicTotals().pct + "%"; } },
+    { id: "core", label: "Core Subjects", icon: "⌬", group: "Coverage", count: function () { if (!Views.core) return null; var p = Views.core.stats(); return p.total ? p.done + "/" + p.total : null; } },
     { id: "mocks", label: "Mocks", icon: "◎", group: "Coverage", count: function () { var p = S.progress().mocks; return p.done + "/" + p.total; } },
     { id: "readiness", label: "Readiness", icon: "▲", group: "Review", count: function () { var l = S.latestScore(); return l ? String(l.score.total) : null; } },
     { id: "checklist", label: "Final Checklist", icon: "✓", group: "Review", count: function () { var p = S.progress().checklist; return p.done + "/" + p.total; } },
@@ -137,7 +139,8 @@
   function parseHash() {
     var raw = (location.hash || "").replace(/^#\/?/, "");
     var parts = raw.split("/").filter(Boolean);
-    return { view: parts[0] || "dashboard", param: parts[1] || null };
+    // views that need deeper links (core/<subject>/<question>) get the whole remainder
+    return { view: parts[0] || "dashboard", param: parts.slice(1).join("/") || null };
   }
 
   App.render = function () {
@@ -195,7 +198,7 @@
       U.clear(crumb);
       U.append(crumb, [
         el("b", { text: (Views[route.id] || {}).title || route.label }),
-        r.param ? el("span", { text: " · " + r.param }) : null
+        r.param ? el("span", { text: " · " + r.param.split("/")[0] }) : null
       ]);
     }
 
@@ -351,6 +354,17 @@
       idx.push({ kind: "Mistake " + m.n, title: m.mistakeText, sub: m.fixText, hash: "#/mistakes" });
     });
 
+    (window.CORE || []).forEach(function (s) {
+      idx.push({ kind: "Subject", title: s.title, sub: s.questions.length + " interview questions", hash: "#/core/" + s.id });
+      s.questions.forEach(function (q) {
+        idx.push({ kind: s.short, title: q.q, sub: s.title + " · " + q.topic + (q.top ? " · Top list" : ""), hash: "#/core/" + s.id + "/" + q.id });
+      });
+    });
+
+    ["day", "week", "month", "year", "someday"].forEach(function (sc) {
+      idx.push({ kind: "Planner", title: sc.charAt(0).toUpperCase() + sc.slice(1) + " view", sub: "To-Do Planner", hash: "#/todo/" + sc });
+    });
+
     paletteIndex = idx;
     return idx;
   }
@@ -422,7 +436,7 @@
   function palette() {
     var inp = el("input", {
       class: "palette-inp", id: "palette-inp", type: "text", autocomplete: "off",
-      placeholder: "Jump to a day, topic, problem set, mistake…",
+      placeholder: "Jump to a day, topic, interview question, mistake…",
       oninput: function () { sel = 0; renderResults(search(inp.value.trim())); },
       onkeydown: function (e) {
         if (e.key === "ArrowDown") { e.preventDefault(); sel = Math.min(sel + 1, results.length - 1); renderResults(results); }

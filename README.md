@@ -39,11 +39,24 @@ repetition, Weakness sheet, categorised Mistake log).
 - **Dashboard** — today's four blocks, headline progress, streak, slippage
   warning, next mock, the 60-day grid, readiness trajectory.
 - **60-Day Plan** — phases → weeks → days → blocks. Search across all 60 days.
+- **To-Do Planner** — tasks on five horizons (Day, Week, Month, Year, Someday).
+  Unfinished tasks carry forward, and each task can have a priority, tag, notes
+  and subtasks. Routines repeat on the weekdays you choose and keep a streak. The
+  week view is a 7-day board where you can drag tasks between days. The month
+  view is a calendar, and the year view breaks each month into goals. Type
+  `#dsa` / `!high` while adding to tag and prioritise.
 - **Trackers** — Redo List, Weakness sheet, Mistake log.
 - **Problem Sets** — the 10 Part-6 banks plus 12 design patterns, 15 LLD,
   12 HLD, 20 SQL archetypes, 12 DP families, 8 STAR stories.
 - **DSA Topics** — the 35-topic master table with quotas, and all 31 deep dives
   (patterns · signature problems · mistakes).
+- **Core Subjects** — the theory rounds. The 50 most-asked interview questions
+  for each of OS, OOPS, CN and DBMS, plus extra questions, SQL query drills,
+  System Design basics, Computer Architecture and Software Engineering. Every
+  answer has a 30-second version, then the full answer with C++/Java code, SQL
+  and theme-aware diagrams. Tick questions as mastered, star them for revision,
+  or drill any filtered set as flashcards (`Space` reveal, `K` knew it,
+  `R` review again). Every question is searchable from `Ctrl`+`K`.
 - **Mocks** — schedule, plus the 8-dimension rubric for scoring each one.
 - **Readiness** — the weekly 0–100 score, charted against the plan's target
   trajectory. Hints are pre-computed from your own ticked progress.
@@ -209,6 +222,7 @@ assets/css/theme.css                       design tokens (light + dark)
 assets/css/app.css                         layout & components
 assets/js/data/handbook.data.js            GENERATED — do not edit by hand
 assets/js/data/handbook.json               same payload, for inspection
+assets/js/data/core/*.js                   core-subject Q&A, one hand-written file per subject
 assets/js/core/util.js                     DOM & formatting helpers
 assets/js/core/store.js                    persistence + all derived progress
 assets/js/ui/render.js                     shared components (meters, rows, chips)
