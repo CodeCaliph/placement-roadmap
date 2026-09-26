@@ -1,19 +1,18 @@
-/* core subject: Object-Oriented Programming — interview Q&A */
+/* core subject: Object-Oriented Programming (Java) — interview Q&A */
 (window.CORE = window.CORE || []).push({
   id: "oops",
   title: "Object-Oriented Programming",
   short: "OOPS",
   icon: "◇",
-  blurb: "Interviewers test whether you can explain the four pillars with real code, know what the compiler does behind virtual functions, constructors and copies in C++, and can contrast it with Java's interfaces, GC and equals/hashCode. Expect a design-pattern or SOLID follow-up at SDE level.",
+  blurb: "Interviewers test whether you can explain the four pillars with real Java code, know what the JVM does behind overriding, constructors, equals/hashCode and garbage collection, and can reason about abstract classes vs interfaces, immutability and object copying. Expect a design-pattern or SOLID follow-up at SDE level.",
   topics: [
     "Fundamentals",
     "Classes & Objects",
     "Encapsulation & Abstraction",
     "Inheritance",
     "Polymorphism",
-    "Constructors & Destructors",
-    "Memory & Pointers",
-    "C++ Specifics",
+    "Constructors & Object Lifecycle",
+    "Memory & References",
     "Java Specifics",
     "Design Principles & Patterns"
   ],
@@ -26,21 +25,51 @@
       topic: "Fundamentals",
       level: 1,
       top: true,
-      short: "OOP is a paradigm that models a program as a set of objects that bundle data (state) with the functions that operate on it (behaviour). Procedural programming organises code as a sequence of functions acting on separate, often global, data.",
+      short: "OOP is a paradigm that models a program as a set of objects that bundle data (state) with the methods that operate on it (behaviour). Procedural programming organises code as a sequence of functions acting on separate, often global, data.",
       a: [
-        { p: "<b>Object-Oriented Programming</b> is a programming paradigm in which a program is built from <b>objects</b> — instances of <b>classes</b> that combine <i>data</i> (attributes) and <i>behaviour</i> (methods). Objects interact by calling each other's methods, and the language enforces boundaries (access control, interfaces) between them." },
+        { p: "<b>Object-Oriented Programming</b> is a programming paradigm in which a program is built from <b>objects</b> — instances of <b>classes</b> that combine <i>data</i> (fields) and <i>behaviour</i> (methods). Objects interact by calling each other's methods, and the language enforces boundaries (access modifiers, interfaces) between them." },
         { p: "<b>Procedural programming</b> (C, Pascal) structures a program as a top-down sequence of procedures. Data and functions are separate; any function can usually touch any data it can reach." },
         { table: { head: ["Aspect", "Procedural", "Object-Oriented"], rows: [
           ["Unit of design", "Function / procedure", "Class / object"],
           ["Data & behaviour", "Kept separate", "Bundled together (encapsulation)"],
           ["Approach", "Top-down (break task into steps)", "Bottom-up (model entities, then compose)"],
-          ["Data security", "Global data freely modified", "Access specifiers hide internal state"],
+          ["Data security", "Global data freely modified", "Access modifiers hide internal state"],
           ["Reuse", "Copy / call functions", "Inheritance, composition, polymorphism"],
           ["Extending", "Often edit existing functions (switch on type)", "Add a new subclass; existing code untouched"],
-          ["Examples", "C, Pascal, Fortran", "C++, Java, C#, Python"]
+          ["Examples", "C, Pascal, Fortran", "Java, C#, Python, C++"]
         ] } },
-        { p: "OOP shines for large systems with many interacting entities and long lifetimes (easier maintenance, modularity, team work). Procedural code is often simpler and faster for small, linear tasks or tight numeric loops." },
-        { tip: "C++ is <b>multi-paradigm</b> (procedural + OOP + generic + functional); Java is almost purely class-based (everything lives inside a class, but primitives are not objects, so Java is not '100% pure' OOP)." }
+        { p: "OOP shines for large systems with many interacting entities and long lifetimes (easier maintenance, modularity, team work). Procedural code is often simpler for small, linear tasks or tight numeric loops." },
+        { tip: "Java is class-based: every method lives inside a class. But primitives (<code>int</code>, <code>double</code>) are not objects and static methods run without any object, so Java is not '100% pure' OOP — Smalltalk is the usual example of a pure OO language." }
+      ]
+    },
+    {
+      id: "java-pure-oop",
+      q: "Is Java a purely object-oriented language? Why or why not?",
+      topic: "Fundamentals",
+      level: 1,
+      top: true,
+      short: "No. A pure OO language treats everything as an object and does everything via method calls. Java keeps eight primitive types (int, char, boolean...) that are not objects, allows static methods and fields that belong to no object, and its wrapper classes exist precisely to bridge that gap.",
+      a: [
+        { p: "A language is called <b>purely object-oriented</b> if it satisfies all seven qualities below. Java satisfies the first four and fails the last three because of primitives and statics." },
+        { table: { head: ["Quality", "Java"], rows: [
+          ["Encapsulation / data hiding", "Yes — classes and access modifiers"],
+          ["Inheritance", "Yes — <code>extends</code> / <code>implements</code>"],
+          ["Polymorphism", "Yes — overloading and overriding"],
+          ["Abstraction", "Yes — abstract classes and interfaces"],
+          ["All predefined types are objects", "<b>No</b> — <code>int</code>, <code>double</code>, <code>boolean</code>… are primitives"],
+          ["All user-defined types are objects", "Yes — every class extends <code>Object</code>"],
+          ["All operations are method calls on objects", "<b>No</b> — <code>static</code> methods and <code>a + b</code> on primitives need no object"]
+        ] } },
+        { code: `public class Main {
+    public static void main(String[] args) {      // static: runs with no object at all
+        int a = 5;                                // primitive: not an object, no methods
+        Integer b = a;                            // autoboxing to a wrapper object
+        System.out.println(b.compareTo(7));       // now we can call methods on it
+        System.out.println(Math.max(a, 9));       // static utility call, no object
+    }
+}`, lang: "java" },
+        { p: "Primitives were kept for <b>performance</b>: an <code>int</code> is 4 bytes on the stack, whereas an <code>Integer</code> is a heap object with a header, and arithmetic on it requires unboxing." },
+        { tip: "Follow-up: 'Then why have wrapper classes?' — so primitives can live in collections and generics (<code>List&lt;Integer&gt;</code>), and to provide utility methods like <code>Integer.parseInt</code>." }
       ]
     },
     {
@@ -52,28 +81,28 @@
       short: "Encapsulation (bundle data with methods and restrict access), Abstraction (expose what, hide how), Inheritance (derive new classes from existing ones, is-a reuse) and Polymorphism (one interface, many implementations).",
       a: [
         { p: "The four pillars are the core ideas every OOP language supports:" },
-        { table: { head: ["Pillar", "Meaning", "C++ / Java mechanism"], rows: [
-          ["<b>Encapsulation</b>", "Bundle data and the methods that use it into one unit, and control access to the data", "<code>class</code> + <code>private</code>/<code>public</code>, getters/setters"],
-          ["<b>Abstraction</b>", "Show only essential features, hide implementation details", "Abstract classes, pure virtual functions, Java <code>interface</code>"],
-          ["<b>Inheritance</b>", "A class acquires the properties and behaviour of another (is-a)", "<code>class Dog : public Animal</code> / <code>extends</code>"],
-          ["<b>Polymorphism</b>", "Same call behaves differently depending on the object / arguments", "Overloading (compile time), virtual functions / overriding (run time)"]
+        { table: { head: ["Pillar", "Meaning", "Java mechanism"], rows: [
+          ["<b>Encapsulation</b>", "Bundle data and the methods that use it into one unit, and control access to the data", "<code>class</code> + <code>private</code> fields, public getters/setters"],
+          ["<b>Abstraction</b>", "Show only essential features, hide implementation details", "<code>abstract class</code>, <code>interface</code>"],
+          ["<b>Inheritance</b>", "A class acquires the fields and methods of another (is-a)", "<code>class Dog extends Animal</code>"],
+          ["<b>Polymorphism</b>", "Same call behaves differently depending on the object / arguments", "Overloading (compile time), overriding via <code>@Override</code> (run time)"]
         ] } },
-        { code: `class Animal {                         // Abstraction: abstract interface
-public:
-    virtual void speak() const = 0;
-    virtual ~Animal() = default;
-};
+        { code: `abstract class Animal {                    // Abstraction: what, not how
+    abstract void speak();
+}
 
-class Dog : public Animal {            // Inheritance
-    std::string name;                  // Encapsulation: hidden state
-public:
-    explicit Dog(std::string n) : name(std::move(n)) {}
-    void speak() const override {      // Polymorphism: overriding
-        std::cout << name << " says Woof\\n";
+class Dog extends Animal {                 // Inheritance: Dog is-an Animal
+    private String name;                   // Encapsulation: hidden state
+    Dog(String name) { this.name = name; }
+    @Override
+    void speak() {                         // Polymorphism: overriding
+        System.out.println(name + " says Woof");
     }
-};
+}
 
-void makeNoise(const Animal& a) { a.speak(); }  // works for any Animal`, lang: "cpp", title: "All four pillars in 15 lines" },
+class Zoo {
+    static void makeNoise(Animal a) { a.speak(); }   // works for any Animal
+}`, lang: "java", title: "All four pillars in 15 lines" },
         { tip: "Give a one-line real-world example for each (e.g. ATM: you press 'withdraw' (abstraction), your balance is private (encapsulation), SavingsAccount is-an Account (inheritance), withdraw() behaves differently per account type (polymorphism))." }
       ]
     },
@@ -83,32 +112,17 @@ void makeNoise(const Animal& a) { a.speak(); }  // works for any Animal`, lang: 
       topic: "Fundamentals",
       level: 1,
       top: true,
-      short: "A class is a user-defined blueprint/type that declares data members and methods; it occupies no memory for data by itself. An object is a concrete instance of that class created at run time, with its own memory holding the member values.",
+      short: "A class is a user-defined blueprint/type that declares fields and methods; it occupies no memory for instance data by itself. An object is a concrete instance of that class created at run time with new, with its own heap memory holding the field values.",
       a: [
-        { p: "A <b>class</b> is a blueprint or user-defined type: it describes what data an entity holds and what it can do. An <b>object</b> is an <b>instance</b> of a class — an actual region of memory with its own copy of the non-static data members." },
+        { p: "A <b>class</b> is a blueprint or user-defined type: it describes what data an entity holds and what it can do. An <b>object</b> is an <b>instance</b> of a class — an actual region of heap memory with its own copy of the non-static fields." },
         { table: { head: ["Class", "Object"], rows: [
           ["Logical template / type", "Physical, real instance"],
           ["Declared once", "Many objects can be created from one class"],
-          ["No memory for data members when declared", "Memory allocated on creation (stack or heap)"],
-          ["Defined with <code>class</code> keyword", "Created by declaration (<code>Car c;</code>) or <code>new</code>"],
+          ["No memory for instance fields when declared (only class metadata)", "Memory allocated on the heap at creation"],
+          ["Defined with the <code>class</code> keyword", "Created with <code>new</code> (also reflection, <code>clone()</code>, deserialization)"],
           ["Example: <code>Car</code>", "Example: <code>myCar</code>, <code>yourCar</code>"]
         ] } },
-        { code: [
-          { lang: "cpp", src: `class Car {
-public:
-    std::string brand;
-    int speed = 0;
-    void accelerate(int d) { speed += d; }
-};
-
-int main() {
-    Car a;                 // object on the stack
-    a.brand = "Tata";
-    Car* b = new Car();    // object on the heap
-    b->accelerate(20);
-    delete b;
-}` },
-          { lang: "java", src: `class Car {
+        { code: `class Car {
     String brand;
     int speed = 0;
     void accelerate(int d) { speed += d; }
@@ -116,13 +130,16 @@ int main() {
 
 public class Main {
     public static void main(String[] args) {
-        Car a = new Car();   // objects always on the heap in Java
-        a.brand = "Tata";    // 'a' is a reference to it
+        Car a = new Car();   // object created on the heap; 'a' is a reference to it
+        a.brand = "Tata";
         a.accelerate(20);
+
+        Car b = a;           // NOT a new object: second reference to the same Car
+        b.accelerate(10);
+        System.out.println(a.speed);   // 30
     }
-}` }
-        ], title: "Class definition vs object creation" },
-        { warn: "Member functions are <b>not</b> stored inside each object. All objects share one copy of the code; only non-static data members take per-object space (plus a vptr if the class has virtual functions)." }
+}`, lang: "java", title: "Class definition vs object creation" },
+        { warn: "Methods are <b>not</b> stored inside each object. All objects share one copy of the bytecode in the JVM's method area; only instance fields take per-object space (plus a 12–16 byte object header on HotSpot)." }
       ]
     },
     {
@@ -131,24 +148,24 @@ public class Main {
       topic: "Fundamentals",
       level: 1,
       top: true,
-      short: "IS-A is inheritance: a Dog is an Animal, so Dog derives from Animal. HAS-A is composition/aggregation: a Car has an Engine, so Car holds an Engine member. Prefer HAS-A unless the subtype truly can be used everywhere the base is expected.",
+      short: "IS-A is inheritance: a Dog is an Animal, so Dog extends Animal. HAS-A is composition/aggregation: a Car has an Engine, so Car holds an Engine field. Prefer HAS-A unless the subtype truly can be used everywhere the base is expected.",
       a: [
-        { p: "<b>IS-A</b> models <b>inheritance</b> (generalisation): the derived class is a specialised kind of the base and can be substituted wherever the base is expected. <b>HAS-A</b> models <b>containment</b> (association, aggregation or composition): one object owns or uses another as a member." },
+        { p: "<b>IS-A</b> models <b>inheritance</b> (generalisation): the subclass is a specialised kind of the superclass and can be substituted wherever the superclass is expected. <b>HAS-A</b> models <b>containment</b> (association, aggregation or composition): one object owns or uses another through a field." },
         { table: { head: ["", "IS-A", "HAS-A"], rows: [
-          ["Mechanism", "Inheritance (<code>: public Base</code> / <code>extends</code>)", "Member field / pointer / reference"],
-          ["Coupling", "Tight — derived depends on base internals", "Loose — only on the member's public interface"],
+          ["Mechanism", "<code>extends</code> / <code>implements</code>", "A field holding a reference"],
+          ["Coupling", "Tight — subclass depends on superclass internals", "Loose — only on the member's public interface"],
           ["Binding", "Fixed at compile time", "Can be swapped at run time"],
+          ["Test", "<code>dog instanceof Animal</code> is true", "<code>car.getEngine()</code> returns an Engine"],
           ["Example", "<code>Circle</code> is-a <code>Shape</code>", "<code>Car</code> has-an <code>Engine</code>"]
         ] } },
-        { code: `class Engine { public: void start() {} };
-class Vehicle { public: virtual ~Vehicle() = default; };
+        { code: `class Engine  { void start() { System.out.println("vroom"); } }
+class Vehicle { }
 
-class Car : public Vehicle {   // IS-A  : Car is a Vehicle
-    Engine engine;             // HAS-A : Car has an Engine
-public:
-    void drive() { engine.start(); }
-};`, lang: "cpp" },
-        { tip: "Quick test: if the sentence 'X is a Y' sounds right in every context, inheritance may fit; if 'X has a Y' fits, use a member. A Stack is <i>not</i> a Vector (it must not expose insert-at-middle), so Stack should HAVE a vector." }
+class Car extends Vehicle {                  // IS-A  : Car is a Vehicle
+    private Engine engine = new Engine();    // HAS-A : Car has an Engine
+    void drive() { engine.start(); }         // delegation
+}`, lang: "java" },
+        { tip: "Quick test: if the sentence 'X is a Y' sounds right in every context, inheritance may fit; if 'X has a Y' fits, use a field. A Stack is <i>not</i> a Vector (it must not expose insert-at-middle), so Stack should HAVE a list — Java's <code>Stack extends Vector</code> is the classic mistake." }
       ]
     },
     {
@@ -166,308 +183,240 @@ public:
           ["Bad sign", "Changing one class forces changes in many others", "A 'God class' doing DB, UI, email and logging"],
           ["How to improve", "Depend on interfaces, dependency injection, hide internals", "Single Responsibility Principle, split classes"]
         ] } },
-        { code: `class MySqlDatabase { /* concrete driver */ };
+        { code: `class MySqlDatabase { /* concrete driver */ }
 
 // Tight coupling: ReportService is hard-wired to MySQL
 class ReportService {
-    MySqlDatabase db;               // concrete class
-};
+    private MySqlDatabase db = new MySqlDatabase();   // concrete class, created inside
+}
 
 // Loose coupling: depends on an abstraction, injected from outside
-class Database { public: virtual std::string query(const std::string&) = 0;
-                 virtual ~Database() = default; };
+interface Database { String query(String sql); }
+
 class ReportService2 {
-    Database& db;
-public:
-    explicit ReportService2(Database& d) : db(d) {}
-};`, lang: "cpp", title: "Reducing coupling via an interface" },
-        { tip: "Link it to SOLID: SRP raises cohesion, DIP and ISP lower coupling. Low coupling makes unit testing easy because dependencies can be mocked." }
+    private final Database db;
+    ReportService2(Database db) { this.db = db; }     // constructor injection
+}
+// new ReportService2(new MySqlDb());  in prod
+// new ReportService2(new FakeDb());   in unit tests`, lang: "java", title: "Reducing coupling via an interface" },
+        { tip: "Link it to SOLID: SRP raises cohesion, DIP and ISP lower coupling. Low coupling makes unit testing easy because dependencies can be mocked — this is exactly what Spring's dependency injection automates." }
       ]
     },
 
     /* ───────────── Classes & Objects ───────────── */
     {
       id: "access-specifiers",
-      q: "Explain access specifiers in C++ and Java.",
+      q: "Explain the access modifiers in Java. What is package-private (default) access?",
       topic: "Classes & Objects",
       level: 1,
       top: true,
-      short: "Access specifiers control who can see a member. C++ has public, protected and private (class default private, struct default public). Java has public, protected, package-private (default, no keyword) and private; Java's protected also grants package access.",
+      short: "Java has four access levels: public (everywhere), protected (same package plus subclasses in any package), package-private/default (no keyword: same package only) and private (same class only). A top-level class can only be public or package-private.",
       a: [
-        { p: "Access specifiers (access modifiers) implement <b>encapsulation</b> by controlling which code can access a class's members." },
-        { h: "C++" },
-        { table: { head: ["Specifier", "Same class", "Derived class", "Outside"], rows: [
-          ["<code>public</code>", "Yes", "Yes", "Yes"],
-          ["<code>protected</code>", "Yes", "Yes", "No"],
-          ["<code>private</code>", "Yes", "No", "No"]
-        ] } },
-        { p: "Default is <code>private</code> for <code>class</code> and <code>public</code> for <code>struct</code>. <code>friend</code> functions/classes bypass these rules." },
-        { h: "Java" },
-        { table: { head: ["Modifier", "Class", "Package", "Subclass (other pkg)", "World"], rows: [
+        { p: "Access modifiers implement <b>encapsulation</b> by controlling which code can see a class or member." },
+        { table: { head: ["Modifier", "Same class", "Same package", "Subclass (other pkg)", "World"], rows: [
           ["<code>public</code>", "Yes", "Yes", "Yes", "Yes"],
           ["<code>protected</code>", "Yes", "Yes", "Yes", "No"],
           ["<i>default</i> (no keyword)", "Yes", "Yes", "No", "No"],
           ["<code>private</code>", "Yes", "No", "No", "No"]
         ] } },
-        { warn: "Java <code>protected</code> is <i>wider</i> than C++ <code>protected</code>: it is also visible to every class in the same package. And a top-level Java class can only be <code>public</code> or package-private." },
-        { tip: "In C++ access is checked per <b>class</b>, not per object: a member function can read <code>other.privateField</code> of another object of the same class (that's how copy constructors work)." }
+        { code: `package shop;
+
+public class Account {
+    public    String owner;      // everywhere
+    protected double balance;    // package shop + any subclass anywhere
+    String    branch;            // package-private: package shop only
+    private   String pin;        // this class only (including its nested classes)
+
+    private Account() {}                                   // private constructor is allowed
+    public static Account open() { return new Account(); } // controlled creation
+}
+
+// package bank;
+// class Savings extends shop.Account {
+//     void f() { balance = 0;  /* OK: subclass */
+//                branch = "";  /* error: package-private */ }
+// }`, lang: "java" },
+        { ul: [
+          "A <b>top-level class</b> can only be <code>public</code> or package-private; <code>private</code>/<code>protected</code> apply to nested classes and members.",
+          "<code>protected</code> is <i>wider</i> than it sounds: it also grants access to every class in the same package.",
+          "<code>private</code> is per <b>class</b>, not per object: one <code>Account</code> may read another's <code>pin</code> inside <code>Account</code>'s own methods (that's how <code>equals</code> works).",
+          "Interface members are implicitly <code>public</code>; interface fields are <code>public static final</code>.",
+          "Access is checked at <b>compile time</b>; reflection with <code>setAccessible(true)</code> can bypass it (modules restrict this)."
+        ] },
+        { tip: "Classic quick-fire: 'Which is more restrictive, default or protected?' — default. 'Can a method be more restrictive when overridden?' — no, only same or wider." }
       ]
     },
     {
       id: "this-pointer",
-      q: "What is the this pointer? Where is it used?",
+      q: "What is the this keyword in Java? Where is it used?",
       topic: "Classes & Objects",
       level: 1,
       top: true,
-      short: "this is an implicit pointer (a reference in Java) passed to every non-static member function that points to the object on which the function was called. It resolves name clashes, enables method chaining and lets an object pass itself to others.",
+      short: "this is an implicit reference, available in every constructor and instance method, to the object on which the method was called. It resolves field/parameter name clashes, enables method chaining, passes the current object to others and, as this(...), calls another constructor of the same class.",
       a: [
-        { p: "Every non-static member function receives a hidden parameter <code>this</code>. In C++ it is a prvalue pointer of type <code>X*</code> (or <code>const X*</code> inside a const member function). In Java <code>this</code> is a reference to the current object." },
+        { p: "Every non-static method and constructor receives a hidden reference named <code>this</code> to the current object. The compiler inserts it automatically when you write <code>x</code> for a field (<code>this.x</code>), so you only need to write it explicitly in a few situations:" },
         { ul: [
-          "Disambiguate members from parameters with the same name: <code>this-&gt;x = x;</code>",
-          "Return <code>*this</code> for <b>method chaining</b> (builder / fluent API, <code>operator=</code>)",
-          "Pass the current object to another function: <code>registry.add(this);</code>",
-          "Self-assignment check in <code>operator=</code>: <code>if (this == &amp;other) return *this;</code>",
-          "Java only: <code>this(...)</code> calls another constructor of the same class (constructor chaining)"
+          "Disambiguate a field from a parameter with the same name: <code>this.x = x;</code>",
+          "Return <code>this</code> for <b>method chaining</b> (builder / fluent APIs like <code>StringBuilder.append</code>)",
+          "Pass the current object to another method: <code>registry.add(this);</code>",
+          "<code>this(...)</code> calls another constructor of the same class (<b>constructor chaining</b>) — must be the first statement",
+          "Access the outer instance from an inner class: <code>Outer.this.x</code>"
         ] },
-        { code: [
-          { lang: "cpp", src: `class Counter {
-    int value = 0;
-public:
-    Counter& add(int value) {
-        this->value += value;   // member vs parameter
-        return *this;           // enable chaining
-    }
-    int get() const { return value; }
-};
-
-int main() {
-    Counter c;
-    c.add(2).add(3);            // c.get() == 5
-}` },
-          { lang: "java", src: `class Counter {
+        { code: `class Counter {
     private int value;
-    Counter() { this(0); }             // constructor chaining
-    Counter(int value) { this.value = value; }
+
+    Counter()          { this(0); }               // constructor chaining
+    Counter(int value) { this.value = value; }    // field vs parameter
+
     Counter add(int value) {
         this.value += value;
-        return this;                   // chaining
+        return this;                              // enable chaining
     }
-}` }
-        ] },
-        { warn: "<code>this</code> is not available in <b>static</b> member functions (they are not called on an object). Also, <code>this</code> itself cannot be reassigned." }
+    int get() { return value; }                   // implicit this.value
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Counter c = new Counter();
+        System.out.println(c.add(2).add(3).get());   // 5
+    }
+}`, lang: "java" },
+        { warn: "<code>this</code> is not available in a <b>static</b> context (static methods and static blocks are not called on an object) and cannot be reassigned — <code>this = null;</code> is a compile error." }
       ]
     },
     {
       id: "static-members",
-      q: "What are static data members and static member functions? Static vs instance members?",
+      q: "What are static fields and static methods? Static vs instance members?",
       topic: "Classes & Objects",
       level: 1,
       top: true,
-      short: "A static member belongs to the class, not to any object: one shared copy exists for all instances and it can be accessed via the class name. Static methods have no this pointer so they can only directly use static members. Instance members exist separately in every object.",
+      short: "A static member belongs to the class, not to any object: one shared copy exists for all instances and it is accessed via the class name. Static methods have no this reference so they can only directly use static members. Instance members exist separately in every object.",
       a: [
-        { p: "<b>Instance</b> members belong to each object: every object has its own copy of instance fields, and instance methods run on a specific object (have <code>this</code>). <b>Static</b> members belong to the <b>class</b>: one copy shared across all objects, alive for the whole program." },
+        { p: "<b>Instance</b> members belong to each object: every object has its own copy of instance fields, and instance methods run on a specific object (have <code>this</code>). <b>Static</b> members belong to the <b>class</b>: one copy shared across all objects, created when the class is loaded and alive for the whole program." },
         { table: { head: ["", "Instance", "Static"], rows: [
           ["Copies", "One per object", "One per class"],
-          ["Access", "<code>obj.x</code>", "<code>Class::x</code> (C++) / <code>Class.x</code> (Java)"],
+          ["Access", "<code>obj.x</code>", "<code>ClassName.x</code>"],
           ["<code>this</code> available", "Yes", "No"],
           ["Can access", "Static and instance members", "Only static members directly"],
-          ["Can be virtual / overridden", "Yes", "No (Java: static methods are <i>hidden</i>, not overridden)"],
-          ["Typical use", "Object state", "Counters, constants, factory methods, utility functions"]
+          ["Can be overridden", "Yes", "No (a same-signature static method <i>hides</i> the parent's)"],
+          ["Typical use", "Object state", "Counters, constants, factory methods, utility methods, <code>main</code>"]
         ] } },
-        { code: [
-          { lang: "cpp", src: `class Student {
-    static int count;          // declaration
-public:
-    Student()  { ++count; }
-    ~Student() { --count; }
-    static int getCount() { return count; }  // no 'this'
-};
-int Student::count = 0;        // definition (needed pre-C++17)
-// C++17 alternative inside class: inline static int count = 0;
+        { code: `class Student {
+    private static int count = 0;           // shared by all Students
+    private final String name;              // per object
 
-int main() {
-    Student a, b;
-    std::cout << Student::getCount();  // 2
-}` },
-          { lang: "java", src: `class Student {
-    private static int count = 0;
-    static { /* static block: runs once when class loads */ }
+    static { System.out.println("class loaded"); }   // static block: runs once, at class init
 
-    Student() { count++; }
-    static int getCount() { return count; }
+    Student(String name) { this.name = name; count++; }
+
+    static int getCount() { return count; }          // no 'this': cannot touch 'name'
+    String getName()      { return name; }           // can use both name and count
 }
 
-// Student.getCount();  // call via class name` }
-        ] },
-        { tip: "Java extras interviewers like: static blocks run once at class loading; a <b>static nested class</b> does not hold a reference to the outer object; <code>main</code> is static so the JVM can call it without creating an object." }
-      ]
-    },
-    {
-      id: "empty-class-size",
-      q: "What is the size of an empty class in C++? Why is it not zero?",
-      topic: "Classes & Objects",
-      level: 2,
-      top: true,
-      short: "sizeof an empty class is 1 byte (at least 1), so that every distinct object has a unique address. With a virtual function it becomes the size of a vptr (8 bytes on 64-bit). The Empty Base Optimisation lets an empty base take 0 bytes inside a derived object.",
-      a: [
-        { p: "The C++ standard requires every complete object to have a <b>non-zero size</b> so that two different objects (e.g. elements of an array <code>Empty arr[10]</code>) have <b>distinct addresses</b>. Compilers therefore insert 1 byte." },
-        { code: `#include <iostream>
-struct Empty {};
-struct WithVirtual { virtual void f() {} };
-struct Derived : Empty { int x; };   // Empty Base Optimisation
-struct Member { Empty e; int x; };   // empty *member* still costs space
-
-int main() {
-    std::cout << sizeof(Empty)       << "\\n"; // 1
-    std::cout << sizeof(WithVirtual) << "\\n"; // 8 on 64-bit (vptr)
-    std::cout << sizeof(Derived)     << "\\n"; // 4 (EBO: base adds 0)
-    std::cout << sizeof(Member)      << "\\n"; // 8 (1 + padding + 4)
-}`, lang: "cpp", title: "Output on a typical 64-bit compiler" },
-        { ul: [
-          "Member functions (non-virtual) and static members add nothing to <code>sizeof</code>.",
-          "The first virtual function adds one hidden <b>vptr</b>; more virtual functions do not increase size further.",
-          "C++20 adds <code>[[no_unique_address]]</code> to get EBO-like savings for empty members."
-        ] },
-        { tip: "Follow-up: 'Size of a class with one char and one int?' → 8 because of alignment padding. Reordering members from largest to smallest reduces padding." }
-      ]
-    },
-    {
-      id: "friend-function-class",
-      q: "What is a friend function and a friend class in C++? Does it violate encapsulation?",
-      topic: "Classes & Objects",
-      level: 2,
-      top: true,
-      short: "A friend function or friend class is granted access to a class's private and protected members even though it is not a member. Friendship is granted by the class, is not inherited, not mutual and not transitive. Used sparingly (e.g. for the stream output operator), it extends the class's interface rather than breaking encapsulation.",
-      a: [
-        { p: "A <b>friend</b> is a non-member function or another class that the class explicitly trusts with access to its <code>private</code>/<code>protected</code> members. It is declared inside the class with the <code>friend</code> keyword." },
-        { code: `#include <iostream>
-class Box {
-    double width;
-public:
-    explicit Box(double w) : width(w) {}
-    friend void printWidth(const Box& b);                 // friend function
-    friend std::ostream& operator<<(std::ostream&, const Box&);
-    friend class BoxInspector;                            // friend class
-};
-
-void printWidth(const Box& b) { std::cout << b.width << "\\n"; }
-std::ostream& operator<<(std::ostream& os, const Box& b) {
-    return os << "Box(" << b.width << ")";
-}
-class BoxInspector {
-public:
-    double peek(const Box& b) { return b.width; }         // allowed
-};`, lang: "cpp" },
-        { ul: [
-          "Not a member: no <code>this</code>, called like a normal function, unaffected by access specifier placement.",
-          "<b>Not inherited</b>: a friend of Base is not a friend of Derived.",
-          "<b>Not mutual</b>: A friend of B does not make B a friend of A.",
-          "<b>Not transitive</b>: friend of a friend is not a friend.",
-          "Classic use: <code>operator&lt;&lt;</code> / <code>operator&gt;&gt;</code> (left operand is a stream, so it cannot be a member), and symmetric binary operators."
-        ] },
-        { tip: "Java has no <code>friend</code>; the closest is package-private access. Say friend 'extends the interface under the class's control' — only the class can grant friendship — but overuse does increase coupling." }
-      ]
-    },
-    {
-      id: "const-member-functions",
-      q: "What is a const member function? What are const objects?",
-      topic: "Classes & Objects",
-      level: 2,
-      top: true,
-      short: "A const member function (declared with const after the parameter list) promises not to modify the object's observable state; inside it this is a pointer to const. Const objects and const references can only call const member functions.",
-      a: [
-        { p: "Writing <code>const</code> after a member function's parameter list makes <code>this</code> a <code>const X*</code>. The compiler then rejects any modification of non-<code>mutable</code> data members and calls to non-const member functions." },
-        { code: `class Account {
-    double balance = 0;
-public:
-    double getBalance() const { return balance; }   // read-only
-    void deposit(double amt) { balance += amt; }    // modifies
-    // void bad() const { balance = 0; }            // error
-};
-
-void show(const Account& acc) {
-    acc.getBalance();    // OK: const function
-    // acc.deposit(10);  // error: deposit() is not const
-}
-
-int main() {
-    const Account a;     // const object
-    a.getBalance();      // OK
-}`, lang: "cpp" },
-        { ul: [
-          "Const-ness is part of the function signature, so you can overload on it: <code>T&amp; operator[](size_t)</code> and <code>const T&amp; operator[](size_t) const</code>.",
-          "Mark every getter <code>const</code> — otherwise it cannot be used via <code>const&amp;</code> parameters, which is how objects are normally passed.",
-          "<code>mutable</code> members may still be changed inside const functions (caches, mutexes).",
-          "Static member functions cannot be const (there is no <code>this</code>)."
-        ] },
-        { tip: "Java has no const methods; <code>final</code> on a field only prevents reassignment of the reference, not mutation of the object it points to." }
-      ]
-    },
-    {
-      id: "inline-functions",
-      q: "What is an inline function? When does the compiler ignore it?",
-      topic: "Classes & Objects",
-      level: 2,
-      top: true,
-      short: "inline suggests replacing a call with the function body to avoid call overhead; functions defined inside a class body are implicitly inline. Today inline mainly means 'may be defined in multiple translation units' (ODR); the optimiser decides actual inlining and ignores it for large, recursive or virtual-through-pointer calls.",
-      a: [
-        { p: "An <b>inline function</b> is one where the compiler may substitute the function body at the call site, removing call/return overhead. Member functions <b>defined inside the class body</b> are implicitly inline." },
-        { code: `class Point {
-    int x, y;
-public:
-    int getX() const { return x; }   // implicitly inline
-    inline int getY() const;         // explicit
-};
-inline int Point::getY() const { return y; }  // must be visible in every TU that uses it`, lang: "cpp" },
-        { p: "<code>inline</code> is only a <b>hint</b>. Compilers usually won't inline when the function:" },
-        { ul: [
-          "is large or contains loops/switch that would bloat code",
-          "is recursive (unbounded depth)",
-          "is virtual and called through a pointer/reference (target unknown at compile time)",
-          "has its address taken (a real out-of-line copy must exist)"
-        ] },
-        { table: { head: ["", "Inline function", "Macro (#define)"], rows: [
-          ["Type checking", "Yes", "No (text substitution)"],
-          ["Arguments evaluated", "Once", "Possibly multiple times (<code>SQ(i++)</code> bug)"],
-          ["Access private members", "Yes (if a member)", "No"],
-          ["Debuggable", "Yes", "Hard"]
-        ] } },
-        { tip: "Modern meaning: <code>inline</code> relaxes the One Definition Rule so the same definition can live in a header included by many .cpp files. C++17 extends this to <code>inline</code> variables." }
-      ]
-    },
-    {
-      id: "mutable-keyword",
-      q: "What is the mutable keyword in C++?",
-      topic: "Classes & Objects",
-      level: 2,
-      top: false,
-      short: "mutable marks a data member that may be modified even inside a const member function or in a const object. It is meant for state that is not part of the object's logical value, such as caches, lazy-computed values, access counters and mutexes.",
-      a: [
-        { p: "<code>mutable</code> separates <b>logical constness</b> (what the user can observe) from <b>bitwise constness</b>. A <code>mutable</code> member can be changed inside a <code>const</code> function because changing it does not change the object's observable value." },
-        { code: `#include <mutex>
-#include <string>
-class Document {
-    std::string text;
-    mutable bool   cacheValid = false;
-    mutable size_t cachedWords = 0;
-    mutable std::mutex m;               // locking is not a logical change
-public:
-    size_t wordCount() const {
-        std::lock_guard<std::mutex> lock(m);
-        if (!cacheValid) {
-            cachedWords = computeWords();   // allowed: mutable
-            cacheValid = true;
-        }
-        return cachedWords;
+public class Main {
+    public static void main(String[] args) {         // static so the JVM needs no object
+        new Student("Asha"); new Student("Ravi");
+        System.out.println(Student.getCount());      // 2  (call via class name)
     }
-private:
-    size_t computeWords() const { return text.empty() ? 0 : 1; /* ... */ }
-};`, lang: "cpp" },
+}`, lang: "java" },
         { ul: [
-          "Also used in lambdas: <code>[x]() mutable { ++x; }</code> lets the lambda modify its by-value captures.",
-          "Cannot be applied to <code>const</code>, <code>static</code> or reference members."
+          "A <b>static nested class</b> does not hold a reference to an outer instance; an inner (non-static) class does.",
+          "Static methods are bound at <b>compile time</b>, cannot be abstract, and cannot use <code>super</code> or <code>this</code>.",
+          "Static fields live with the <code>Class</code> object (heap since Java 8) and are initialised in textual order when the class is first actively used.",
+          "Too many statics = global state: hard to test and thread-unsafe. Use them for stateless utilities and constants."
         ] },
-        { warn: "Don't use <code>mutable</code> to silence the compiler on state that really is part of the object's value — that breaks the const contract and thread-safety expectations." }
+        { tip: "Interview favourite: why is <code>main</code> static? Because the JVM must call it before any object exists. Can we overload <code>main</code>? Yes, but only <code>public static void main(String[])</code> is the entry point." }
+      ]
+    },
+    {
+      id: "object-class-methods",
+      q: "What methods does java.lang.Object provide? Which ones do you usually override?",
+      topic: "Classes & Objects",
+      level: 2,
+      top: true,
+      short: "Every class implicitly extends Object, which gives it equals, hashCode, toString, getClass, clone, finalize and the monitor methods wait/notify/notifyAll. You typically override equals, hashCode and toString; clone only when implementing Cloneable; the rest are final or deprecated.",
+      a: [
+        { p: "<code>Object</code> is the root of Java's single-rooted class hierarchy, so every reference can be treated as an <code>Object</code> and every object has these methods:" },
+        { table: { head: ["Method", "Default behaviour", "Override?"], rows: [
+          ["<code>equals(Object)</code>", "Reference equality (<code>==</code>)", "Yes, for value semantics — together with <code>hashCode</code>"],
+          ["<code>hashCode()</code>", "Identity hash (often address-based)", "Yes, whenever <code>equals</code> is overridden"],
+          ["<code>toString()</code>", "<code>ClassName@hexHash</code>", "Yes, for readable logs/debugging"],
+          ["<code>getClass()</code>", "Runtime <code>Class</code> object", "<b>final</b> — cannot"],
+          ["<code>clone()</code>", "Field-by-field shallow copy; <code>protected</code>; throws unless <code>Cloneable</code>", "Only if the class supports cloning"],
+          ["<code>finalize()</code>", "Nothing; called by GC before reclaim", "No — deprecated since Java 9"],
+          ["<code>wait()</code> / <code>notify()</code> / <code>notifyAll()</code>", "Thread coordination on the object's monitor", "<b>final</b> — cannot"]
+        ] } },
+        { code: `import java.util.Objects;
+
+class Employee {
+    private final int id;
+    private final String name;
+    Employee(int id, String name) { this.id = id; this.name = name; }
+
+    @Override public String toString() { return "Employee{" + id + ", " + name + "}"; }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Employee)) return false;      // also rejects null
+        Employee e = (Employee) o;
+        return id == e.id && Objects.equals(name, e.name);
+    }
+    @Override public int hashCode() { return Objects.hash(id, name); }   // same fields as equals
+}`, lang: "java" },
+        { ul: [
+          "<code>getClass()</code> returns the <b>runtime</b> class: <code>Object o = new Employee(1, \"A\"); o.getClass()</code> is <code>Employee.class</code>.",
+          "<code>wait/notify</code> must be called while holding the object's monitor (<code>synchronized</code>), otherwise <code>IllegalMonitorStateException</code>.",
+          "Records generate <code>equals</code>, <code>hashCode</code> and <code>toString</code> automatically."
+        ] },
+        { tip: "Debate to know: <code>instanceof</code> in <code>equals</code> allows subclass equality (may break symmetry), <code>getClass() == o.getClass()</code> is strict. Effective Java recommends <code>instanceof</code> unless the class is final." }
+      ]
+    },
+    {
+      id: "nested-inner-classes",
+      q: "What are nested classes in Java? Compare static nested, inner, local and anonymous classes.",
+      topic: "Classes & Objects",
+      level: 2,
+      top: true,
+      short: "A nested class is declared inside another class. A static nested class is just a namespaced class with no outer instance. An inner (non-static) class holds a hidden reference to its enclosing instance and can use its private members. Local classes live inside a method; anonymous classes are one-off implementations created inline.",
+      a: [
+        { table: { head: ["Kind", "Declared", "Needs outer instance", "Typical use"], rows: [
+          ["Static nested", "<code>static class</code> inside a class", "No", "Helper types: <code>Map.Entry</code>, builders, node classes"],
+          ["Inner (member)", "non-static class inside a class", "Yes — <code>Outer.this</code>", "Iterators, objects tightly bound to one outer object"],
+          ["Local", "Inside a method body", "Yes if in instance method", "Type needed only within one method"],
+          ["Anonymous", "<code>new Interface() { ... }</code>", "Yes if in instance context", "One-off listeners/comparators (mostly replaced by lambdas)"]
+        ] } },
+        { code: `class Outer {
+    private int x = 10;
+
+    static class StaticNested {                  // no reference to an Outer instance
+        void hi() { System.out.println("nested"); }
+    }
+    class Inner {                                // holds Outer.this
+        void show() { System.out.println(x); }   // can read Outer's private fields
+    }
+    void run() {
+        class Local { int twice() { return 2 * x; } }   // local class: visible only in run()
+        Runnable r = new Runnable() {                   // anonymous class
+            @Override public void run() { System.out.println(x + new Local().twice()); }
+        };
+        r.run();                                        // 30
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Outer.StaticNested n = new Outer.StaticNested();   // no Outer needed
+        Outer o = new Outer();
+        Outer.Inner in = o.new Inner();                    // needs an Outer instance
+        in.show();                                         // 10
+    }
+}`, lang: "java" },
+        { ul: [
+          "Nested classes can be <code>private</code>/<code>protected</code>, unlike top-level classes.",
+          "Local and anonymous classes can capture only <b>effectively final</b> local variables.",
+          "A lambda is <i>not</i> an anonymous class: it has no <code>this</code> of its own (<code>this</code> means the enclosing instance) and no new scope."
+        ] },
+        { warn: "An inner class silently keeps its outer object alive. Long-lived inner objects (listeners, threads, cached entries) are a classic memory-leak source — prefer <code>static</code> nested classes unless you need the outer instance." }
       ]
     },
 
@@ -478,34 +427,30 @@ private:
       topic: "Encapsulation & Abstraction",
       level: 1,
       top: true,
-      short: "Abstraction is a design-level idea: expose only what an object does and hide how (via interfaces/abstract classes). Encapsulation is an implementation-level mechanism: bundle data with its methods and restrict direct access (via access specifiers). Abstraction hides complexity; encapsulation hides and protects data.",
+      short: "Abstraction is a design-level idea: expose only what an object does and hide how (via interfaces/abstract classes). Encapsulation is an implementation-level mechanism: bundle data with its methods and restrict direct access (via access modifiers). Abstraction hides complexity; encapsulation hides and protects data.",
       a: [
         { p: "<b>Abstraction</b> = focusing on <i>what</i> an object does and hiding <i>how</i>. <b>Encapsulation</b> = wrapping data and methods into a single unit and controlling access so the internal state can only change through well-defined methods." },
         { table: { head: ["", "Abstraction", "Encapsulation"], rows: [
           ["Focus", "What the object does (outside view)", "How data is protected (inside view)"],
           ["Level", "Design level", "Implementation level"],
           ["Hides", "Implementation complexity", "Internal data / state"],
-          ["Achieved by", "Abstract classes, interfaces, pure virtual functions, public APIs", "<code>private</code> fields + public getters/setters, classes"],
+          ["Achieved by", "<code>abstract class</code>, <code>interface</code>, public APIs", "<code>private</code> fields + public getters/setters, classes"],
           ["Example", "<code>car.start()</code> — you don't know about the ignition sequence", "<code>fuelLevel</code> is private; only <code>refuel()</code> may change it"]
         ] } },
-        { code: `class Shape {                   // ABSTRACTION: callers only see area()
-public:
-    virtual double area() const = 0;
-    virtual ~Shape() = default;
-};
+        { code: `interface Shape {                       // ABSTRACTION: callers only see area()
+    double area();
+}
 
-class Circle : public Shape {
-    double r;                   // ENCAPSULATION: state hidden
-public:
-    explicit Circle(double radius) {
-        setRadius(radius);
-    }
-    void setRadius(double radius) {   // controlled access, with validation
-        if (radius < 0) throw std::invalid_argument("negative radius");
+class Circle implements Shape {
+    private double r;                   // ENCAPSULATION: state hidden
+    Circle(double radius) { setRadius(radius); }
+
+    void setRadius(double radius) {     // controlled access, with validation
+        if (radius < 0) throw new IllegalArgumentException("negative radius");
         r = radius;
     }
-    double area() const override { return 3.14159 * r * r; }
-};`, lang: "cpp" },
+    @Override public double area() { return Math.PI * r * r; }
+}`, lang: "java" },
         { tip: "One-liner for interviews: 'Abstraction solves the problem at the design level by hiding complexity; encapsulation solves it at the implementation level by hiding data.' Real-world: a TV remote's buttons are abstraction; the sealed casing around the circuit is encapsulation." }
       ]
     },
@@ -515,27 +460,10 @@ public:
       topic: "Encapsulation & Abstraction",
       level: 1,
       top: true,
-      short: "Data hiding means making a class's data members inaccessible from outside (private) so they can only be changed through validated methods. Encapsulation is the broader idea of bundling data with methods; data hiding is the access-restriction part of it.",
+      short: "Data hiding means making a class's fields inaccessible from outside (private) so they can only be changed through validated methods. Encapsulation is the broader idea of bundling data with methods; data hiding is the access-restriction part of it.",
       a: [
-        { p: "<b>Data hiding</b> restricts direct access to an object's data members by declaring them <code>private</code> (or <code>protected</code>), so that the object can enforce its own <b>invariants</b> (e.g. balance never negative)." },
-        { code: [
-          { lang: "cpp", src: `class BankAccount {
-private:
-    double balance = 0;               // hidden
-public:
-    void deposit(double amt) {
-        if (amt <= 0) throw std::invalid_argument("bad amount");
-        balance += amt;
-    }
-    bool withdraw(double amt) {
-        if (amt > balance) return false;   // invariant protected
-        balance -= amt;
-        return true;
-    }
-    double getBalance() const { return balance; }
-};
-// acc.balance = -500;   // compile error: private` },
-          { lang: "java", src: `public class BankAccount {
+        { p: "<b>Data hiding</b> restricts direct access to an object's fields by declaring them <code>private</code> (or <code>protected</code>), so that the object can enforce its own <b>invariants</b> (e.g. balance never negative)." },
+        { code: `public class BankAccount {
     private double balance;           // hidden
 
     public void deposit(double amt) {
@@ -543,19 +471,19 @@ public:
         balance += amt;
     }
     public boolean withdraw(double amt) {
-        if (amt > balance) return false;
+        if (amt > balance) return false;   // invariant protected
         balance -= amt;
         return true;
     }
-    public double getBalance() { return balance; }
-}` }
-        ] },
+    public double getBalance() { return balance; }   // read-only view
+}
+// acc.balance = -500;   // compile error: balance has private access`, lang: "java" },
         { table: { head: ["Data hiding", "Encapsulation"], rows: [
           ["Concerned with <b>security / access</b> of data", "Concerned with <b>bundling</b> data and behaviour"],
-          ["Achieved with <code>private</code>", "Achieved with classes (+ access specifiers)"],
+          ["Achieved with <code>private</code>", "Achieved with classes (+ access modifiers)"],
           ["A part / outcome of encapsulation", "The broader concept"]
         ] } },
-        { warn: "Blindly adding a public getter and setter for every private field gives you encapsulation on paper but no real data hiding — the setter must validate or the field should not be settable at all." }
+        { warn: "Blindly adding a public getter and setter for every private field (what IDEs and Lombok generate) gives you encapsulation on paper but no real data hiding — the setter must validate, or the field should not be settable at all." }
       ]
     },
     {
@@ -564,108 +492,125 @@ public:
       topic: "Encapsulation & Abstraction",
       level: 1,
       top: true,
-      short: "An abstract class can have state (fields), constructors and both abstract and concrete methods; a class can extend only one (in Java). An interface defines a contract: no instance state, methods are abstract by default (plus default/static methods since Java 8), and a class can implement many. C++ has no interface keyword; an interface is a class with only pure virtual functions.",
+      short: "An abstract class can have state (fields), constructors and both abstract and concrete methods; a class can extend only one. An interface defines a contract: no instance state, methods are public abstract by default (plus default/static methods since Java 8, private since Java 9), and a class can implement many.",
       a: [
         { p: "Both define a contract that cannot be instantiated directly. An <b>abstract class</b> is a partially implemented base (a common 'is-a' parent). An <b>interface</b> is a pure capability contract ('can-do': <code>Comparable</code>, <code>Runnable</code>)." },
-        { table: { head: ["Feature", "Abstract class (Java)", "Interface (Java 8+)"], rows: [
+        { table: { head: ["Feature", "Abstract class", "Interface (Java 8+)"], rows: [
           ["Keyword", "<code>abstract class</code>, <code>extends</code>", "<code>interface</code>, <code>implements</code>"],
-          ["Multiple inheritance", "A class extends only one", "A class implements many"],
+          ["Multiple inheritance", "A class extends only one", "A class implements many; an interface extends many"],
           ["Instance fields", "Yes, any", "No — only <code>public static final</code> constants"],
           ["Constructors", "Yes (called via <code>super</code>)", "No"],
           ["Methods", "Abstract + concrete", "Abstract; <code>default</code> and <code>static</code> (Java 8), <code>private</code> (Java 9)"],
           ["Member access", "Any modifier", "Methods implicitly <code>public</code>"],
+          ["Speed", "Slightly faster dispatch (<code>invokevirtual</code>)", "<code>invokeinterface</code>; negligible after JIT"],
           ["Use when", "Related classes share code/state", "Unrelated classes share a capability"]
         ] } },
-        { p: "In <b>C++</b> there is no <code>interface</code> keyword. A class with at least one pure virtual function is abstract; a class with <i>only</i> pure virtual functions (and a virtual destructor) acts as an interface. Multiple inheritance of such classes is safe." },
-        { code: [
-          { lang: "cpp", src: `// "Interface": only pure virtuals
-class Drawable {
-public:
-    virtual void draw() const = 0;
-    virtual ~Drawable() = default;
-};
-
-// Abstract class: state + partial implementation
-class Shape {
-protected:
-    std::string name;
-public:
-    explicit Shape(std::string n) : name(std::move(n)) {}
-    virtual double area() const = 0;              // abstract
-    void describe() const {                       // concrete
-        std::cout << name << " area=" << area() << "\\n";
-    }
-    virtual ~Shape() = default;
-};
-
-class Square : public Shape, public Drawable {    // one base + interface
-    double s;
-public:
-    explicit Square(double side) : Shape("Square"), s(side) {}
-    double area() const override { return s * s; }
-    void draw() const override { std::cout << "[]\\n"; }
-};` },
-          { lang: "java", src: `interface Drawable {
+        { code: `interface Drawable {
     void draw();                                  // public abstract
-    default void drawTwice() { draw(); draw(); }  // Java 8
+    default void drawTwice() { draw(); draw(); }  // Java 8: default method
 }
 
 abstract class Shape {
-    protected final String name;
-    Shape(String name) { this.name = name; }
-    abstract double area();
-    void describe() { System.out.println(name + " area=" + area()); }
+    protected final String name;                  // state
+    Shape(String name) { this.name = name; }      // constructor
+    abstract double area();                       // abstract
+    void describe() { System.out.println(name + " area=" + area()); }   // concrete
 }
 
-class Square extends Shape implements Drawable {
+class Square extends Shape implements Drawable {  // one base + any number of interfaces
     private final double s;
     Square(double s) { super("Square"); this.s = s; }
     @Override double area() { return s * s; }
     @Override public void draw() { System.out.println("[]"); }
-}` }
-        ], title: "Abstract class + interface together" },
-        { tip: "Can an abstract class have a constructor? <b>Yes</b> — it runs when a subclass object is created, to initialise the base part. Can it have no abstract methods? Yes in Java (just marked <code>abstract</code> to prevent instantiation)." }
+}`, lang: "java", title: "Abstract class + interface together" },
+        { tip: "Can an abstract class have a constructor? <b>Yes</b> — it runs via <code>super()</code> when a subclass object is created, to initialise the base part. Can it have no abstract methods? Yes (just marked <code>abstract</code> to prevent instantiation). Follow-up: 'With default methods, why still use abstract classes?' — fields, constructors and non-public members." }
       ]
     },
     {
-      id: "pure-virtual-function",
-      q: "What is a pure virtual function? Can it have a body?",
+      id: "abstract-class-rules",
+      q: "What is an abstract method? Can an abstract class have constructors, static methods, final methods or no abstract methods at all?",
       topic: "Encapsulation & Abstraction",
       level: 2,
       top: true,
-      short: "A pure virtual function is declared with = 0; it has no required implementation in the base and makes the class abstract, forcing concrete derived classes to override it. It can still be given a body outside the class, which derived classes may call explicitly; a pure virtual destructor must have one.",
+      short: "An abstract method is declared with abstract and no body; its class must be abstract, and the first concrete subclass must implement it. An abstract class can have constructors, fields, static, final and concrete methods, and may even have zero abstract methods. It cannot be instantiated, and abstract cannot be combined with final, private or static.",
       a: [
-        { p: "A <b>pure virtual function</b> is a virtual function declared with the pure-specifier <code>= 0</code>. Any class with at least one pure virtual function (declared or inherited and not overridden) is an <b>abstract class</b>: you cannot create objects of it, but you can have pointers/references to it." },
-        { code: `#include <iostream>
-class Base {
-public:
-    virtual void greet() = 0;          // pure virtual
-    virtual ~Base() = 0;               // pure virtual destructor
-};
-void Base::greet() { std::cout << "default greeting\\n"; }  // optional body
-Base::~Base() {}                       // REQUIRED: always called by derived dtor
+        { p: "Declaring a method <code>abstract</code> says: 'every concrete subclass must provide this'. Any class with at least one abstract method (declared or inherited and not implemented) must itself be declared <code>abstract</code>, and <code>new</code> on it is a compile error — but references of that type are fine, which is the basis of run-time polymorphism." },
+        { code: `abstract class Vehicle {
+    protected final String name;
+    Vehicle(String name) { this.name = name; }         // constructor: runs via super()
 
-class Derived : public Base {
-public:
-    void greet() override {
-        Base::greet();                 // explicitly reuse base body
-        std::cout << "hello from Derived\\n";
+    abstract double maxSpeed();                        // abstract: no body
+
+    void describe() { System.out.println(name + " " + maxSpeed()); }   // concrete
+    final void honk() { System.out.println("beep"); }                  // final: fixed for all
+    static Vehicle of(String kind) {                                   // static factory
+        return kind.equals("car") ? new Car() : new Bike();
     }
-};
+}
+class Car  extends Vehicle { Car()  { super("Car");  } double maxSpeed() { return 180; } }
+class Bike extends Vehicle { Bike() { super("Bike"); } double maxSpeed() { return 120; } }
 
-int main() {
-    // Base b;                         // error: abstract class
-    Derived d;
-    Base& r = d;
-    r.greet();
-}`, lang: "cpp" },
-        { ul: [
-          "A derived class that doesn't override every pure virtual function is also abstract.",
-          "A pure virtual function <b>can</b> have a definition; it's never called via virtual dispatch, only via qualified call <code>Base::greet()</code>.",
-          "A pure virtual destructor is a trick to make a class abstract when it has no other natural pure function — but it must be defined.",
-          "Java equivalent: an <code>abstract</code> method (never has a body)."
+public class Main {
+    public static void main(String[] args) {
+        // Vehicle v = new Vehicle("x");      // error: Vehicle is abstract
+        Vehicle v = Vehicle.of("car");        // reference of abstract type is fine
+        v.describe();                         // Car 180.0
+    }
+}`, lang: "java" },
+        { table: { head: ["Combination", "Allowed?", "Why"], rows: [
+          ["<code>abstract</code> + <code>final</code> method/class", "No", "final forbids overriding/extending; abstract requires it"],
+          ["<code>abstract</code> + <code>private</code> method", "No", "private methods are invisible to subclasses"],
+          ["<code>abstract</code> + <code>static</code> method", "No", "static methods are not overridden"],
+          ["Abstract method in a non-abstract class", "No", "The class must be marked abstract"],
+          ["Abstract class with no abstract methods", "Yes", "Just prevents instantiation (e.g. <code>HttpServlet</code>)"],
+          ["Abstract class with constructor / static methods / fields", "Yes", "Initialises the base part; subclasses call <code>super(...)</code>"],
+          ["Abstract constructor", "No", "Constructors are never inherited or overridden"]
+        ] } },
+        { warn: "Calling an abstract (or any overridable) method from the abstract class's constructor runs the subclass version <i>before</i> the subclass's fields are initialised — they still hold <code>0</code>/<code>null</code>. Avoid it." }
+      ]
+    },
+    {
+      id: "immutable-class",
+      q: "How do you create an immutable class in Java? Why is immutability useful?",
+      topic: "Encapsulation & Abstraction",
+      level: 2,
+      top: true,
+      short: "Make the class final (or all constructors private), make every field private and final, set them only in the constructor, provide no setters, and defensively copy any mutable field on the way in and out. Immutable objects are thread-safe, safe as HashMap keys, freely shareable and easy to reason about.",
+      a: [
+        { p: "An <b>immutable</b> object's observable state never changes after construction. <code>String</code>, the wrapper classes, <code>BigDecimal</code> and <code>java.time</code> types are all immutable — 'modifying' methods return a new object." },
+        { code: `import java.util.*;
+
+public final class Student {                          // 1. final: no subclass can add mutators
+    private final String name;                        // 2. private final fields
+    private final List<String> courses;
+
+    public Student(String name, List<String> courses) {
+        this.name = name;
+        this.courses = new ArrayList<>(courses);      // 3. defensive copy IN
+    }
+    public String getName() { return name; }          // 4. getters only, no setters
+    public List<String> getCourses() {
+        return Collections.unmodifiableList(courses); // 5. defensive copy / view OUT
+    }
+    public Student withName(String newName) {         // 'modification' = new object
+        return new Student(newName, courses);
+    }
+}`, lang: "java" },
+        { ol: [
+          "Declare the class <code>final</code> so a subclass cannot add mutable state or override getters.",
+          "Make all fields <code>private final</code>; initialise them in the constructor only.",
+          "No setters or any method that changes state.",
+          "Deep/defensive copy mutable arguments in the constructor (the caller may still hold the original list).",
+          "Never return a mutable field directly — return a copy or an unmodifiable view.",
+          "Optionally cache <code>hashCode</code>, since it can never change."
         ] },
-        { warn: "Calling a pure virtual function from the base class constructor or destructor (directly or indirectly) is undefined behaviour — typically a crash with 'pure virtual function called'." }
+        { table: { head: ["Benefit", "Why"], rows: [
+          ["Thread safety", "No writes after construction → no synchronisation needed"],
+          ["Safe hash keys", "<code>hashCode</code> can't change while the object sits in a <code>HashMap</code>"],
+          ["Free sharing / caching", "Any number of references can share one instance (String pool)"],
+          ["Simplicity", "No temporal coupling — an object is valid from birth to death"]
+        ] } },
+        { tip: "A <code>record</code> (Java 16) gives you final class, private final fields, constructor and accessors in one line — but it is only <i>shallowly</i> immutable: you still need defensive copies for mutable components. Also mention: <code>final</code> on a reference does not make the referenced object immutable." }
       ]
     },
 
@@ -676,9 +621,9 @@ int main() {
       topic: "Inheritance",
       level: 1,
       top: true,
-      short: "Inheritance lets a derived class acquire the members of a base class, modelling an is-a relationship and enabling reuse and polymorphism. Types: single, multilevel, multiple, hierarchical and hybrid. C++ supports all five; Java supports multiple inheritance only through interfaces.",
+      short: "Inheritance lets a subclass acquire the members of a superclass, modelling an is-a relationship and enabling reuse and polymorphism. Types: single, multilevel, hierarchical, multiple and hybrid. Java supports the first three with classes; multiple and hybrid only through interfaces.",
       a: [
-        { p: "<b>Inheritance</b> is the mechanism by which a new class (derived / child / subclass) is created from an existing class (base / parent / superclass), reusing its data and methods and optionally extending or overriding them." },
+        { p: "<b>Inheritance</b> is the mechanism by which a new class (subclass / child / derived) is created from an existing class (superclass / parent / base) using <code>extends</code>, reusing its fields and methods and optionally adding to or overriding them. Every Java class ultimately extends <code>Object</code>." },
         { svg: `<svg viewBox="0 0 720 210" width="720" class="dg">
   <rect class="box-a" x="50" y="36" width="44" height="28" rx="6"/>
   <text class="tx tx-b" x="72" y="50" text-anchor="middle" dominant-baseline="middle">A</text>
@@ -726,33 +671,40 @@ int main() {
   <text class="tx tx-b" x="360" y="198" text-anchor="middle">Multiple</text>
   <text class="tx tx-b" x="504" y="198" text-anchor="middle">Hierarchical</text>
   <text class="tx tx-b" x="648" y="198" text-anchor="middle">Hybrid</text>
-</svg>`, caption: "Arrows point from derived class to base class (UML generalisation)." },
-        { table: { head: ["Type", "Shape", "C++", "Java"], rows: [
-          ["Single", "B derives from A", "Yes", "Yes"],
+</svg>`, caption: "Arrows point from subclass to superclass (UML generalisation)." },
+        { table: { head: ["Type", "Shape", "Java classes", "Java interfaces"], rows: [
+          ["Single", "B extends A", "Yes", "Yes"],
           ["Multilevel", "C → B → A (chain)", "Yes", "Yes"],
-          ["Multiple", "C derives from A and B", "Yes", "Only via interfaces"],
-          ["Hierarchical", "B and C both derive from A", "Yes", "Yes"],
-          ["Hybrid", "Combination, e.g. diamond", "Yes (use <code>virtual</code> bases)", "Only via interfaces"]
+          ["Hierarchical", "B and C both extend A", "Yes", "Yes"],
+          ["Multiple", "C extends A and B", "<b>No</b>", "Yes — <code>implements A, B</code>"],
+          ["Hybrid", "Combination, e.g. diamond", "<b>No</b>", "Yes — via interfaces"]
         ] } },
-        { code: `class A { };
-class B : public A { };            // single
-class C : public B { };            // multilevel  (C -> B -> A)
-class X { };
-class M : public A, public X { };  // multiple
-class H1 : public A { };           // hierarchical: H1 and H2 share base A
-class H2 : public A { };`, lang: "cpp" },
-        { tip: "Advantages: code reuse, extensibility, enables runtime polymorphism. Disadvantages: tight coupling to the base (fragile base class problem), deep hierarchies are hard to follow — mention 'favour composition over inheritance'." }
+        { code: `class A { }
+class B extends A { }              // single
+class C extends B { }              // multilevel  (C -> B -> A)
+class H1 extends A { }             // hierarchical: H1 and H2 share parent A
+class H2 extends A { }
+
+interface X { }
+interface Y extends X { }          // interfaces can extend interfaces
+class M implements X, Y { }        // "multiple" only through interfaces
+// class Bad extends A, H1 { }     // error: a class extends exactly one class`, lang: "java" },
+        { ul: [
+          "What is <b>not</b> inherited: constructors, <code>private</code> members (they exist in the object but are inaccessible), and static members are shared rather than inherited.",
+          "A <code>final</code> class (<code>String</code>, <code>Integer</code>) cannot be extended; a <code>sealed</code> class (Java 17) lists exactly which classes may extend it."
+        ] },
+        { tip: "Advantages: code reuse, extensibility, enables runtime polymorphism. Disadvantages: tight coupling to the parent (fragile base class problem), deep hierarchies are hard to follow — mention 'favour composition over inheritance'." }
       ]
     },
     {
       id: "diamond-problem",
-      q: "What is the diamond problem? How does virtual inheritance solve it in C++?",
+      q: "What is the diamond problem? How does Java deal with it?",
       topic: "Inheritance",
       level: 2,
       top: true,
-      short: "In the diamond problem, D inherits from B and C which both inherit from A, so D contains two copies of A and any access to A's members is ambiguous. Declaring B and C with virtual public A makes them share a single A subobject, which the most-derived class D constructs directly.",
+      short: "In the diamond problem, D inherits from B and C which both inherit from A, so D would contain two copies of A's state and any call to an A method is ambiguous. Java sidesteps it for classes by allowing only single inheritance. Interfaces carry no state, so the only conflict is two default methods with the same signature — and then the class must override and pick one with X.super.m().",
       a: [
-        { p: "When a class inherits from two classes that share a common base, the most-derived object ends up with <b>two separate base subobjects</b>. Accessing a base member (<code>d.value</code>) or converting <code>D*</code> to <code>A*</code> becomes <b>ambiguous</b>, and the duplicated state wastes memory and can diverge." },
+        { p: "When a type inherits from two types that share a common ancestor, the most-derived type could end up with <b>two copies of the ancestor's fields</b> and an ambiguous answer to 'which inherited <code>m()</code> do I call?'. C++ allows this and needs <i>virtual inheritance</i> to fix it; Java's designers avoided it outright." },
         { svg: `<svg viewBox="0 0 640 220" width="640" class="dg">
   <rect class="box-r" x="60" y="15" width="90" height="30" rx="6"/>
   <text class="tx tx-b" x="105" y="30" text-anchor="middle" dominant-baseline="middle">A (copy 1)</text>
@@ -769,7 +721,7 @@ class H2 : public A { };`, lang: "cpp" },
   <line class="ln" x1="150" y1="155" x2="117" y2="117" marker-end="url(#dg-arr)"/>
   <line class="ln" x1="190" y1="155" x2="223" y2="117" marker-end="url(#dg-arr)"/>
   <rect class="box-g" x="445" y="15" width="90" height="30" rx="6"/>
-  <text class="tx tx-b" x="490" y="30" text-anchor="middle" dominant-baseline="middle">A (shared)</text>
+  <text class="tx tx-b" x="490" y="30" text-anchor="middle" dominant-baseline="middle">A (interface)</text>
   <rect class="box" x="365" y="85" width="90" height="30" rx="6"/>
   <text class="tx tx-b" x="410" y="100" text-anchor="middle" dominant-baseline="middle">B</text>
   <rect class="box" x="525" y="85" width="90" height="30" rx="6"/>
@@ -780,41 +732,32 @@ class H2 : public A { };`, lang: "cpp" },
   <line class="ln-a" x1="560" y1="85" x2="507" y2="47" marker-end="url(#dg-arr-a)"/>
   <line class="ln" x1="475" y1="155" x2="425" y2="117" marker-end="url(#dg-arr)"/>
   <line class="ln" x1="505" y1="155" x2="555" y2="117" marker-end="url(#dg-arr)"/>
-  <text class="tx-a" x="420" y="60" text-anchor="middle">virtual</text>
-  <text class="tx-a" x="562" y="60" text-anchor="middle">virtual</text>
-  <text class="tx tx-b" x="170" y="208" text-anchor="middle">Without virtual: D holds 2 A's</text>
-  <text class="tx tx-b" x="490" y="208" text-anchor="middle">Virtual inheritance: 1 shared A</text>
-</svg>`, caption: "Diamond: B and C both derive from A; D derives from B and C." },
-        { code: `#include <iostream>
-class A {
-public:
-    int value;
-    explicit A(int v) : value(v) { std::cout << "A(" << v << ")\\n"; }
-};
-class B : virtual public A {             // virtual base
-public:
-    B() : A(1) {}                        // ignored when B is a base of D
-};
-class C : virtual public A {
-public:
-    C() : A(2) {}                        // ignored when C is a base of D
-};
-class D : public B, public C {
-public:
-    D() : A(42), B(), C() {}             // most-derived class builds A
-};
+  <text class="tx-a" x="420" y="60" text-anchor="middle">extends</text>
+  <text class="tx-a" x="562" y="60" text-anchor="middle">extends</text>
+  <text class="tx tx-b" x="170" y="208" text-anchor="middle">Class diamond: D would hold 2 A's (illegal in Java)</text>
+  <text class="tx tx-b" x="490" y="208" text-anchor="middle">Interface diamond: no state, only method conflicts</text>
+</svg>`, caption: "Java forbids the class diamond (single inheritance) and resolves the interface diamond by rules." },
+        { code: `interface A { default String hello() { return "A"; } }
+interface B extends A { default String hello() { return "B"; } }   // more specific
+interface C extends A { }                                          // inherits A's
 
-int main() {
-    D d;                                 // prints A(42) exactly once
-    std::cout << d.value << "\\n";       // 42 - no ambiguity
-    A* p = &d;                           // OK: unique A subobject
-}`, lang: "cpp", title: "Virtual inheritance: one shared A" },
-        { ul: [
-          "Without <code>virtual</code>, <code>d.value</code> is an ambiguity error; you'd have to write <code>d.B::value</code> or <code>d.C::value</code>.",
-          "The <b>most-derived</b> class is responsible for initialising a virtual base; virtual bases are constructed first, before any non-virtual base.",
-          "Cost: each B/C subobject keeps a pointer/offset (via vtable) to locate the shared A, so access is slightly slower."
+class D1 implements B, C { }          // OK: B.hello() wins (most specific)
+
+interface Flyer   { default String move() { return "fly"; } }
+interface Swimmer { default String move() { return "swim"; } }
+
+class Duck implements Flyer, Swimmer {
+    @Override
+    public String move() {            // REQUIRED: otherwise compile error
+        return Flyer.super.move() + " and " + Swimmer.super.move();
+    }
+}`, lang: "java", title: "Resolving a default-method diamond" },
+        { ol: [
+          "A method from a <b>class</b> (superclass) always wins over any interface default.",
+          "The <b>more specific</b> sub-interface's default wins (B over A above).",
+          "Otherwise (two unrelated defaults) the class <b>must override</b> and may delegate with <code>X.super.m()</code>."
         ] },
-        { tip: "Java avoids the state diamond entirely by allowing only single class inheritance. With interfaces, if two <code>default</code> methods clash the class must override and pick one: <code>B.super.hello()</code>." }
+        { tip: "Abstract methods clash harmlessly: if two interfaces declare the same abstract <code>m()</code>, the class implements it once. The conflict only exists when at least one side provides a body." }
       ]
     },
     {
@@ -825,10 +768,10 @@ int main() {
       top: true,
       short: "To avoid the diamond problem's ambiguity and complexity (duplicate state, which constructor/method to use), Java allows a class to extend only one class. It gets multiple inheritance of type (and, since Java 8, of behaviour via default methods) through interfaces, and a conflicting default method must be overridden explicitly.",
       a: [
-        { p: "Java's designers dropped multiple class inheritance to keep the language simple: with two parent classes, fields could be duplicated, constructor chaining becomes ambiguous and method resolution needs complex rules (C++ needs virtual inheritance for this)." },
+        { p: "Java's designers dropped multiple class inheritance to keep the language simple: with two parent classes, fields could be duplicated, constructor chaining (<code>super()</code> — which super?) becomes ambiguous and method resolution needs complex rules." },
         { ul: [
           "<b>Multiple inheritance of state</b> (fields from several classes) — <b>not allowed</b>.",
-          "<b>Multiple inheritance of type</b> — allowed: a class can <code>implement</code> many interfaces.",
+          "<b>Multiple inheritance of type</b> — allowed: a class can <code>implement</code> many interfaces and be used as any of them.",
           "<b>Multiple inheritance of behaviour</b> — partly allowed since Java 8 via <code>default</code> methods, with explicit conflict resolution."
         ] },
         { code: `interface Flyer   { default String move() { return "fly"; } }
@@ -840,9 +783,19 @@ class Duck implements Flyer, Swimmer {
     public String move() {
         return Flyer.super.move() + " and " + Swimmer.super.move();
     }
-}`, lang: "java", title: "Resolving a default-method diamond" },
+}
+
+// Reuse *implementation* from two classes? Compose them:
+class Amphibian {
+    private final Car car = new Car();        // HAS-A both, delegates to each
+    private final Boat boat = new Boat();
+    void drive() { car.drive(); }
+    void sail()  { boat.sail(); }
+}
+class Car  { void drive() {} }
+class Boat { void sail()  {} }`, lang: "java", title: "Interfaces for type, composition for implementation" },
         { p: "Resolution rules for defaults: (1) a method from a class always wins over an interface default; (2) the more specific sub-interface wins; (3) otherwise the class must override." },
-        { tip: "Contrast with C++: C++ allows multiple inheritance and resolves the diamond with <code>virtual</code> base classes. Mention both to show breadth." }
+        { tip: "If asked 'so how do I reuse code from two classes?' — composition and delegation (has-a), or move the shared code into a default method / static helper. Mention that interfaces having no fields is exactly what makes the interface diamond safe." }
       ]
     },
     {
@@ -851,9 +804,9 @@ class Duck implements Flyer, Swimmer {
       topic: "Inheritance",
       level: 2,
       top: true,
-      short: "Association is any 'uses/knows' relationship between independent objects. Aggregation is a weak has-a: the whole holds parts that can exist independently (Department and Professor). Composition is a strong has-a: the whole owns the parts and they die with it (House and Room).",
+      short: "Association is any 'uses/knows' relationship between independent objects. Aggregation is a weak has-a: the whole holds parts that can exist independently (Department and Professor). Composition is a strong has-a: the whole creates and owns the parts and they die with it (House and Room).",
       a: [
-        { p: "All three are <b>HAS-A / uses</b> relationships (as opposed to IS-A inheritance), differing in <b>ownership</b> and <b>lifetime</b>." },
+        { p: "All three are <b>HAS-A / uses</b> relationships (as opposed to IS-A inheritance), differing in <b>ownership</b> and <b>lifetime</b>. In Java every field is a reference, so the difference is about <i>who creates the part and whether anyone else holds it</i>." },
         { svg: `<svg viewBox="0 0 640 210" width="640" class="dg">
   <rect class="box" x="20" y="20" width="120" height="32" rx="6"/>
   <text class="tx tx-b" x="80" y="36" text-anchor="middle" dominant-baseline="middle">Teacher</text>
@@ -882,61 +835,63 @@ class Duck implements Flyer, Swimmer {
         { table: { head: ["", "Association", "Aggregation", "Composition"], rows: [
           ["Relationship", "Uses / knows", "Has-a (weak)", "Part-of / owns (strong)"],
           ["Ownership", "None", "Shared / non-owning", "Exclusive"],
-          ["Lifetime", "Independent", "Part can outlive whole", "Part destroyed with whole"],
-          ["C++ typical member", "Pointer/reference, or passed as param", "Raw pointer / reference / <code>shared_ptr</code>", "By value or <code>unique_ptr</code>"],
+          ["Lifetime", "Independent", "Part can outlive whole", "Part unreachable once whole is gone"],
+          ["Java typical code", "Passed as parameter / local variable", "Field referencing an object created elsewhere", "Field created inside the class (<code>new</code> in constructor), never leaked"],
           ["Example", "Doctor – Patient", "Team – Player", "Car – Engine, Human – Heart"]
         ] } },
-        { code: `class Professor { /* ... */ };
-class Room { /* ... */ };
+        { code: `import java.util.*;
 
-class Department {                       // AGGREGATION
-    std::vector<Professor*> staff;       // doesn't own; professors live elsewhere
-public:
-    void add(Professor* p) { staff.push_back(p); }
-};
+class Professor { }
+class Room { }
 
-class House {                            // COMPOSITION
-    std::vector<Room> rooms;             // owned by value
-public:
-    explicit House(int n) : rooms(n) {}  // rooms created with house
-};                                       // and destroyed with it`, lang: "cpp" },
+class Department {                                   // AGGREGATION
+    private final List<Professor> staff = new ArrayList<>();
+    void add(Professor p) { staff.add(p); }          // professors are created elsewhere and
+}                                                    // may belong to other departments too
+
+class House {                                        // COMPOSITION
+    private final List<Room> rooms = new ArrayList<>();
+    House(int n) {
+        for (int i = 0; i < n; i++) rooms.add(new Room());   // rooms created with the house
+    }                                                        // and never handed out, so they
+}                                                            // become garbage with it`, lang: "java" },
         { tip: "Composition and aggregation are both special cases of association. Interviewers often ask for the UML symbols — remember the diamond goes on the <b>container</b> side." }
       ]
     },
     {
-      id: "inheritance-access-modes",
-      q: "What is the difference between public, protected and private inheritance in C++?",
+      id: "super-keyword",
+      q: "What is the super keyword? What happens if the parent has no no-arg constructor?",
       topic: "Inheritance",
-      level: 2,
-      top: false,
-      short: "The inheritance mode caps the access of inherited members: public inheritance keeps public/protected as-is (true is-a), protected inheritance makes base public members protected, and private inheritance makes them private (implemented-in-terms-of). Base private members are never accessible to the derived class.",
+      level: 1,
+      top: true,
+      short: "super refers to the immediate parent class: super(...) calls the parent constructor (must be the first statement; inserted implicitly as super() if omitted), super.method() calls the parent's version of an overridden method, and super.field accesses a hidden parent field. If the parent lacks a no-arg constructor, every child constructor must call super(args) explicitly or compilation fails.",
       a: [
-        { p: "In <code>class D : MODE B</code>, the mode sets the <b>maximum</b> accessibility of B's members as seen through D. The default is <code>private</code> for <code>class</code> and <code>public</code> for <code>struct</code>." },
-        { table: { head: ["Base member", "public inheritance", "protected inheritance", "private inheritance"], rows: [
-          ["public", "public", "protected", "private"],
-          ["protected", "protected", "protected", "private"],
-          ["private", "not accessible", "not accessible", "not accessible"]
-        ] } },
-        { code: `class Base {
-public:    int pub = 1;
-protected: int prot = 2;
-private:   int priv = 3;
-};
-class PubD  : public Base    { void f() { pub; prot; /* priv: error */ } };
-class PrivD : private Base   { void f() { pub; prot; } };
-
-int main() {
-    PubD a;  a.pub;        // OK
-    PrivD b; // b.pub;     // error: pub is private in PrivD
-    Base* p = &a;          // OK: public inheritance = is-a
-    // Base* q = &b;       // error: base is inaccessible
-}`, lang: "cpp" },
         { ul: [
-          "<b>Public</b> inheritance = <b>is-a</b>; the only mode that allows implicit Derived* → Base* conversion from outside.",
-          "<b>Private</b> inheritance = <b>implemented-in-terms-of</b>; usually replace with composition, except to override a virtual or use EBO.",
-          "Java has only one mode — effectively public inheritance."
+          "<code>super(args)</code> — invoke the parent constructor. Must be the <b>first statement</b>; if absent the compiler inserts <code>super()</code>.",
+          "<code>super.method()</code> — call the overridden parent implementation (extend, not replace).",
+          "<code>super.field</code> — access a parent field hidden by a same-named child field.",
+          "<code>this()</code> and <code>super()</code> cannot both appear in one constructor (both must be first).",
+          "Not usable in a static context; <code>super.super.m()</code> does not exist."
         ] },
-        { warn: "Private members of the base <i>are</i> inherited (they occupy space in the derived object); they're just not accessible from derived code." }
+        { code: `class Employee {
+    protected String name;
+    Employee(String name) { this.name = name; }    // no no-arg constructor!
+    double salary() { return 50000; }
+}
+
+class Manager extends Employee {
+    Manager(String name) {
+        super(name);                        // REQUIRED: implicit super() would not compile
+    }
+    @Override
+    double salary() {
+        return super.salary() + 20000;      // reuse parent logic
+    }
+}
+
+// class Intern extends Employee { Intern() { } }
+// error: constructor Employee in class Employee cannot be applied to given types`, lang: "java" },
+        { tip: "Why does a child constructor always call a parent constructor? So the inherited part of the object is fully initialised before the child's body runs — this is why the chain runs all the way up to <code>Object()</code>." }
       ]
     },
     {
@@ -947,30 +902,29 @@ int main() {
       top: false,
       short: "Build behaviour by holding objects (has-a) and delegating to them rather than by subclassing, because composition is looser coupling, can change at run time and avoids fragile base classes and class explosion. Use inheritance only for a genuine is-a relationship that satisfies Liskov substitution, typically to implement an interface.",
       a: [
-        { p: "Inheritance is <b>white-box</b> reuse: the subclass depends on base internals, is fixed at compile time, and a change in the base can silently break subclasses (<b>fragile base class problem</b>). Composition is <b>black-box</b> reuse through a member's public interface." },
+        { p: "Inheritance is <b>white-box</b> reuse: the subclass depends on parent internals, is fixed at compile time, and a change in the parent can silently break subclasses (<b>fragile base class problem</b>). Composition is <b>black-box</b> reuse through a member's public interface." },
         { code: `// Inheritance explosion: FlyingDuck, SwimmingDuck, FlyingSwimmingDuck ...
 // Composition: plug in behaviours instead
-struct FlyBehaviour { virtual void fly() const = 0; virtual ~FlyBehaviour() = default; };
-struct CanFly  : FlyBehaviour { void fly() const override { std::cout << "flap\\n"; } };
-struct NoFly   : FlyBehaviour { void fly() const override { std::cout << "can't\\n"; } };
+interface FlyBehaviour { void fly(); }
+class CanFly implements FlyBehaviour { public void fly() { System.out.println("flap"); } }
+class NoFly  implements FlyBehaviour { public void fly() { System.out.println("can't"); } }
 
 class Duck {
-    std::unique_ptr<FlyBehaviour> flyer;          // HAS-A
-public:
-    explicit Duck(std::unique_ptr<FlyBehaviour> f) : flyer(std::move(f)) {}
-    void setFly(std::unique_ptr<FlyBehaviour> f) { flyer = std::move(f); } // runtime change
-    void performFly() const { flyer->fly(); }     // delegation
-};
+    private FlyBehaviour flyer;                          // HAS-A
+    Duck(FlyBehaviour f) { this.flyer = f; }
+    void setFly(FlyBehaviour f) { this.flyer = f; }      // runtime change
+    void performFly() { flyer.fly(); }                   // delegation
+}
 
-// Duck mallard(std::make_unique<CanFly>());
-// Duck rubber(std::make_unique<NoFly>());`, lang: "cpp" },
+// Duck mallard = new Duck(new CanFly());
+// Duck rubber  = new Duck(new NoFly());`, lang: "java" },
         { table: { head: ["", "Inheritance", "Composition"], rows: [
           ["Coupling", "Tight", "Loose"],
           ["Change behaviour at run time", "No", "Yes"],
           ["Combining N features", "Up to 2<sup>N</sup> subclasses", "N small components"],
-          ["Exposes", "Whole base interface", "Only what you delegate"]
+          ["Exposes", "Whole parent interface", "Only what you delegate"]
         ] } },
-        { tip: "Still use inheritance when (1) there is a true is-a that passes LSP, (2) you need polymorphism through a common interface, or (3) a framework requires it. Classic bad example: <code>Stack extends Vector</code> in Java exposes <code>add(index, e)</code>." }
+        { tip: "Still use inheritance when (1) there is a true is-a that passes LSP, (2) you need polymorphism through a common interface, or (3) a framework requires it. Classic bad example: <code>Stack extends Vector</code> exposes <code>add(index, e)</code>; <code>Properties extends Hashtable</code> lets you put non-String keys." }
       ]
     },
 
@@ -981,34 +935,34 @@ public:
       topic: "Polymorphism",
       level: 1,
       top: true,
-      short: "Polymorphism means one interface, many forms. Compile-time (static) polymorphism is resolved by the compiler: function overloading, operator overloading and templates. Run-time (dynamic) polymorphism is resolved during execution through virtual functions / method overriding called via a base pointer or reference.",
+      short: "Polymorphism means one interface, many forms. Compile-time (static) polymorphism is resolved by javac: method overloading. Run-time (dynamic) polymorphism is resolved by the JVM during execution through method overriding, when a method is called via a superclass or interface reference.",
       a: [
         { p: "<b>Polymorphism</b> ('many forms') lets the same name or call behave differently depending on the argument types or the actual object type." },
         { table: { head: ["", "Compile-time (static)", "Run-time (dynamic)"], rows: [
-          ["Resolved by", "Compiler", "At execution, via vtable (C++) / JVM dispatch"],
-          ["Mechanisms", "Function overloading, operator overloading, templates / generics", "Virtual functions + overriding, called through base pointer/reference"],
+          ["Resolved by", "<code>javac</code>", "JVM (<code>invokevirtual</code> / <code>invokeinterface</code>)"],
+          ["Mechanism", "Method overloading (also generics)", "Method overriding, called through a superclass/interface reference"],
           ["Binding", "Early / static binding", "Late / dynamic binding"],
-          ["Inheritance needed", "No", "Yes"],
-          ["Speed", "Faster, can be inlined", "Small overhead (indirect call)"],
+          ["Inheritance needed", "No", "Yes (or an interface)"],
+          ["Decided by", "Static types of the arguments", "Actual class of the object"],
           ["Flexibility", "Less — fixed at build time", "More — new subclasses plug in without recompiling callers"]
         ] } },
-        { code: `#include <iostream>
-// Compile-time: overloading
-int    add(int a, int b)       { return a + b; }
-double add(double a, double b) { return a + b; }
+        { code: `class MathUtil {                                   // Compile-time: overloading
+    static int    add(int a, int b)       { return a + b; }
+    static double add(double a, double b) { return a + b; }
+}
 
-// Run-time: virtual + override
-struct Animal { virtual void sound() const { std::cout << "...\\n"; }
-                virtual ~Animal() = default; };
-struct Cat : Animal { void sound() const override { std::cout << "Meow\\n"; } };
-struct Dog : Animal { void sound() const override { std::cout << "Woof\\n"; } };
+class Animal { void sound() { System.out.println("..."); } }   // Run-time: overriding
+class Cat extends Animal { @Override void sound() { System.out.println("Meow"); } }
+class Dog extends Animal { @Override void sound() { System.out.println("Woof"); } }
 
-int main() {
-    add(1, 2);  add(1.5, 2.5);          // chosen by compiler
-    Animal* zoo[] = { new Cat, new Dog };
-    for (Animal* a : zoo) { a->sound(); delete a; }   // Meow, Woof: chosen at run time
-}`, lang: "cpp" },
-        { tip: "In Java all non-static, non-final, non-private instance methods are virtual by default. In C++ you must opt in with <code>virtual</code>." }
+public class Main {
+    public static void main(String[] args) {
+        MathUtil.add(1, 2);  MathUtil.add(1.5, 2.5);      // chosen by javac
+        Animal[] zoo = { new Cat(), new Dog() };
+        for (Animal a : zoo) a.sound();                    // Meow, Woof: chosen at run time
+    }
+}`, lang: "java" },
+        { tip: "In Java every non-static, non-final, non-private instance method is 'virtual' by default — no keyword needed. Static, private and final methods (and fields) are always bound at compile time." }
       ]
     },
     {
@@ -1017,124 +971,146 @@ int main() {
       topic: "Polymorphism",
       level: 1,
       top: true,
-      short: "Overloading is several functions with the same name but different parameter lists in the same scope, resolved at compile time. Overriding is a derived class providing a new implementation of a base-class virtual method with the same signature, resolved at run time.",
+      short: "Overloading is several methods with the same name but different parameter lists in the same class, resolved at compile time. Overriding is a subclass providing a new implementation of an inherited method with the same signature, resolved at run time.",
       a: [
         { table: { head: ["", "Overloading", "Overriding"], rows: [
-          ["Where", "Same class (scope)", "Base and derived class"],
-          ["Signature", "Same name, <b>different</b> parameters", "Same name <b>and</b> parameters (return type same or covariant)"],
-          ["Return type alone differs", "Not allowed", "—"],
+          ["Where", "Same class (or inherited into subclass)", "Superclass and subclass"],
+          ["Signature", "Same name, <b>different</b> parameter list", "Same name <b>and</b> parameters (return type same or covariant)"],
+          ["Return type alone differs", "Not allowed (not part of the signature)", "—"],
           ["Binding", "Compile time", "Run time"],
           ["Inheritance needed", "No", "Yes"],
-          ["C++ requirement", "—", "Base method must be <code>virtual</code>"],
-          ["static / private / final methods", "Can be overloaded", "Cannot be overridden"],
+          ["Access modifier", "Any", "Same or wider"],
+          ["<code>static</code> / <code>private</code> / <code>final</code> methods", "Can be overloaded", "Cannot be overridden"],
+          ["Annotation", "None", "<code>@Override</code> (optional but recommended)"],
           ["Purpose", "Convenience: same operation on different inputs", "Specialise inherited behaviour"]
         ] } },
-        { code: [
-          { lang: "cpp", src: `#include <iostream>
-class Printer {
-public:
-    void print(int x)                { std::cout << "int " << x << "\\n"; }     // overloads
-    void print(const std::string& s) { std::cout << "str " << s << "\\n"; }
-    virtual void hello() const       { std::cout << "Printer\\n"; }
-    virtual ~Printer() = default;
-};
-class LaserPrinter : public Printer {
-public:
-    void hello() const override      { std::cout << "Laser\\n"; }             // overrides
-};
-
-int main() {
-    LaserPrinter lp;
-    Printer& p = lp;
-    p.print(5);  p.print("hi");      // overloading resolved at compile time
-    p.hello();                       // "Laser": overriding resolved at run time
-}` },
-          { lang: "java", src: `class Printer {
-    void print(int x)    { System.out.println("int " + x); }  // overloads
+        { code: `class Printer {
+    void print(int x)    { System.out.println("int " + x); }    // overloads
     void print(String s) { System.out.println("str " + s); }
     void hello()         { System.out.println("Printer"); }
 }
 class LaserPrinter extends Printer {
     @Override
-    void hello()         { System.out.println("Laser"); }     // overrides
+    void hello()         { System.out.println("Laser"); }       // overrides
 }
 
 public class Main {
     public static void main(String[] args) {
         Printer p = new LaserPrinter();
-        p.print(5); p.print("hi");
-        p.hello();                   // Laser
+        p.print(5); p.print("hi");   // overloading resolved at compile time
+        p.hello();                   // "Laser": overriding resolved at run time
     }
-}` }
+}`, lang: "java" },
+        { tip: "Always write <code>@Override</code>: if the signature doesn't actually match a parent method (typo, wrong parameter type), the compiler errors instead of silently creating a new overload." },
+        { warn: "Can we overload <code>main</code>? Yes, but the JVM only calls <code>public static void main(String[])</code>. Can we override a static method? No — it gets <i>hidden</i>. Can we overload by changing only the return type? No." }
+      ]
+    },
+    {
+      id: "overload-resolution-rules",
+      q: "How does Java choose between overloaded methods? (widening vs boxing vs varargs, null arguments)",
+      topic: "Polymorphism",
+      level: 2,
+      top: true,
+      short: "javac resolves overloads in three phases: first exact match or primitive widening / reference subtyping without boxing or varargs; then allowing boxing/unboxing; finally varargs. Within a phase the most specific method wins; if none is most specific it is a compile-time ambiguity error. Resolution uses the static (declared) type of the argument, never the runtime type.",
+      a: [
+        { table: { head: ["Phase", "Allowed conversions", "Example"], rows: [
+          ["1", "Identity, primitive widening (<code>byte→short→int→long→float→double</code>, <code>char→int</code>), reference widening (subclass → superclass)", "<code>f(int)</code> chosen for a <code>byte</code> argument"],
+          ["2", "Phase 1 + boxing / unboxing", "<code>f(Integer)</code> for an <code>int</code> when no <code>f(int)</code>/<code>f(long)</code> exists"],
+          ["3", "Phase 2 + varargs", "<code>f(int...)</code> only if nothing else matches"]
+        ] } },
+        { code: `public class Main {
+    static void f(int x)     { System.out.println("int"); }
+    static void f(long x)    { System.out.println("long"); }
+    static void f(Integer x) { System.out.println("Integer"); }
+    static void f(Object x)  { System.out.println("Object"); }
+    static void f(int... x)  { System.out.println("varargs"); }
+
+    static void g(String s)  { System.out.println("String"); }
+    static void g(Object o)  { System.out.println("Object"); }
+    // static void g(StringBuilder sb) {}   // adding this makes g(null) ambiguous
+
+    public static void main(String[] args) {
+        byte b = 1;
+        f(b);                    // int      (widening beats boxing)
+        f(5L);                   // long     (exact)
+        f('a');                  // int      (char widens to int)
+        f(Integer.valueOf(5));   // Integer  (exact)
+        f(3.5);                  // Object   (double boxes to Double, which is an Object)
+        f();                     // varargs  (only candidate)
+        g(null);                 // String   (most specific of String/Object)
+
+        Object o = "hello";
+        g(o);                    // Object   (static type decides, not runtime type)
+    }
+}`, lang: "java" },
+        { ul: [
+          "'Most specific' = its parameter types can be passed to the other candidate, not vice versa (<code>String</code> is more specific than <code>Object</code>).",
+          "Return type, parameter names and <code>throws</code> clauses play no part in overload resolution.",
+          "Overloads are chosen using the <b>declared type</b> of the argument expression — overloading is <i>not</i> dynamic dispatch."
         ] },
-        { tip: "Always write <code>override</code> (C++11) or <code>@Override</code> (Java): if the signature doesn't actually match a base method (e.g. missing <code>const</code>), the compiler errors instead of silently creating a new overload." },
-        { warn: "Can we overload <code>main</code> in Java? Yes, but the JVM only calls <code>public static void main(String[])</code>. Can we override a static method? No — it gets <i>hidden</i>." }
+        { warn: "Trick question: <code>f(null)</code> with overloads <code>f(String)</code> and <code>f(Integer)</code> is a compile error (neither is more specific). Also, <code>list.remove(1)</code> on a <code>List&lt;Integer&gt;</code> calls <code>remove(int index)</code>, not <code>remove(Object)</code> — phase 1 wins over boxing." }
       ]
     },
     {
       id: "operator-overloading",
-      q: "What is operator overloading? Show an example. Which operators cannot be overloaded?",
+      q: "Does Java support operator overloading? Why not?",
       topic: "Polymorphism",
-      level: 2,
+      level: 1,
       top: true,
-      short: "Operator overloading gives user-defined types natural syntax by defining functions named operator+, operator== and so on., either as members or free (often friend) functions. You cannot overload ::, ., .*, ?:, sizeof, typeid, alignof, or create new operators or change precedence. Java does not support it.",
+      short: "No. Java has no user-defined operator overloading; the only overloaded operator is + for String concatenation (built into the language). The designers left it out for simplicity and readability: a + b should always mean numeric addition. Instead you write named methods such as add(), plus(), compareTo() and equals().",
       a: [
-        { p: "<b>Operator overloading</b> is compile-time polymorphism: the compiler rewrites <code>a + b</code> into <code>a.operator+(b)</code> or <code>operator+(a, b)</code>." },
-        { code: `#include <iostream>
-class Complex {
-    double re, im;
-public:
-    Complex(double r = 0, double i = 0) : re(r), im(i) {}
+        { p: "In languages like C++ and Kotlin you can define what <code>a + b</code> means for your own types. Java deliberately does not allow this — operators have fixed meanings for primitives and <code>String</code>, and nothing else." },
+        { code: `final class Complex {
+    private final double re, im;
+    Complex(double re, double im) { this.re = re; this.im = im; }
 
-    Complex operator+(const Complex& o) const {         // member binary op
-        return Complex(re + o.re, im + o.im);
+    Complex plus(Complex o) {                          // instead of operator+
+        return new Complex(re + o.re, im + o.im);
     }
-    Complex& operator+=(const Complex& o) {              // compound: return *this
-        re += o.re; im += o.im; return *this;
+    @Override public boolean equals(Object o) {        // instead of operator==
+        return o instanceof Complex c && c.re == re && c.im == im;
     }
-    bool operator==(const Complex& o) const { return re == o.re && im == o.im; }
-    Complex& operator++() { ++re; return *this; }       // prefix ++c
-    Complex operator++(int) { Complex t = *this; ++re; return t; }  // postfix c++
+    @Override public int hashCode() { return Double.hashCode(re) * 31 + Double.hashCode(im); }
+    @Override public String toString() { return re + " + " + im + "i"; }
+}
 
-    friend std::ostream& operator<<(std::ostream& os, const Complex& c) {
-        return os << c.re << " + " << c.im << "i";       // non-member: stream on left
+public class Main {
+    public static void main(String[] args) {
+        Complex c = new Complex(1, 2).plus(new Complex(3, 4));
+        System.out.println(c);                 // 4.0 + 6.0i
+        String s = "a" + 1 + 'b' + 2.0;        // the ONE built-in overload: + on String
+        System.out.println(s);                 // a1b2.0
+        // Complex d = c + c;                  // compile error: bad operand types
     }
-};
-
-int main() {
-    Complex a(1, 2), b(3, 4);
-    Complex c = a + b;
-    c += a;
-    std::cout << c << "\\n";     // 5 + 8i
-}`, lang: "cpp" },
-        { table: { head: ["Cannot overload", "Why"], rows: [
-          ["<code>::</code> scope resolution", "Works on names, not values"],
-          ["<code>.</code> and <code>.*</code> member access", "Would make it impossible to access members normally"],
-          ["<code>?:</code> ternary", "Needs short-circuit evaluation of only one branch"],
-          ["<code>sizeof</code>, <code>typeid</code>, <code>alignof</code>", "Compile-time / type operators"],
-          ["<code>#</code>, <code>##</code>", "Preprocessor, not C++ operators"]
+}`, lang: "java" },
+        { table: { head: ["Instead of", "Java uses"], rows: [
+          ["<code>a + b</code>", "<code>a.add(b)</code> — <code>BigInteger.add</code>, <code>BigDecimal.multiply</code>"],
+          ["<code>a == b</code> (value)", "<code>a.equals(b)</code>"],
+          ["<code>a &lt; b</code>", "<code>a.compareTo(b) &lt; 0</code> (<code>Comparable</code>)"],
+          ["<code>a[i]</code>", "<code>list.get(i)</code>, <code>map.get(k)</code>"],
+          ["<code>cout &lt;&lt; a</code>", "<code>a.toString()</code>"]
         ] } },
         { ul: [
-          "Must be a <b>member</b>: <code>=</code>, <code>[]</code>, <code>()</code>, <code>-&gt;</code>.",
-          "Prefer <b>non-member</b> for symmetric binary operators so implicit conversions work on both sides (<code>2 + c</code>).",
-          "Overloading <code>&amp;&amp;</code>, <code>||</code> or <code>,</code> loses short-circuit/sequencing semantics — avoid."
+          "<b>Reasons</b>: keeps the language small, avoids surprising meanings (<code>&lt;&lt;</code> for streams), makes code behave predictably for readers and tools.",
+          "<code>+=</code>, <code>++</code> and comparisons work on wrapper types only through <b>autoboxing</b>, not overloading.",
+          "Note the built-in <code>+</code> compiles to <code>StringBuilder.append</code> calls (or <code>invokedynamic</code> since Java 9)."
         ] },
-        { tip: "Java has no user operator overloading (only built-in <code>+</code> for String concatenation), a deliberate simplicity choice. Postfix <code>++</code> takes a dummy <code>int</code> parameter — a favourite trick question." }
+        { tip: "Follow-up: 'Is <code>+</code> on String an example of operator overloading?' — yes, but it is done by the compiler; you cannot extend it. Kotlin and Scala (both JVM languages) do allow user-defined operators." }
       ]
     },
     {
       id: "virtual-functions",
-      q: "What is a virtual function? Why do we need it?",
+      q: "Are methods in Java virtual by default? Which methods are not, and why?",
       topic: "Polymorphism",
       level: 2,
       top: true,
-      short: "A virtual function is a member function declared virtual in the base class so that a call through a base pointer or reference executes the most-derived override, decided at run time. Without virtual, the call is bound at compile time to the static (pointer) type.",
+      short: "Yes: every non-static, non-private, non-final instance method is virtual — a call through a superclass or interface reference runs the most-derived override, decided at run time. Static methods (class-level), private methods (not inherited) and final methods (not overridable) are bound at compile time, as are constructors and fields.",
       a: [
-        { p: "Declaring a member function <code>virtual</code> enables <b>dynamic dispatch</b>: when called through a <code>Base*</code> or <code>Base&amp;</code>, the version belonging to the object's <b>actual (dynamic) type</b> runs. This lets code written against the base class work with any future subclass." },
+        { p: "A <b>virtual method</b> is one whose call is resolved by the <b>actual (dynamic) type</b> of the object, not the declared type of the reference. Java makes this the default so that code written against a superclass or interface works with any future subclass — there is no <code>virtual</code> keyword." },
         { svg: `<svg viewBox="0 0 560 185" width="560" class="dg">
   <rect class="box-a" x="200" y="10" width="160" height="56" rx="6"/>
   <text class="tx tx-b" x="280" y="28" text-anchor="middle" dominant-baseline="middle">Shape (abstract)</text>
-  <text class="tx-c" x="280" y="50" text-anchor="middle" dominant-baseline="middle">virtual area() = 0</text>
+  <text class="tx-c" x="280" y="50" text-anchor="middle" dominant-baseline="middle">abstract area()</text>
   <rect class="box" x="20" y="120" width="150" height="52" rx="6"/>
   <text class="tx tx-b" x="95" y="138" text-anchor="middle" dominant-baseline="middle">Circle</text>
   <text class="tx-c" x="95" y="158" text-anchor="middle" dominant-baseline="middle">area(): pi*r*r</text>
@@ -1147,41 +1123,39 @@ int main() {
   <line class="ln" x1="95" y1="120" x2="228" y2="68" marker-end="url(#dg-arr)"/>
   <line class="ln" x1="280" y1="120" x2="280" y2="68" marker-end="url(#dg-arr)"/>
   <line class="ln" x1="465" y1="120" x2="332" y2="68" marker-end="url(#dg-arr)"/>
-  <text class="tx-m" x="480" y="40" text-anchor="middle">Shape* s = new Circle;</text>
-  <text class="tx-m" x="480" y="56" text-anchor="middle">s-&gt;area() runs Circle's</text>
-</svg>`, caption: "Client code holds Shape* and calls area(); the override of the actual object runs." },
-        { code: `#include <iostream>
-#include <memory>
-#include <vector>
-struct Shape {
-    virtual double area() const = 0;
-    void info() const { std::cout << "Shape\\n"; }        // NOT virtual
-    virtual ~Shape() = default;
-};
-struct Circle : Shape {
-    double r; explicit Circle(double r) : r(r) {}
-    double area() const override { return 3.14159 * r * r; }
-    void info() const { std::cout << "Circle\\n"; }       // hides, not overrides
-};
-struct Rect : Shape {
-    double w, h; Rect(double w, double h) : w(w), h(h) {}
-    double area() const override { return w * h; }
-};
+  <text class="tx-m" x="480" y="40" text-anchor="middle">Shape s = new Circle();</text>
+  <text class="tx-m" x="480" y="56" text-anchor="middle">s.area() runs Circle's</text>
+</svg>`, caption: "Client code holds a Shape reference and calls area(); the override of the actual object runs." },
+        { code: `abstract class Shape {
+    abstract double area();                              // overridden: virtual
+    void info()  { System.out.println("Shape"); }        // also virtual (all instance methods are)
+    final void id() { System.out.println("shape#1"); }   // final: not overridable, bound statically
+    static void kind() { System.out.println("static Shape"); }   // static: no dispatch
+    private void secret() { }                            // private: not inherited at all
+}
+class Circle extends Shape {
+    double r; Circle(double r) { this.r = r; }
+    @Override double area() { return Math.PI * r * r; }
+    @Override void info() { System.out.println("Circle"); }
+    static void kind() { System.out.println("static Circle"); }   // hides, not overrides
+}
 
-int main() {
-    std::vector<std::unique_ptr<Shape>> v;
-    v.push_back(std::make_unique<Circle>(1));
-    v.push_back(std::make_unique<Rect>(2, 3));
-    for (auto& s : v) std::cout << s->area() << "\\n";   // 3.14159, 6
-    v[0]->info();                                        // "Shape"  (static binding)
-}`, lang: "cpp" },
-        { ul: [
-          "Once virtual, a function stays virtual in all derived classes (the keyword is optional there; use <code>override</code>).",
-          "Virtual dispatch happens only through <b>pointers or references</b>; calling on an object by value uses static binding.",
-          "Inside constructors/destructors, virtual calls resolve to the class currently being constructed/destroyed, not the derived override.",
-          "<code>final</code> (C++11) on a virtual stops further overriding and lets the compiler devirtualise."
-        ] },
-        { warn: "Static functions, constructors and friend functions cannot be virtual. Default arguments of virtual functions are bound statically (taken from the pointer's type) — a classic trick question." }
+public class Main {
+    public static void main(String[] args) {
+        Shape s = new Circle(1);
+        System.out.println(s.area());   // 3.14159...  (Circle's)
+        s.info();                       // Circle
+        s.kind();                       // static Shape (reference type decides)
+    }
+}`, lang: "java" },
+        { table: { head: ["Not virtual", "Why"], rows: [
+          ["<code>static</code> methods", "Belong to the class; redeclaring in a subclass <i>hides</i> them"],
+          ["<code>private</code> methods", "Not inherited, so nothing can override them (called via <code>invokespecial</code>)"],
+          ["<code>final</code> methods", "Overriding is forbidden; the JIT can inline them"],
+          ["Constructors", "Not inherited; each class has its own"],
+          ["Fields", "Never polymorphic — resolved by the reference type"]
+        ] } },
+        { warn: "Inside a constructor, a call to an overridable method dispatches to the <b>subclass override</b> even though the subclass's fields are not yet initialised — a classic source of <code>NullPointerException</code>. Make such methods <code>final</code> or <code>private</code>." }
       ]
     },
     {
@@ -1190,89 +1164,84 @@ int main() {
       topic: "Polymorphism",
       level: 2,
       top: true,
-      short: "Binding is linking a function call to the function body. Early (static) binding happens at compile time based on the declared type — used for normal, overloaded, static, non-virtual and private calls. Late (dynamic) binding happens at run time based on the actual object type — used for virtual/overridden methods.",
+      short: "Binding is linking a method call to the method body. Early (static) binding happens at compile time based on the declared type — used for static, private and final methods, overload selection and field access. Late (dynamic) binding happens at run time based on the actual object type — used for overridden instance methods.",
       a: [
         { table: { head: ["", "Early / static binding", "Late / dynamic binding"], rows: [
-          ["When", "Compile / link time", "Run time"],
-          ["Based on", "Static type of pointer/reference/expression", "Dynamic type of the object"],
-          ["C++", "Non-virtual functions, overloads, templates, calls on objects by value", "Virtual functions via pointer/reference (vtable lookup)"],
-          ["Java", "<code>static</code>, <code>private</code>, <code>final</code> methods, overload selection, field access", "All other instance methods"],
-          ["Performance", "Direct call, inlinable", "Indirect call through vtable"],
+          ["When", "Compile time (<code>javac</code>)", "Run time (JVM)"],
+          ["Based on", "Static / declared type of the reference", "Dynamic / actual class of the object"],
+          ["Applies to", "<code>static</code>, <code>private</code>, <code>final</code> methods; constructors; overload selection; field access", "All other instance methods (overriding)"],
+          ["Bytecode", "<code>invokestatic</code>, <code>invokespecial</code>", "<code>invokevirtual</code>, <code>invokeinterface</code>"],
+          ["Performance", "Direct call, inlinable", "Table lookup (JIT often devirtualises)"],
           ["Example of", "Compile-time polymorphism", "Run-time polymorphism"]
         ] } },
         { code: `class Base {
-public:
-    void f()         { std::cout << "Base::f\\n"; }   // early binding
-    virtual void g() { std::cout << "Base::g\\n"; }   // late binding
-    virtual ~Base() = default;
-};
-class Derived : public Base {
-public:
-    void f()          { std::cout << "Derived::f\\n"; }
-    void g() override { std::cout << "Derived::g\\n"; }
-};
+    String name = "Base";                                   // fields: early
+    static void s()    { System.out.println("Base.s"); }    // static: early
+    private void p()   { System.out.println("Base.p"); }    // private: early
+    void g()           { System.out.println("Base.g"); }    // instance: late
+    void callP()       { p(); }
+}
+class Derived extends Base {
+    String name = "Derived";
+    static void s()    { System.out.println("Derived.s"); }
+    @Override void g() { System.out.println("Derived.g"); }
+}
 
-int main() {
-    Base* p = new Derived;
-    p->f();   // Base::f    - decided by pointer type at compile time
-    p->g();   // Derived::g - decided by object type at run time
-    delete p;
-}`, lang: "cpp" },
-        { warn: "In Java, <b>fields are never polymorphic</b>: <code>Base b = new Derived(); b.x</code> reads Base's <code>x</code> even if Derived declares its own <code>x</code> (field hiding)." }
+public class Main {
+    public static void main(String[] args) {
+        Base b = new Derived();
+        b.s();                        // Base.s     - static: reference type
+        b.g();                        // Derived.g  - object type, at run time
+        b.callP();                    // Base.p     - private: no dispatch
+        System.out.println(b.name);   // Base       - fields are never polymorphic
+    }
+}`, lang: "java" },
+        { warn: "In Java, <b>fields are never polymorphic</b>: <code>Base b = new Derived(); b.name</code> reads Base's field even though Derived declares its own (field hiding). Use getters if you need polymorphic behaviour." }
       ]
     },
     {
-      id: "object-slicing",
-      q: "What is object slicing in C++? How do you avoid it?",
+      id: "upcasting-downcasting",
+      q: "What are upcasting and downcasting? When do you get a ClassCastException? How do instanceof and getClass() differ?",
       topic: "Polymorphism",
       level: 2,
       top: true,
-      short: "Object slicing happens when a derived object is copied into a base object by value: only the base part is copied, the derived fields are 'sliced off' and the vptr is the base's, so virtual calls no longer reach the derived override. Avoid it by passing and storing polymorphic objects via references or (smart) pointers.",
+      short: "Upcasting assigns a subclass object to a superclass/interface reference: implicit and always safe, you just lose access to subclass-only members. Downcasting converts the reference back to the subclass type: explicit, and checked at run time — a ClassCastException is thrown if the object is not actually of that type. Guard downcasts with instanceof; getClass() checks the exact class while instanceof accepts subclasses.",
       a: [
-        { p: "Assigning or passing a derived object <b>by value</b> to a base type invokes the base's copy constructor, which knows only the base members. The result is a genuine <code>Base</code> object." },
-        { svg: `<svg viewBox="0 0 560 150" width="560" class="dg">
-  <text class="tx tx-b" x="90" y="18" text-anchor="middle">Dog d</text>
-  <rect class="box-a" x="20" y="28" width="140" height="36" rx="6"/>
-  <text class="tx" x="90" y="46" text-anchor="middle" dominant-baseline="middle">Animal part: name</text>
-  <rect class="box-p" x="20" y="64" width="140" height="36" rx="6"/>
-  <text class="tx" x="90" y="82" text-anchor="middle" dominant-baseline="middle">Dog part: breed</text>
-  <line class="ln-a" x1="162" y1="64" x2="336" y2="46" marker-end="url(#dg-arr-a)"/>
-  <text class="tx-c" x="250" y="40" text-anchor="middle">Animal a = d;</text>
-  <text class="tx tx-b" x="410" y="18" text-anchor="middle">Animal a</text>
-  <rect class="box" x="340" y="28" width="140" height="36" rx="6"/>
-  <text class="tx" x="410" y="46" text-anchor="middle" dominant-baseline="middle">Animal part: name</text>
-  <rect class="box-r" x="340" y="64" width="140" height="36" rx="6"/>
-  <text class="tx" x="410" y="82" text-anchor="middle" dominant-baseline="middle">sliced off</text>
-  <text class="tx-m" x="280" y="130" text-anchor="middle">a is a plain Animal: a.speak() runs Animal::speak()</text>
-</svg>`, caption: "Copying a Dog into an Animal keeps only the Animal subobject." },
-        { code: `#include <iostream>
-#include <string>
-#include <vector>
-struct Animal {
-    std::string name = "animal";
-    virtual void speak() const { std::cout << "...\\n"; }
-    virtual ~Animal() = default;
-};
-struct Dog : Animal {
-    std::string breed = "lab";
-    void speak() const override { std::cout << "Woof\\n"; }
-};
+        { p: "Casting in Java changes the <b>static type of the reference</b>, never the object. The object always knows its real class, so an invalid downcast is caught at run time." },
+        { code: `class Animal { }
+class Dog extends Animal { void bark() { System.out.println("Woof"); } }
+class Cat extends Animal { }
 
-void byValue(Animal a)      { a.speak(); }   // slices!
-void byRef(const Animal& a) { a.speak(); }   // OK
+public class Main {
+    public static void main(String[] args) {
+        Animal a = new Dog();               // UPCAST: implicit, always safe
+        // a.bark();                        // error: static type Animal has no bark()
 
-int main() {
-    Dog d;
-    byValue(d);                   // prints "..."
-    byRef(d);                     // prints "Woof"
-    std::vector<Animal> v{d};     // slices too: stores Animal copies
-}`, lang: "cpp", title: "Slicing on pass-by-value" },
+        Dog d = (Dog) a;                    // DOWNCAST: explicit, checked at run time
+        d.bark();                           // Woof
+
+        Animal c = new Cat();
+        // Dog bad = (Dog) c;               // compiles, throws ClassCastException at run time
+
+        if (c instanceof Dog) ((Dog) c).bark();          // classic guard (false here)
+        if (a instanceof Dog dog) dog.bark();            // Java 16 pattern matching: Woof
+
+        System.out.println(a.getClass() == Dog.class);   // true : exact class
+        System.out.println(a instanceof Animal);         // true : is-a, includes subclasses
+        System.out.println(null instanceof Dog);         // false: instanceof never throws
+    }
+}`, lang: "java" },
+        { table: { head: ["", "<code>instanceof</code>", "<code>getClass()</code>"], rows: [
+          ["Checks", "Is-a: the type or any subtype / implemented interface", "Exact runtime class"],
+          ["On <code>null</code>", "<code>false</code>", "<code>NullPointerException</code>"],
+          ["Typical use", "Guarding a downcast, <code>equals</code> that tolerates subclasses", "Strict <code>equals</code>, logging, reflection"]
+        ] } },
         { ul: [
-          "Pass polymorphic objects by <code>const&amp;</code> or pointer.",
-          "Store them as <code>std::vector&lt;std::unique_ptr&lt;Base&gt;&gt;</code>, not <code>std::vector&lt;Base&gt;</code>.",
-          "Make polymorphic base classes non-copyable (<code>= delete</code> copy ops) or abstract so slicing becomes a compile error; offer a virtual <code>clone()</code> if copying is needed."
+          "Unrelated types (<code>(String) new Integer(1)</code>) fail at <b>compile</b> time; related-but-wrong types fail at <b>run</b> time.",
+          "There is no object slicing in Java: <code>Animal a = dog;</code> copies a reference, the Dog part is not lost — it is just not accessible until you downcast.",
+          "Primitives use a different kind of cast: <code>(int) 3.7</code> is a value conversion (truncation), not a type check."
         ] },
-        { tip: "Java has no slicing: variables hold references, so assigning <code>Animal a = dog;</code> just copies the reference to the same Dog object." }
+        { warn: "Many <code>instanceof</code> checks and downcasts in a method usually mean you are doing polymorphism by hand — add a method to the interface instead (or use sealed types with pattern-matching <code>switch</code>, Java 21)." }
       ]
     },
     {
@@ -1280,7 +1249,7 @@ int main() {
       q: "What are the rules for method overriding in Java?",
       topic: "Polymorphism",
       level: 2,
-      top: false,
+      top: true,
       short: "Same name and parameter list; return type same or a subtype (covariant); access cannot be more restrictive; may throw fewer or narrower checked exceptions but not new/broader ones; final, static and private methods cannot be overridden; constructors are not inherited so cannot be overridden.",
       a: [
         { table: { head: ["Rule", "Detail"], rows: [
@@ -1293,10 +1262,10 @@ int main() {
           ["<code>static</code> method", "Cannot be overridden — redeclaring hides it"],
           ["<code>private</code> method", "Not inherited; a same-named method in subclass is a new method"],
           ["Constructor", "Not inherited, cannot be overridden"],
-          ["Package-private method", "Overridable only by subclasses in the same package"]
+          ["Package-private method", "Overridable only by subclasses in the same package"],
+          ["<code>synchronized</code> / <code>strictfp</code>", "Not part of the contract; the override may add or drop them"]
         ] } },
-        { code: [
-          { lang: "java", src: `import java.io.*;
+        { code: `import java.io.*;
 
 class Parent {
     protected Object get() throws IOException { return "p"; }
@@ -1308,23 +1277,9 @@ class Child extends Parent {
     }
     // @Override protected Object get() throws Exception  -> error: broader exception
     // @Override Object get()                             -> error: weaker access
-}` },
-          { lang: "cpp", src: `// C++ equivalents: overriding requires 'virtual' in the base;
-// access specifier of the override may differ (access is checked
-// against the static type), and exception specs are not part of
-// overriding except noexcept (an override of a noexcept function
-// must also be noexcept).
-struct Parent {
-    virtual Parent* clone() const { return new Parent(*this); }
-    virtual void f() noexcept {}
-    virtual ~Parent() = default;
-};
-struct Child : Parent {
-    Child* clone() const override { return new Child(*this); }  // covariant
-    void f() noexcept override {}
-};` }
-        ] },
-        { tip: "The <code>@Override</code> annotation is optional but makes the compiler verify all these rules — always mention it." }
+    // @Override public Object get(int x)                 -> not an override: overload
+}`, lang: "java" },
+        { tip: "The <code>@Override</code> annotation is optional but makes the compiler verify all these rules — always mention it. Also: an overriding method can drop a <code>throws</code> clause entirely, which lets callers through the subclass reference skip the try/catch." }
       ]
     },
     {
@@ -1333,855 +1288,707 @@ struct Child : Parent {
       topic: "Polymorphism",
       level: 2,
       top: false,
-      short: "An overriding method may return a more derived type than the method it overrides: if Base::clone() returns Base*, Derived::clone() may return Derived*. Supported in C++ for pointers and references to classes, and in Java (since 5) for reference return types.",
+      short: "An overriding method may return a more specific type than the method it overrides: if Animal.create() returns Animal, Dog.create() may return Dog. Supported since Java 5 for reference return types only; primitive return types must match exactly.",
       a: [
-        { p: "Normally an override must match the base signature exactly. <b>Covariant return types</b> relax this for the return type only: it can be a <b>subtype</b> of the original return type, because a Derived is still a valid Base for any caller using the base interface." },
-        { code: [
-          { lang: "cpp", src: `#include <memory>
-class Shape {
-public:
-    virtual Shape* clone() const = 0;
-    virtual ~Shape() = default;
-};
-class Circle : public Shape {
-public:
-    Circle* clone() const override {       // covariant: Circle* instead of Shape*
-        return new Circle(*this);
-    }
-    void onlyCircle() {}
-};
-
-int main() {
-    Circle c;
-    Circle* copy = c.clone();              // no cast needed
-    copy->onlyCircle();
-    delete copy;
-}` },
-          { lang: "java", src: `class Animal {
+        { p: "Normally an override must match the parent signature exactly. <b>Covariant return types</b> relax this for the return type only: it can be a <b>subtype</b> of the original return type, because a Dog is still a valid Animal for any caller using the parent interface." },
+        { code: `class Animal {
     Animal create() { return new Animal(); }
 }
 class Dog extends Animal {
     @Override
-    Dog create() { return new Dog(); }     // covariant return
-    void bark() {}
+    Dog create() { return new Dog(); }     // covariant return: Dog instead of Animal
+    void bark() { System.out.println("Woof"); }
 }
 
-// new Dog().create().bark();   // compiles: returns Dog` }
+public class Main {
+    public static void main(String[] args) {
+        new Dog().create().bark();         // compiles: no cast needed
+        Animal a = new Dog();
+        Animal b = a.create();             // still works through the parent type
+    }
+}`, lang: "java" },
+        { ul: [
+          "Real example: <code>Object.clone()</code> returns <code>Object</code>; your override can return <code>MyClass</code> so callers need no cast.",
+          "Also used by builders: <code>StringBuilder.append</code> returns <code>StringBuilder</code> though the interface <code>Appendable.append</code> returns <code>Appendable</code>.",
+          "Behind the scenes <code>javac</code> generates a <b>bridge method</b> with the parent's return type so the JVM sees a normal override."
         ] },
-        { warn: "C++ covariance works only with raw pointers and references to classes — <b>not</b> with smart pointers (<code>unique_ptr&lt;Circle&gt;</code> is not covariant with <code>unique_ptr&lt;Shape&gt;</code>). Primitive return types in Java must match exactly." }
+        { warn: "Covariance applies to <b>return types only</b>. Parameter types must match exactly — changing them creates an overload, not an override (<code>@Override</code> will catch this). Primitive return types must match exactly: <code>int</code> cannot become <code>long</code>." }
       ]
     },
     {
       id: "vtable-vptr",
-      q: "How do virtual functions work internally? Explain vtable and vptr.",
+      q: "How does the JVM implement method overriding internally? (vtables, invokevirtual, invokeinterface)",
       topic: "Polymorphism",
       level: 3,
       top: true,
-      short: "For each class with virtual functions the compiler builds one static vtable: an array of pointers to the most-derived overrides. Every object of such a class carries a hidden vptr pointing to its class's vtable, set by the constructor. A virtual call loads the vptr, indexes the slot for that function and calls through it.",
+      short: "Each loaded class has a virtual method table in metaspace: an array of pointers to the most-derived implementation of every virtual method, with a fixed slot index per method along the hierarchy. Every object header holds a pointer to its class. invokevirtual loads that class pointer, indexes the slot and jumps; invokeinterface searches an itable because interface methods have no fixed slot. The JIT then uses inline caches and devirtualisation to remove most of the cost.",
       a: [
-        { p: "The C++ standard doesn't mandate a mechanism, but every mainstream compiler (Itanium ABI on GCC/Clang, MSVC) uses <b>vtables</b>:" },
+        { p: "The Java spec only defines the semantics; HotSpot implements them with <b>vtables</b>, much like C++ compilers do:" },
         { ol: [
-          "<b>vtable</b> — one per <i>class</i> (not per object), created at compile time and stored in read-only memory. Each slot holds the address of the function to call for that virtual function: the class's own override, or the inherited one.",
-          "<b>vptr</b> — a hidden pointer member in every <i>object</i> of a polymorphic class (usually at offset 0). The constructor sets it to the class's vtable; each constructor in the chain overwrites it, so while <code>Base()</code> runs the object behaves as a Base.",
-          "A call <code>p-&gt;speak()</code> compiles to roughly <code>(*(p-&gt;vptr[i]))(p)</code>: load vptr, load slot i, indirect call."
+          "<b>vtable</b> — one per <i>class</i>, built at class-loading time in metaspace. A subclass copies its parent's table and overwrites the slots it overrides, appending slots for new methods. So <code>speak()</code> has the same index in <code>Base</code> and <code>Derived</code>.",
+          "<b>Object header</b> — every object starts with a mark word (hash, lock, GC bits) and a <b>klass pointer</b> to its class metadata, including the vtable.",
+          "<b>Call</b> — <code>invokevirtual Base.speak</code> compiles to: load the klass pointer, load slot <i>i</i>, indirect call. <code>invokeinterface</code> must first find the interface's <b>itable</b> inside the class because slot indices differ per implementing class.",
+          "<b>JIT</b> — C2 tracks the receiver types seen at each call site (inline caches): monomorphic sites become a direct call with a cheap type guard, and <code>final</code> or effectively-final methods are inlined outright."
         ] },
         { svg: `<svg viewBox="0 0 700 235" width="700" class="dg">
   <text class="tx-m" x="85" y="22" text-anchor="middle">Derived object d</text>
   <rect class="box-a" x="20" y="30" width="130" height="30" rx="6"/>
-  <text class="tx-c" x="85" y="45" text-anchor="middle" dominant-baseline="middle">vptr</text>
+  <text class="tx-c" x="85" y="45" text-anchor="middle" dominant-baseline="middle">header: klass ptr</text>
   <rect class="box" x="20" y="60" width="130" height="30" rx="6"/>
   <text class="tx-c" x="85" y="75" text-anchor="middle" dominant-baseline="middle">int x, y</text>
   <text class="tx-m" x="85" y="132" text-anchor="middle">Base object b</text>
   <rect class="box-a" x="20" y="140" width="130" height="30" rx="6"/>
-  <text class="tx-c" x="85" y="155" text-anchor="middle" dominant-baseline="middle">vptr</text>
+  <text class="tx-c" x="85" y="155" text-anchor="middle" dominant-baseline="middle">header: klass ptr</text>
   <rect class="box" x="20" y="170" width="130" height="30" rx="6"/>
   <text class="tx-c" x="85" y="185" text-anchor="middle" dominant-baseline="middle">int x</text>
   <line class="ln-a" x1="150" y1="45" x2="248" y2="45" marker-end="url(#dg-arr-a)"/>
   <line class="ln-a" x1="150" y1="155" x2="248" y2="155" marker-end="url(#dg-arr-a)"/>
   <text class="tx-m" x="330" y="22" text-anchor="middle">vtable for Derived</text>
   <rect class="box-g" x="250" y="30" width="160" height="90" rx="6"/>
-  <text class="tx-c" x="330" y="45" text-anchor="middle" dominant-baseline="middle">[0] &amp;Derived::speak</text>
-  <text class="tx-c" x="330" y="75" text-anchor="middle" dominant-baseline="middle">[1] &amp;Base::eat</text>
-  <text class="tx-c" x="330" y="105" text-anchor="middle" dominant-baseline="middle">[2] &amp;Derived::~Derived</text>
+  <text class="tx-c" x="330" y="45" text-anchor="middle" dominant-baseline="middle">[0] Derived.speak</text>
+  <text class="tx-c" x="330" y="75" text-anchor="middle" dominant-baseline="middle">[1] Base.eat</text>
+  <text class="tx-c" x="330" y="105" text-anchor="middle" dominant-baseline="middle">[2] Object.toString</text>
   <text class="tx-m" x="330" y="132" text-anchor="middle">vtable for Base</text>
   <rect class="box-p" x="250" y="140" width="160" height="90" rx="6"/>
-  <text class="tx-c" x="330" y="155" text-anchor="middle" dominant-baseline="middle">[0] &amp;Base::speak</text>
-  <text class="tx-c" x="330" y="185" text-anchor="middle" dominant-baseline="middle">[1] &amp;Base::eat</text>
-  <text class="tx-c" x="330" y="215" text-anchor="middle" dominant-baseline="middle">[2] &amp;Base::~Base</text>
-  <text class="tx-m" x="430" y="50">One vtable per class, read-only.</text>
-  <text class="tx-m" x="430" y="70">One vptr per object, set by ctor.</text>
+  <text class="tx-c" x="330" y="155" text-anchor="middle" dominant-baseline="middle">[0] Base.speak</text>
+  <text class="tx-c" x="330" y="185" text-anchor="middle" dominant-baseline="middle">[1] Base.eat</text>
+  <text class="tx-c" x="330" y="215" text-anchor="middle" dominant-baseline="middle">[2] Object.toString</text>
+  <text class="tx-m" x="430" y="50">One vtable per class, in metaspace.</text>
+  <text class="tx-m" x="430" y="70">Every object header points to its class.</text>
   <text class="tx-m" x="430" y="90">Derived overrides speak, inherits eat.</text>
-  <text class="tx-c" x="430" y="160">p-&gt;speak();</text>
-  <text class="tx-c" x="430" y="180">// (*p-&gt;vptr[0])(p)</text>
-</svg>`, caption: "Two objects, two vtables. Same slot index, different target function." },
+  <text class="tx-c" x="430" y="160">Base b = new Derived();</text>
+  <text class="tx-c" x="430" y="180">b.speak();  // invokevirtual, slot 0</text>
+</svg>`, caption: "Two objects, two vtables. Same slot index, different target method." },
         { code: `class Base {
     int x;
-public:
-    virtual void speak() {}
-    virtual void eat() {}
-    virtual ~Base() {}
-};
-class Derived : public Base {
-    int y;
-public:
-    void speak() override {}     // replaces slot 0 in Derived's vtable
-};                               // eat() slot still points to Base::eat
-
-// sizeof(Base) == 16 on 64-bit: 8 (vptr) + 4 (x) + 4 padding`, lang: "cpp" },
-        { table: { head: ["Cost", "Detail"], rows: [
-          ["Memory per object", "One pointer (8 bytes on 64-bit), per polymorphic base in multiple inheritance"],
-          ["Memory per class", "One vtable (plus RTTI info pointer)"],
-          ["Call cost", "Two loads + indirect call; usually not inlinable, possible branch mispredict"]
-        ] } },
-        { tip: "Follow-ups: 'Why can't constructors be virtual?' — the vptr is set <i>by</i> the constructor, so there's no vtable to dispatch through yet. 'Where is the vtable stored?' — in the read-only data segment, emitted in the translation unit containing the first non-inline virtual function (the 'key function')." }
-      ]
-    },
-    {
-      id: "rtti-dynamic-cast",
-      q: "What is RTTI? How do dynamic_cast and typeid work?",
-      topic: "Polymorphism",
-      level: 3,
-      top: false,
-      short: "Run-Time Type Information lets a program query an object's dynamic type. dynamic_cast safely downcasts in a polymorphic hierarchy, returning nullptr for pointers (or throwing std::bad_cast for references) on failure; typeid returns a type_info for the dynamic type. Both need the class to have at least one virtual function.",
-      a: [
-        { p: "<b>RTTI</b> stores a <code>type_info</code> record for each polymorphic class, reachable from its vtable. It powers <code>dynamic_cast</code>, <code>typeid</code> and exception matching." },
-        { code: `#include <iostream>
-#include <typeinfo>
-struct Animal { virtual ~Animal() = default; };
-struct Dog : Animal { void bark() { std::cout << "Woof\\n"; } };
-struct Cat : Animal {};
-
-void handle(Animal* a) {
-    if (Dog* d = dynamic_cast<Dog*>(a))    // checked downcast
-        d->bark();
-    else
-        std::cout << "not a dog\\n";
-    std::cout << typeid(*a).name() << "\\n"; // dynamic type (mangled name)
+    void speak() {}
+    void eat()   {}
 }
+class Derived extends Base {
+    int y;
+    @Override void speak() {}    // replaces the speak slot in Derived's vtable
+}                                // eat slot still points to Base.eat
 
-int main() {
-    Dog d; Cat c;
-    handle(&d);                            // Woof
-    handle(&c);                            // not a dog
-    try {
-        Animal& ref = c;
-        Dog& bad = dynamic_cast<Dog&>(ref);  // throws
-        (void)bad;
-    } catch (const std::bad_cast& e) { std::cout << "bad_cast\\n"; }
-}`, lang: "cpp" },
-        { table: { head: ["Cast", "Checked at", "Use"], rows: [
-          ["<code>static_cast</code>", "Compile time", "Related types when you <i>know</i> it's valid; no runtime cost"],
-          ["<code>dynamic_cast</code>", "Run time", "Safe downcast / cross-cast in polymorphic hierarchies"],
-          ["<code>const_cast</code>", "Compile time", "Add/remove <code>const</code>"],
-          ["<code>reinterpret_cast</code>", "None", "Bit-level reinterpretation; low-level only"]
+// javap -c Main   shows the call site:
+//   aload_1
+//   invokevirtual #7    // Method Base.speak:()V   <- slot resolved at run time`, lang: "java" },
+        { table: { head: ["Bytecode", "Used for", "Dispatch"], rows: [
+          ["<code>invokevirtual</code>", "Ordinary instance methods", "vtable slot (fast, fixed index)"],
+          ["<code>invokeinterface</code>", "Methods called via an interface reference", "itable lookup, then slot"],
+          ["<code>invokespecial</code>", "Constructors, <code>private</code> methods, <code>super.m()</code>", "Static — exact method known"],
+          ["<code>invokestatic</code>", "<code>static</code> methods", "Static"],
+          ["<code>invokedynamic</code>", "Lambdas, string concatenation", "Bootstrap method links the call site once"]
         ] } },
-        { warn: "Needing many <code>dynamic_cast</code>s usually signals a design smell — prefer adding a virtual function. RTTI can be disabled (<code>-fno-rtti</code>) in embedded/game builds. Java's equivalent is <code>instanceof</code> + cast (or pattern matching <code>if (a instanceof Dog d)</code>)." }
+        { tip: "Follow-ups: 'Why can't constructors be overridden?' — they are not virtual and not inherited; the class is fixed at <code>new</code>. 'Where is the vtable stored?' — metaspace, with the class metadata. 'Is interface dispatch slower?' — slightly in the interpreter, negligible after the JIT's inline caches." }
       ]
     },
 
-    /* ───────────── Constructors & Destructors ───────────── */
+    /* ───────────── Constructors & Object Lifecycle ───────────── */
     {
       id: "constructor-types",
-      q: "What is a constructor? What are the types of constructors?",
-      topic: "Constructors & Destructors",
+      q: "What is a constructor? What are the types of constructors in Java?",
+      topic: "Constructors & Object Lifecycle",
       level: 1,
       top: true,
-      short: "A constructor is a special member function with the class's name and no return type that initialises an object when it is created. C++ types: default, parameterised, copy, move (C++11), plus converting and delegating constructors. Java has default/no-arg and parameterised constructors, with constructor chaining via this() and super().",
+      short: "A constructor is a special block with the class's name and no return type that initialises an object when new is called. Types: default (compiler-generated no-arg), no-arg (written by you), parameterised, copy constructor (a convention, not a language feature) and private constructors. Constructors can be overloaded and chained with this() and super().",
       a: [
         { p: "A <b>constructor</b> runs automatically when an object is created, to put it into a valid initial state. It has the same name as the class, no return type (not even <code>void</code>), and can be overloaded." },
-        { table: { head: ["Type", "Signature", "Called when"], rows: [
-          ["Default", "<code>X()</code>", "<code>X a;</code> — compiler generates one if you declare no constructor"],
-          ["Parameterised", "<code>X(int, std::string)</code>", "<code>X a(1, \"s\");</code>"],
-          ["Copy", "<code>X(const X&amp;)</code>", "<code>X b = a;</code>, pass/return by value"],
-          ["Move (C++11)", "<code>X(X&amp;&amp;) noexcept</code>", "<code>X b = std::move(a);</code>, returning temporaries"],
-          ["Converting", "Single-arg, non-<code>explicit</code>", "Implicit conversion <code>X a = 5;</code>"],
-          ["Delegating (C++11)", "<code>X() : X(0, \"\") {}</code>", "One constructor calls another"]
+        { table: { head: ["Type", "Example", "Notes"], rows: [
+          ["Default", "(none written)", "Compiler generates <code>Student() { super(); }</code> only if you declare <b>no</b> constructor; same access as the class"],
+          ["No-arg", "<code>Student() { ... }</code>", "Written by you; often delegates via <code>this(...)</code>"],
+          ["Parameterised", "<code>Student(String n, int r)</code>", "Most common; use <code>this.x = x</code>"],
+          ["Copy", "<code>Student(Student other)</code>", "Just a convention in Java — nothing is generated for you"],
+          ["Private", "<code>private Student()</code>", "Singleton, static factories, utility classes"],
+          ["Chained", "<code>this(...)</code> / <code>super(...)</code>", "Must be the first statement; only one of them"]
         ] } },
-        { code: `#include <iostream>
-#include <string>
-#include <utility>
-class Student {
-    std::string name;
-    int roll;
-public:
-    Student() : Student("unknown", 0) {}                        // default (delegating)
-    Student(std::string n, int r) : name(std::move(n)), roll(r) {} // parameterised
-    Student(const Student& o) : name(o.name), roll(o.roll) {       // copy
-        std::cout << "copy\\n";
-    }
-    Student(Student&& o) noexcept                                  // move
-        : name(std::move(o.name)), roll(o.roll) {
-        std::cout << "move\\n";
-    }
-};
+        { code: `class Student {
+    private String name;
+    private int roll;
 
-int main() {
-    Student a;                    // default
-    Student b("Riya", 7);         // parameterised
-    Student c = b;                // copy
-    Student d = std::move(b);     // move: b.name is now empty
-}`, lang: "cpp" },
-        { ul: [
-          "If you declare <i>any</i> constructor, the compiler no longer generates the default one — write <code>X() = default;</code> if needed.",
-          "Java: no copy/move constructors built into the language (you may write a copy constructor by hand, or use <code>clone()</code>); objects are handled by reference.",
-          "Constructors cannot be <code>virtual</code>, <code>static</code> or <code>const</code>, but can be <code>private</code>, <code>explicit</code>, <code>constexpr</code>."
-        ] },
-        { tip: "Why does a constructor have no return type? It is not called like a normal function; the object's storage already exists and the constructor just initialises it. Failure is signalled by throwing an exception." }
-      ]
-    },
-    {
-      id: "shallow-vs-deep-copy",
-      q: "What is a copy constructor? Explain shallow copy vs deep copy.",
-      topic: "Constructors & Destructors",
-      level: 2,
-      top: true,
-      short: "A copy constructor X(const X&) creates a new object as a copy of an existing one. The compiler-generated one does a member-wise (shallow) copy, so pointer members end up pointing to the same heap memory, causing double deletes and shared mutation. A deep copy allocates new memory and copies the pointed-to data.",
-      a: [
-        { p: "The <b>copy constructor</b> is invoked when an object is initialised from another of the same type: <code>X b = a;</code>, <code>X b(a);</code>, passing by value, returning by value (unless elided)." },
-        { svg: `<svg viewBox="0 0 620 210" width="620" class="dg">
-  <text class="tx-m" x="70" y="20" text-anchor="middle">stack</text>
-  <text class="tx-m" x="240" y="60" text-anchor="middle">heap</text>
-  <rect class="box" x="20" y="30" width="100" height="34" rx="6"/>
-  <text class="tx-c" x="70" y="47" text-anchor="middle" dominant-baseline="middle">a.data</text>
-  <rect class="box" x="20" y="110" width="100" height="34" rx="6"/>
-  <text class="tx-c" x="70" y="127" text-anchor="middle" dominant-baseline="middle">b.data</text>
-  <rect class="box-r" x="190" y="70" width="100" height="34" rx="6"/>
-  <text class="tx-c" x="240" y="87" text-anchor="middle" dominant-baseline="middle">"Hello"</text>
-  <line class="ln" x1="120" y1="47" x2="188" y2="80" marker-end="url(#dg-arr)"/>
-  <line class="ln" x1="120" y1="127" x2="188" y2="96" marker-end="url(#dg-arr)"/>
-  <text class="tx tx-b" x="155" y="178" text-anchor="middle">Shallow: one shared buffer</text>
-  <text class="tx-m" x="155" y="196" text-anchor="middle">double delete, aliasing bugs</text>
-  <text class="tx-m" x="390" y="20" text-anchor="middle">stack</text>
-  <text class="tx-m" x="560" y="20" text-anchor="middle">heap</text>
-  <rect class="box" x="340" y="30" width="100" height="34" rx="6"/>
-  <text class="tx-c" x="390" y="47" text-anchor="middle" dominant-baseline="middle">a.data</text>
-  <rect class="box" x="340" y="110" width="100" height="34" rx="6"/>
-  <text class="tx-c" x="390" y="127" text-anchor="middle" dominant-baseline="middle">b.data</text>
-  <rect class="box-g" x="510" y="30" width="100" height="34" rx="6"/>
-  <text class="tx-c" x="560" y="47" text-anchor="middle" dominant-baseline="middle">"Hello"</text>
-  <rect class="box-g" x="510" y="110" width="100" height="34" rx="6"/>
-  <text class="tx-c" x="560" y="127" text-anchor="middle" dominant-baseline="middle">"Hello"</text>
-  <line class="ln-a" x1="440" y1="47" x2="508" y2="47" marker-end="url(#dg-arr-a)"/>
-  <line class="ln-a" x1="440" y1="127" x2="508" y2="127" marker-end="url(#dg-arr-a)"/>
-  <text class="tx tx-b" x="475" y="178" text-anchor="middle">Deep: each owns its buffer</text>
-  <text class="tx-m" x="475" y="196" text-anchor="middle">independent lifetimes</text>
-</svg>`, caption: "After MyString b = a; with the default (shallow) vs a user-written (deep) copy constructor." },
-        { code: `#include <cstring>
-class MyString {
-    char* data;
-public:
-    explicit MyString(const char* s) {
-        data = new char[std::strlen(s) + 1];
-        std::strcpy(data, s);
+    Student() { this("unknown", 0); }                 // no-arg, delegates via this()
+    Student(String name, int roll) {                  // parameterised
+        this.name = name; this.roll = roll;
     }
-    // Default (shallow) copy would be:  MyString(const MyString& o) : data(o.data) {}
-    MyString(const MyString& o) {                     // DEEP copy
-        data = new char[std::strlen(o.data) + 1];
-        std::strcpy(data, o.data);
+    Student(Student other) {                          // "copy constructor" (by convention)
+        this(other.name, other.roll);
     }
-    MyString& operator=(const MyString& o) {          // deep copy-assignment
-        if (this != &o) {
-            char* fresh = new char[std::strlen(o.data) + 1];
-            std::strcpy(fresh, o.data);
-            delete[] data;
-            data = fresh;
-        }
-        return *this;
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Student a = new Student();                    // no-arg
+        Student b = new Student("Riya", 7);           // parameterised
+        Student c = new Student(b);                   // copy: independent object
+        Student d = b;                                // NOT a copy: same object, two references
     }
-    ~MyString() { delete[] data; }                    // with shallow copy: freed twice!
-};`, lang: "cpp" },
-        { h: "Why must the parameter be a reference?" },
-        { p: "If it were <code>X(X o)</code>, passing the argument by value would itself need a copy constructor call, which would pass by value again … infinite recursion. The compiler rejects it. It is <code>const</code> so that temporaries and const objects can be copied and the source can't be modified." },
-        { tip: "Best answer in modern C++: avoid owning raw pointers — use <code>std::string</code>/<code>std::vector</code>/<code>unique_ptr</code> and the compiler-generated copies are already correct (Rule of Zero). In Java, <code>clone()</code> of <code>Object</code> is shallow; deep copy needs manual work or a copy constructor." }
-      ]
-    },
-    {
-      id: "initializer-list",
-      q: "What is a member initializer list? When is it mandatory?",
-      topic: "Constructors & Destructors",
-      level: 2,
-      top: true,
-      short: "The initializer list (after the colon in a constructor) directly initialises members and bases before the constructor body runs, instead of default-constructing then assigning. It is mandatory for const members, reference members, members or bases without a default constructor. Members are always initialised in declaration order, not list order.",
-      a: [
-        { p: "Members are initialised <b>before</b> the constructor body executes. Assigning in the body means default-construct first, then assign — two steps. The initializer list does it in one step." },
-        { code: `#include <string>
-class Engine {
-public:
-    explicit Engine(int hp) {}          // no default constructor
-};
-class Base {
-public:
-    explicit Base(int id) {}
-};
-
-class Car : public Base {
-    const int wheels;                   // const: must be initialised
-    int& odometer;                      // reference: must be bound
-    Engine engine;                      // no default ctor
-    std::string model;
-public:
-    Car(int& odo, const std::string& m)
-        : Base(1),                      // base class constructor
-          wheels(4),
-          odometer(odo),
-          engine(150),
-          model(m)                      // efficient: one copy, no default+assign
-    {}
-};`, lang: "cpp" },
-        { h: "Mandatory when" },
+}`, lang: "java" },
         { ul: [
-          "<code>const</code> data members",
-          "Reference data members",
-          "Member objects whose class has no default constructor",
-          "Calling a base-class constructor that takes arguments",
-          "(Performance) class-type members that are expensive to default-construct"
+          "If you declare <i>any</i> constructor, the compiler no longer generates the default one — a common cause of 'constructor X in class X cannot be applied' in subclasses.",
+          "Every constructor's first action is another constructor: <code>this(...)</code> or <code>super(...)</code> (inserted implicitly), so the chain always reaches <code>Object()</code>.",
+          "A constructor cannot be <code>abstract</code>, <code>static</code>, <code>final</code> or <code>synchronized</code>, and has no return type; it can be <code>private</code>, <code>protected</code>, <code>public</code> or package-private.",
+          "Constructors are <b>not inherited</b> and <b>cannot be overridden</b>."
         ] },
-        { warn: "Initialisation order is the <b>declaration order in the class</b>, not the order written in the list. <code>class A { int x; int y; A() : y(5), x(y) {} };</code> reads <code>y</code> before it's initialised — undefined behaviour. Compile with <code>-Wreorder</code>." }
+        { tip: "Trick question: <code>void Student() {}</code> is <i>not</i> a constructor — it's an ordinary method that happens to share the class name, and the compiler will still generate the default constructor." }
       ]
     },
     {
-      id: "constructor-destructor-order",
-      q: "In what order are constructors and destructors called in inheritance and composition?",
-      topic: "Constructors & Destructors",
+      id: "constructor-rules",
+      q: "Can a constructor be private, static, final, abstract or inherited? Can it be overloaded or overridden, or return a value?",
+      topic: "Constructors & Object Lifecycle",
       level: 2,
       top: true,
-      short: "Construction goes from the inside out: virtual bases, then direct bases in declaration order, then members in declaration order, then the class's own constructor body. Destruction is the exact reverse: own destructor body, members in reverse order, then bases in reverse order.",
+      short: "Private: yes (Singleton, factories, utility classes). Static, final, abstract: no — a constructor initialises one specific object, is never inherited and never overridden, so those modifiers are meaningless. Overloaded: yes. Overridden or inherited: no. Return a value: no, it has no return type; it may exit early with return; or by throwing.",
       a: [
-        { p: "An object is built foundation-first so that when a constructor body runs, everything it might use (bases and members) already exists. Destruction mirrors it." },
-        { code: `#include <iostream>
-struct Member { Member()  { std::cout << "Member()\\n"; }
-                ~Member() { std::cout << "~Member()\\n"; } };
-struct Base   { Base()    { std::cout << "Base()\\n"; }
-                virtual ~Base() { std::cout << "~Base()\\n"; } };
-struct Derived : Base {
-    Member m;
-    Derived()  { std::cout << "Derived()\\n"; }
-    ~Derived() { std::cout << "~Derived()\\n"; }
-};
-
-int main() { Derived d; }
-/* Output:
-Base()
-Member()
-Derived()
-~Derived()
-~Member()
-~Base()
-*/`, lang: "cpp" },
-        { ol: [
-          "Virtual base classes (depth-first, left-to-right)",
-          "Direct non-virtual base classes, in the order listed in the class head",
-          "Non-static data members, in declaration order",
-          "The constructor body"
-        ] },
-        { ul: [
-          "Local objects in a scope are destroyed in reverse order of creation (stack unwinding).",
-          "With multiple inheritance <code>class C : A, B</code>: A(), B(), C() then ~C(), ~B(), ~A().",
-          "Java: superclass constructor runs first (implicit <code>super()</code>), then instance initialisers/field initialisers, then the constructor body. There are no destructors; GC reclaims objects in no guaranteed order."
-        ] },
-        { tip: "If a constructor throws, destructors run for the already-constructed bases and members but <b>not</b> for the object itself (its lifetime never began)." }
-      ]
-    },
-    {
-      id: "virtual-destructor",
-      q: "Why do we need a virtual destructor? What happens without it?",
-      topic: "Constructors & Destructors",
-      level: 2,
-      top: true,
-      short: "If you delete a derived object through a base-class pointer and the base destructor is not virtual, the behaviour is undefined — in practice only the base destructor runs, leaking the derived part's resources. Any class meant to be used polymorphically (has virtual functions) should have a public virtual destructor.",
-      a: [
-        { p: "<code>delete basePtr;</code> calls the destructor chosen by the <b>static type</b> unless the destructor is virtual. With a non-virtual base destructor, the derived destructor is skipped (formally: undefined behaviour)." },
-        { code: `#include <iostream>
-class Base {
-public:
-    ~Base() { std::cout << "~Base\\n"; }            // BUG: not virtual
-};
-class Derived : public Base {
-    int* buffer;
-public:
-    Derived() : buffer(new int[1000]) {}
-    ~Derived() { delete[] buffer; std::cout << "~Derived\\n"; }
-};
-
-int main() {
-    Base* p = new Derived();
-    delete p;          // prints only "~Base"  -> buffer leaked (UB)
-}`, lang: "cpp", title: "The bug" },
-        { code: `class Base {
-public:
-    virtual ~Base() { std::cout << "~Base\\n"; }    // FIX
-};
-// delete p;  now prints "~Derived" then "~Base"`, lang: "cpp", title: "The fix" },
-        { ul: [
-          "Rule: a base class destructor should be either <b>public and virtual</b> or <b>protected and non-virtual</b> (the latter prevents deletion through the base pointer).",
-          "Once a class has any virtual function, adding a virtual destructor costs nothing extra (the vptr already exists).",
-          "Don't make destructors virtual in classes not designed for inheritance (value types) — mark them <code>final</code> instead.",
-          "<code>std::shared_ptr&lt;Base&gt;(new Derived)</code> happens to call the right destructor even without virtual (it captures the deleter), but <code>unique_ptr&lt;Base&gt;</code> does not."
-        ] },
-        { tip: "Can constructors be virtual? No. Can destructors be pure virtual? Yes, but they still need a definition. Java needs none of this because there are no destructors and GC frees the whole object." }
-      ]
-    },
-    {
-      id: "constructor-virtual-private-static",
-      q: "Can a constructor be virtual, private, static, const or inherited?",
-      topic: "Constructors & Destructors",
-      level: 2,
-      top: true,
-      short: "Virtual: no — the vptr is set up by the constructor and you always know the exact type being created (use a virtual clone() or factory instead). Private: yes, used for Singleton, factories and static-only classes. Static/const: no. Inherited: not by default; C++11 'using Base::Base;' opts in, Java never inherits constructors.",
-      a: [
-        { table: { head: ["Question", "C++", "Java", "Reason"], rows: [
-          ["Virtual?", "No", "N/A (not methods)", "Virtual dispatch needs a vptr, which the constructor itself initialises; and creation requires knowing the exact type"],
-          ["Private?", "Yes", "Yes", "Restrict creation: Singleton, static factory methods, named constructors, utility classes"],
-          ["Static?", "No", "No", "A constructor initialises a specific object (<code>this</code>)"],
-          ["Const / final?", "No", "No", "Constructor must modify the object; <code>final</code> is meaningless since they aren't inherited"],
-          ["Inherited?", "Only with <code>using Base::Base;</code>", "No", "Derived may have extra members to initialise"],
-          ["Overloaded?", "Yes", "Yes", "Different parameter lists"],
-          ["Return a value?", "No", "No", "No return type at all"]
+        { table: { head: ["Question", "Answer", "Reason"], rows: [
+          ["Private?", "<b>Yes</b>", "Restrict creation: Singleton, static factory methods, utility classes with only static members"],
+          ["Static?", "No", "A constructor initialises a specific object (<code>this</code>); static means 'no object'"],
+          ["Final?", "No", "Constructors aren't inherited, so there's nothing to prevent overriding"],
+          ["Abstract?", "No", "Abstract means 'subclass must implement' — constructors aren't inherited"],
+          ["Inherited?", "No", "Subclass may have extra fields; it must call <code>super(...)</code> instead"],
+          ["Overloaded?", "<b>Yes</b>", "Different parameter lists; chain them with <code>this(...)</code>"],
+          ["Overridden?", "No", "Not inherited, and not virtual — the class is fixed at <code>new</code>"],
+          ["Return a value?", "No", "No return type at all; a bare <code>return;</code> is allowed to exit early"],
+          ["Throw an exception?", "<b>Yes</b>", "The standard way to signal failed construction; the object is never handed out"],
+          ["Call an overridable method?", "Legal but dangerous", "Runs subclass code before subclass fields are initialised"]
         ] } },
-        { code: [
-          { lang: "cpp", src: `#include <memory>
-class Shape {
-public:
-    virtual std::unique_ptr<Shape> clone() const = 0;   // "virtual constructor" idiom
-    virtual ~Shape() = default;
-};
-class Circle : public Shape {
-    Circle() = default;                                  // private ctor
-public:
-    static std::unique_ptr<Circle> create() {            // factory
-        return std::unique_ptr<Circle>(new Circle());
-    }
-    std::unique_ptr<Shape> clone() const override {
-        return std::unique_ptr<Shape>(new Circle(*this));
-    }
-};` },
-          { lang: "java", src: `final class MathUtils {
-    private MathUtils() {}                  // private: no instances
+        { code: `final class MathUtils {
+    private MathUtils() { throw new AssertionError(); }   // utility class: never instantiated
     static int square(int x) { return x * x; }
 }
 
 class Connection {
-    private Connection() {}
-    static Connection open() { return new Connection(); }   // factory
-}` }
-        ] },
-        { tip: "Can a destructor be private? Yes — then objects can only be created on the heap and destroyed via a member like <code>destroy()</code> (useful for ref-counted objects). Can a destructor be overloaded? No — only one, taking no arguments." }
+    private static Connection instance;
+    private Connection() { }                              // private: only open() may create
+    static synchronized Connection open() {              // factory / lazy singleton
+        if (instance == null) instance = new Connection();
+        return instance;
+    }
+}
+
+class Range {
+    final int lo, hi;
+    Range(int lo, int hi) {
+        if (lo > hi) throw new IllegalArgumentException("lo > hi");   // fail fast
+        this.lo = lo; this.hi = hi;
+    }
+}`, lang: "java" },
+        { tip: "Follow-up: 'How would you prevent a class from being subclassed without <code>final</code>?' — make all constructors private (subclasses can't call <code>super()</code>). This is how enum-like classes and <code>Integer</code>-style caching classes work." }
       ]
     },
     {
-      id: "explicit-keyword",
-      q: "What is the explicit keyword in C++?",
-      topic: "Constructors & Destructors",
+      id: "initialization-order",
+      q: "In what order do static blocks, instance initialiser blocks, field initialisers and constructors run?",
+      topic: "Constructors & Object Lifecycle",
+      level: 2,
+      top: true,
+      short: "Static field initialisers and static blocks run once, in textual order, when the class is first used, parent before child. For each new object: the parent's instance initialisers and constructor body run first, then the child's field initialisers and instance blocks in textual order, then the child's constructor body.",
+      a: [
+        { p: "Class initialisation happens once per class, on first active use (creating an instance, calling a static method, touching a non-constant static field). Instance initialisation happens on every <code>new</code>, and always starts with the parent because the constructor's implicit first statement is <code>super()</code>." },
+        { code: `class Parent {
+    static { System.out.println("1 Parent static block"); }
+    { System.out.println("3 Parent instance block"); }
+    Parent() { System.out.println("4 Parent constructor"); }
+}
+class Child extends Parent {
+    static int s = log("2 Child static field");
+    int f = log("5 Child instance field");
+    { System.out.println("6 Child instance block"); }
+    Child() { super(); System.out.println("7 Child constructor"); }
+
+    static int log(String msg) { System.out.println(msg); return 0; }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        new Child();
+        System.out.println("--- second object ---");
+        new Child();          // static parts do NOT run again: only 3..7
+    }
+}`, lang: "java", title: "Output is 1 2 3 4 5 6 7, then 3 4 5 6 7" },
+        { ol: [
+          "<b>Parent static</b> initialisers and static blocks (textual order) — once",
+          "<b>Child static</b> initialisers and static blocks — once",
+          "Parent <b>instance</b> field initialisers and instance blocks (textual order)",
+          "Parent <b>constructor body</b>",
+          "Child <b>instance</b> field initialisers and instance blocks (textual order)",
+          "Child <b>constructor body</b>"
+        ] },
+        { ul: [
+          "Instance blocks are copied by the compiler into <i>every</i> constructor right after the <code>super(...)</code> call — that's why they run before the body.",
+          "A <code>static final</code> compile-time constant (<code>static final int N = 5;</code>) does <b>not</b> trigger class initialisation when read.",
+          "Static blocks cannot throw checked exceptions; an exception there becomes <code>ExceptionInInitializerError</code>."
+        ] },
+        { warn: "If <code>Parent()</code> calls an overridable method that <code>Child</code> overrides to print <code>f</code>, it prints <code>0</code> — step 5 hasn't happened yet. Same for a field initialised to a non-null object: it is still <code>null</code> at that moment." }
+      ]
+    },
+    {
+      id: "constructor-destructor-order",
+      q: "In what order are constructors called in an inheritance chain? Does Java have destructors?",
+      topic: "Constructors & Object Lifecycle",
+      level: 2,
+      top: true,
+      short: "Construction goes top-down: Object first, then each superclass down to the actual class, each running its field initialisers and then its constructor body. Java has no destructors — the garbage collector reclaims unreachable objects at an unspecified time; use try-with-resources/close() for deterministic cleanup. finalize() existed for this but is deprecated.",
+      a: [
+        { p: "An object is built foundation-first so that when a constructor body runs, everything it might use from its superclasses already exists. The implicit <code>super()</code> at the start of every constructor enforces this." },
+        { code: `class Member { Member() { System.out.println("Member()"); } }
+class Base   { Base()   { System.out.println("Base()"); } }
+class Derived extends Base {
+    Member m = new Member();          // field initialiser: after super(), before body
+    Derived() { System.out.println("Derived()"); }
+}
+
+public class Main {
+    public static void main(String[] args) { new Derived(); }
+}
+/* Output:
+Base()
+Member()
+Derived()
+*/`, lang: "java" },
+        { ol: [
+          "<code>super(...)</code> — recursively, all the way up to <code>Object()</code>",
+          "This class's instance field initialisers and instance blocks, in textual order",
+          "This class's constructor body"
+        ] },
+        { h: "What about destruction?" },
+        { table: { head: ["", "Java", "Languages with destructors (C++)"], rows: [
+          ["Who frees memory", "Garbage collector, when the object is unreachable", "Programmer / scope exit, deterministically"],
+          ["Order", "Unspecified; GC may reclaim many objects at once", "Reverse of construction"],
+          ["Cleanup hook", "<code>AutoCloseable.close()</code> via try-with-resources; <code>Cleaner</code> as a safety net", "Destructor body"],
+          ["<code>finalize()</code>", "Deprecated (Java 9), removed for good reason: slow, unpredictable, may never run", "—"]
+        ] } },
+        { ul: [
+          "With multiple levels <code>class C extends B</code>, <code>B extends A</code>: <code>A()</code>, then <code>B()</code>, then <code>C()</code>.",
+          "Local variables are popped with the stack frame; the <i>objects</i> they pointed to live until GC finds them unreachable.",
+          "If a constructor throws, the partially built object is never returned by <code>new</code> and becomes garbage — unless the constructor leaked <code>this</code> to a static field or another thread."
+        ] },
+        { tip: "One-liner: 'Java has constructors but no destructors; memory is the GC's job and other resources are released with try-with-resources.'" }
+      ]
+    },
+    {
+      id: "shallow-vs-deep-copy",
+      q: "How do you copy an object in Java? Explain shallow copy vs deep copy and clone().",
+      topic: "Constructors & Object Lifecycle",
+      level: 2,
+      top: true,
+      short: "Assignment copies only the reference. Object.clone() makes a shallow copy: primitive fields are copied but reference fields still point to the same objects, so mutating a nested object affects both copies. A deep copy also copies every referenced mutable object, recursively — via an overridden clone(), a copy constructor or serialization.",
+      a: [
+        { p: "<code>b = a</code> creates <b>no</b> new object. To copy you need <code>clone()</code>, a copy constructor or a factory method — and you must decide how deep the copy goes." },
+        { svg: `<svg viewBox="0 0 620 210" width="620" class="dg">
+  <text class="tx-m" x="70" y="20" text-anchor="middle">references</text>
+  <text class="tx-m" x="240" y="60" text-anchor="middle">heap</text>
+  <rect class="box" x="20" y="30" width="100" height="34" rx="6"/>
+  <text class="tx-c" x="70" y="47" text-anchor="middle" dominant-baseline="middle">a.addr</text>
+  <rect class="box" x="20" y="110" width="100" height="34" rx="6"/>
+  <text class="tx-c" x="70" y="127" text-anchor="middle" dominant-baseline="middle">b.addr</text>
+  <rect class="box-r" x="190" y="70" width="100" height="34" rx="6"/>
+  <text class="tx-c" x="240" y="87" text-anchor="middle" dominant-baseline="middle">Address</text>
+  <line class="ln" x1="120" y1="47" x2="188" y2="80" marker-end="url(#dg-arr)"/>
+  <line class="ln" x1="120" y1="127" x2="188" y2="96" marker-end="url(#dg-arr)"/>
+  <text class="tx tx-b" x="155" y="178" text-anchor="middle">Shallow: one shared Address</text>
+  <text class="tx-m" x="155" y="196" text-anchor="middle">b.addr.city = X changes a too</text>
+  <text class="tx-m" x="390" y="20" text-anchor="middle">references</text>
+  <text class="tx-m" x="560" y="20" text-anchor="middle">heap</text>
+  <rect class="box" x="340" y="30" width="100" height="34" rx="6"/>
+  <text class="tx-c" x="390" y="47" text-anchor="middle" dominant-baseline="middle">a.addr</text>
+  <rect class="box" x="340" y="110" width="100" height="34" rx="6"/>
+  <text class="tx-c" x="390" y="127" text-anchor="middle" dominant-baseline="middle">b.addr</text>
+  <rect class="box-g" x="510" y="30" width="100" height="34" rx="6"/>
+  <text class="tx-c" x="560" y="47" text-anchor="middle" dominant-baseline="middle">Address</text>
+  <rect class="box-g" x="510" y="110" width="100" height="34" rx="6"/>
+  <text class="tx-c" x="560" y="127" text-anchor="middle" dominant-baseline="middle">Address (copy)</text>
+  <line class="ln-a" x1="440" y1="47" x2="508" y2="47" marker-end="url(#dg-arr-a)"/>
+  <line class="ln-a" x1="440" y1="127" x2="508" y2="127" marker-end="url(#dg-arr-a)"/>
+  <text class="tx tx-b" x="475" y="178" text-anchor="middle">Deep: each owns its Address</text>
+  <text class="tx-m" x="475" y="196" text-anchor="middle">independent objects</text>
+</svg>`, caption: "After b = a.clone(): default shallow clone() vs an overridden deep clone()." },
+        { code: `class Address implements Cloneable {
+    String city;
+    Address(String c) { city = c; }
+    @Override public Address clone() {
+        try { return (Address) super.clone(); }              // only primitives/Strings: shallow is enough
+        catch (CloneNotSupportedException e) { throw new AssertionError(e); }
+    }
+}
+
+class Person implements Cloneable {                         // marker interface: else clone() throws
+    String name;
+    Address addr;
+    Person(String n, Address a) { name = n; addr = a; }
+
+    // SHALLOW: Object.clone() copies fields one by one -> both Persons share ONE Address
+    // @Override public Person clone() { return (Person) super.clone(); }
+
+    @Override public Person clone() {                        // DEEP
+        try {
+            Person p = (Person) super.clone();
+            p.addr = addr.clone();                           // copy the referenced object too
+            return p;
+        } catch (CloneNotSupportedException e) { throw new AssertionError(e); }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Person a = new Person("Asha", new Address("Pune"));
+        Person b = a.clone();
+        b.addr.city = "Delhi";
+        System.out.println(a.addr.city);   // Pune with deep copy; Delhi with shallow copy
+    }
+}`, lang: "java" },
+        { table: { head: ["", "Shallow copy", "Deep copy"], rows: [
+          ["Primitive fields", "Copied", "Copied"],
+          ["Reference fields", "Same object shared", "New object, recursively copied"],
+          ["Cost", "Cheap", "Proportional to the object graph"],
+          ["Safe when", "Referenced objects are immutable (<code>String</code>, <code>Integer</code>)", "Referenced objects are mutable"],
+          ["How", "<code>super.clone()</code>, <code>new ArrayList&lt;&gt;(list)</code>", "Overridden <code>clone()</code>, copy constructor, serialization / JSON round-trip"]
+        ] } },
+        { ul: [
+          "<code>Cloneable</code> is a <b>marker interface</b>: it has no methods; <code>Object.clone()</code> checks it at run time and throws <code>CloneNotSupportedException</code> if absent.",
+          "<code>Object.clone()</code> is <code>protected</code>; you override it as <code>public</code> with a covariant return type.",
+          "Arrays' <code>clone()</code> is shallow too: <code>int[][] g2 = g.clone()</code> shares the inner rows."
+        ] },
+        { tip: "Effective Java's advice: prefer a <b>copy constructor</b> or copy factory over <code>clone()</code> — no checked exception, no casts, works with final fields, and you control the depth explicitly. Immutable fields never need deep copying." }
+      ]
+    },
+    {
+      id: "object-creation-ways",
+      q: "In how many ways can you create an object in Java? Which of them do not call a constructor?",
+      topic: "Constructors & Object Lifecycle",
       level: 2,
       top: false,
-      short: "explicit on a constructor (or conversion operator) prevents the compiler from using it for implicit conversions and copy-initialisation, so a single-argument constructor like Array(int size) can't silently turn an int into an Array. Mark single-argument constructors explicit by default.",
+      short: "Five commonly listed ways: the new keyword, reflection (Class.forName(...).getDeclaredConstructor().newInstance()), clone(), deserialization, and factory methods (which call new internally). clone() and deserialization create the object without running its constructor; the others run it.",
       a: [
-        { p: "A constructor that can be called with one argument is a <b>converting constructor</b>: the compiler may use it silently to convert that argument type into the class. <code>explicit</code> disables this." },
-        { code: `#include <vector>
-class Buffer {
-    std::vector<int> data;
-public:
-    explicit Buffer(int size) : data(size) {}
-};
-void process(const Buffer& b) {}
+        { code: `import java.io.*;
 
-class Meter {
-public:
-    Meter(double v) {}                 // implicit: converting constructor
-};
-void walk(Meter m) {}
+class User implements Cloneable, Serializable {
+    String name = "default";
+    User() { System.out.println("constructor ran"); }
+    @Override public User clone() throws CloneNotSupportedException { return (User) super.clone(); }
+}
 
-int main() {
-    // Buffer b = 10;                  // error: copy-init needs implicit conversion
-    Buffer b(10);                      // OK: direct init
-    // process(42);                    // error: no silent int -> Buffer
-    process(Buffer(42));               // OK: explicit
-    walk(3.5);                         // compiles silently: 3.5 -> Meter
-}`, lang: "cpp" },
-        { ul: [
-          "Also applies to conversion operators: <code>explicit operator bool() const</code> allows <code>if (obj)</code> but blocks <code>int x = obj;</code>.",
-          "C++20: <code>explicit(condition)</code> for conditional explicitness in templates.",
-          "Java has no implicit user-defined conversions, so it needs no such keyword."
-        ] },
-        { tip: "Real-world bug example: <code>std::vector&lt;int&gt; v = 5;</code> doesn't compile precisely because <code>vector(size_type)</code> is explicit." }
-      ]
-    },
-    {
-      id: "rule-of-three-five-zero",
-      q: "What are the Rule of Three, Rule of Five and Rule of Zero?",
-      topic: "Constructors & Destructors",
-      level: 3,
-      top: true,
-      short: "Rule of Three: if a class needs a user-defined destructor, copy constructor or copy assignment, it probably needs all three. Rule of Five (C++11): add the move constructor and move assignment. Rule of Zero: design classes so they need none of them, by owning resources through RAII members like std::vector, std::string and smart pointers.",
-      a: [
-        { p: "A class that manually manages a resource (raw memory, file handle, socket) must control what happens on copy, move and destruction; the compiler-generated versions only do member-wise shallow operations." },
-        { table: { head: ["Rule", "Special members to define"], rows: [
-          ["Three (C++98)", "Destructor, copy constructor, copy assignment"],
-          ["Five (C++11)", "The three + move constructor + move assignment"],
-          ["Zero", "None — let RAII members handle everything"]
+public class Main {
+    public static void main(String[] args) throws Exception {
+        User a = new User();                                       // 1. new
+
+        User b = User.class.getDeclaredConstructor().newInstance(); // 2. reflection
+        // or: (User) Class.forName("User").getDeclaredConstructor().newInstance()
+
+        User c = a.clone();                                        // 3. clone: NO constructor
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        new ObjectOutputStream(bytes).writeObject(a);
+        User d = (User) new ObjectInputStream(                     // 4. deserialization:
+            new ByteArrayInputStream(bytes.toByteArray())).readObject();   //    NO constructor
+
+        Integer e = Integer.valueOf(42);                           // 5. factory method
+        String  f = "literal";                                     //    (string pool: maybe no new object)
+    }
+}`, lang: "java" },
+        { table: { head: ["Way", "Constructor runs?", "Typical use"], rows: [
+          ["<code>new</code>", "Yes", "Everyday code"],
+          ["Reflection <code>newInstance()</code>", "Yes", "Frameworks (Spring, JUnit, JDBC drivers) creating classes named in config"],
+          ["<code>clone()</code>", "<b>No</b> — memory copied field by field", "Prototype pattern, defensive copies"],
+          ["Deserialization", "<b>No</b> for <code>Serializable</code> classes (the first non-serializable superclass's no-arg constructor does run)", "Caching, RPC, session persistence"],
+          ["Factory method", "Yes, inside the factory", "<code>List.of()</code>, <code>Integer.valueOf()</code>, <code>LocalDate.now()</code>"]
         ] } },
-        { code: `#include <algorithm>
-#include <cstddef>
-#include <utility>
-class IntArray {                                   // Rule of Five
-    std::size_t n;
-    int* p;
-public:
-    explicit IntArray(std::size_t size) : n(size), p(new int[size]{}) {}
-    ~IntArray() { delete[] p; }                                     // 1
+        { warn: "Because <code>clone()</code> and deserialization bypass constructors, invariants checked in the constructor are <i>not</i> re-checked — validate in <code>readObject</code> / <code>clone()</code> too. This is also why an <code>enum</code> is the safest Singleton: the JVM guarantees one instance even across deserialization." }
+      ]
+    },
+    {
+      id: "resource-cleanup-java",
+      q: "Java has no destructors. How do you release resources like files, sockets and DB connections deterministically?",
+      topic: "Constructors & Object Lifecycle",
+      level: 2,
+      top: true,
+      short: "Implement AutoCloseable and use try-with-resources: close() is guaranteed to run when the block exits, normally or by exception, in reverse order of acquisition. Before Java 7 this was done in a finally block. finalize() is deprecated and Cleaner (Java 9) is only a last-resort safety net, because GC timing is unpredictable.",
+      a: [
+        { p: "Memory is the GC's job, but files, sockets, locks and connections are <b>not</b> reclaimed by GC in a timely way. Java's answer is a lexical construct instead of a destructor: the resource's lifetime is tied to a <b>block</b>." },
+        { code: `class Connection implements AutoCloseable {
+    Connection() { System.out.println("open"); }
+    void send(String s) { System.out.println("send " + s); }
+    @Override public void close() { System.out.println("close"); }   // deterministic
+}
 
-    IntArray(const IntArray& o) : n(o.n), p(new int[o.n]) {         // 2
-        std::copy(o.p, o.p + n, p);
+public class Main {
+    public static void main(String[] args) {
+        try (Connection c1 = new Connection();
+             Connection c2 = new Connection()) {          // closed in REVERSE order: c2, c1
+            c1.send("hi");
+            throw new RuntimeException("boom");           // close() still runs, then catch
+        } catch (RuntimeException e) {
+            System.out.println("caught " + e.getMessage());
+        }
     }
-    IntArray& operator=(IntArray o) noexcept {                      // 3 (+5): copy-and-swap
-        swap(o);                                                    // handles copy & move
-        return *this;
-    }
-    IntArray(IntArray&& o) noexcept : n(o.n), p(o.p) {              // 4
-        o.n = 0; o.p = nullptr;                                     // leave source valid
-    }
-    void swap(IntArray& o) noexcept { std::swap(n, o.n); std::swap(p, o.p); }
-};
-
-#include <vector>
-class IntArray0 {                                  // Rule of Zero
-    std::vector<int> v;                            // vector already does all five
-public:
-    explicit IntArray0(std::size_t n) : v(n) {}
-};`, lang: "cpp" },
+}
+/* open, open, send hi, close, close, caught boom */`, lang: "java", title: "try-with-resources" },
+        { table: { head: ["Mechanism", "When it runs", "Verdict"], rows: [
+          ["try-with-resources (<code>AutoCloseable</code>)", "Immediately at block exit, even on exception", "<b>Use this</b>"],
+          ["<code>finally { x.close(); }</code>", "Same, but verbose and easy to get wrong with multiple resources", "Pre-Java-7 style"],
+          ["<code>Cleaner</code> / <code>PhantomReference</code> (Java 9)", "Some time after the object becomes unreachable", "Safety net only, for native resources"],
+          ["<code>finalize()</code>", "Maybe, eventually, on some GC thread — or never", "Deprecated; don't"]
+        ] } },
         { ul: [
-          "Declaring a destructor or copy operation <b>suppresses</b> the implicit move operations — moves silently fall back to copies.",
-          "Mark move operations <code>noexcept</code>, otherwise <code>std::vector</code> will copy instead of move on reallocation.",
-          "Use <code>= default</code> / <code>= delete</code> to state intent (e.g. non-copyable: delete copy ctor and copy assignment)."
+          "If both the body and <code>close()</code> throw, the body's exception wins and the close exception is attached via <code>getSuppressed()</code>.",
+          "Resources must be effectively final; Java 9 lets you write <code>try (existingVar)</code>.",
+          "This is Java's equivalent of C++ RAII and Python's <code>with</code> statement — scope-bound cleanup, without relying on the GC."
         ] },
-        { tip: "Interviewers love the copy-and-swap idiom: taking the parameter by value gives strong exception safety and handles self-assignment for free." }
+        { tip: "Interview one-liner: 'The GC manages memory, not resources. For resources I tie lifetime to a block with try-with-resources.' Mention that forgetting to close is the top cause of 'too many open files' and connection-pool exhaustion in production." }
       ]
     },
 
-    /* ───────────── Memory & Pointers ───────────── */
+    /* ───────────── Memory & References ───────────── */
     {
-      id: "new-delete-vs-malloc-free",
-      q: "What is the difference between new/delete and malloc/free?",
-      topic: "Memory & Pointers",
+      id: "stack-vs-heap",
+      q: "What is stored on the stack and what on the heap in Java? Where do static variables live?",
+      topic: "Memory & References",
       level: 1,
       top: true,
-      short: "new is a C++ operator that allocates memory and calls the constructor, returns a typed pointer and throws std::bad_alloc on failure; delete calls the destructor then frees. malloc/free are C library functions that only allocate/free raw bytes, return void*, and signal failure with NULL. Never mix them.",
+      short: "Each thread has its own stack of frames holding local primitives, local references and return addresses; frames are pushed on call and popped on return. All objects and arrays live on the shared heap, managed by the GC. Class metadata lives in metaspace, and static fields live with the Class object on the heap (since Java 8).",
       a: [
-        { table: { head: ["", "new / delete", "malloc / free"], rows: [
-          ["Kind", "Operator (overloadable)", "Library function (<code>&lt;cstdlib&gt;</code>)"],
-          ["Constructor / destructor", "Called", "Not called"],
-          ["Size", "Computed by compiler from type", "Passed in bytes: <code>malloc(n * sizeof(T))</code>"],
-          ["Return type", "Typed <code>T*</code>", "<code>void*</code> (cast needed in C++)"],
-          ["Failure", "Throws <code>std::bad_alloc</code> (or <code>nullptr</code> with <code>nothrow</code>)", "Returns <code>NULL</code>"],
-          ["Arrays", "<code>new T[n]</code> / <code>delete[]</code>", "Same functions"],
-          ["Resize", "No (use <code>std::vector</code>)", "<code>realloc</code>"],
-          ["Memory area", "Free store", "Heap"]
+        { table: { head: ["", "Stack", "Heap"], rows: [
+          ["Holds", "Method frames: local primitives, local <i>references</i>, operand stack", "Every object and array, including the ones referenced from the stack"],
+          ["Ownership", "One per thread, private", "One per JVM, shared by all threads"],
+          ["Lifetime", "Popped automatically on return (LIFO)", "Until unreachable, then reclaimed by GC"],
+          ["Size", "Small (~512KB–1MB, <code>-Xss</code>)", "Large (<code>-Xms</code>/<code>-Xmx</code>)"],
+          ["Failure", "<code>StackOverflowError</code> (deep recursion)", "<code>OutOfMemoryError: Java heap space</code>"],
+          ["Speed", "Very fast (pointer bump)", "Slower allocation, GC cost"]
         ] } },
-        { code: `#include <cstdlib>
-#include <string>
-struct Node { std::string s; Node() : s("hi") {} };
+        { code: `public class Main {
+    static int counter = 0;                // static: stored with the Class object (heap)
 
-int main() {
-    Node* a = new Node;          // allocates + constructs: a->s == "hi"
-    delete a;                    // destroys + frees
+    public static void main(String[] args) {
+        int n = 5;                         // primitive local  -> main's stack frame
+        int[] arr = new int[n];            // 'arr' reference -> stack; the array -> heap
+        String s = "hi";                   // reference -> stack; "hi" -> string pool (heap)
+        Point p = new Point(1, 2);         // reference -> stack; Point object {x, y} -> heap
+        helper(p);                         // new frame pushed for helper; popped on return
+        System.out.println(p.x);           // 2: helper changed the shared heap object
+    }                                      // frame popped: arr, s, p are gone;
+                                           // their objects become garbage if unreachable
 
-    Node* arr = new Node[3];     // 3 constructors
-    delete[] arr;                // 3 destructors - must use delete[]
-
-    Node* b = static_cast<Node*>(std::malloc(sizeof(Node)));  // raw bytes, s NOT constructed
-    // b->s = "x";               // UB: string never constructed
-    std::free(b);
-}`, lang: "cpp" },
-        { warn: "Mixing is undefined behaviour: <code>delete</code> on <code>malloc</code>ed memory, <code>free</code> on <code>new</code>ed memory, or <code>delete</code> on something from <code>new[]</code>. In modern C++ prefer <code>std::make_unique</code> / containers over any of these." },
-        { tip: "Java has only <code>new</code>; there's no <code>delete</code> — the garbage collector reclaims unreachable objects." }
+    static void helper(Point q) { q.x++; } // q: a copy of the reference, in helper's frame
+}
+class Point { int x, y; Point(int x, int y) { this.x = x; this.y = y; } }`, lang: "java" },
+        { ul: [
+          "Objects are <b>never</b> on the stack in the language model — even <code>new Point()</code> inside a method goes to the heap (the JIT's escape analysis may optimise this away, but you can't rely on it).",
+          "Instance fields live inside their object on the heap, whatever their type; only <i>local</i> primitives are on the stack.",
+          "<b>Metaspace</b> (native memory, Java 8+) holds class metadata, method bytecode and the constant pool; it replaced PermGen.",
+          "The string pool moved from PermGen to the heap in Java 7."
+        ] },
+        { tip: "Quick-fire: 'Where is <code>int x</code> stored?' — depends: local → stack, field → inside its object on the heap, static → with the Class object. 'Is the heap per thread?' — no, that's why heap objects need synchronisation." }
       ]
     },
     {
-      id: "references-vs-pointers",
-      q: "What is the difference between a reference and a pointer in C++?",
-      topic: "Memory & Pointers",
+      id: "java-references",
+      q: "What is a reference in Java? Does Java have pointers?",
+      topic: "Memory & References",
       level: 1,
       top: true,
-      short: "A reference is an alias for an existing object: it must be initialised, cannot be null and cannot be reseated. A pointer is a variable holding an address: it can be null, reassigned, do arithmetic, and needs explicit dereferencing. Use references for parameters that must refer to something, pointers when 'nothing' or re-pointing is needed.",
+      short: "A reference is a variable that holds the address of an object on the heap; it is the only way to reach an object. Java has no user-visible pointers: you cannot see or change the address, do arithmetic on it, or point into the middle of an object. A reference can be null, re-pointed to another object, and is passed by value.",
       a: [
-        { table: { head: ["", "Reference (<code>T&amp;</code>)", "Pointer (<code>T*</code>)"], rows: [
-          ["Initialisation", "Must be initialised at declaration", "Can be declared uninitialised (dangerous)"],
-          ["Null", "Cannot be null (no 'null reference' legally)", "Can be <code>nullptr</code>"],
-          ["Reseating", "Always refers to the same object", "Can point elsewhere"],
-          ["Syntax", "Used like the object: <code>r.x</code>", "Dereference: <code>*p</code>, <code>p-&gt;x</code>"],
+        { p: "Every non-primitive variable in Java (<code>String s</code>, <code>int[] a</code>, <code>Dog d</code>) is a <b>reference</b>. Internally it is a pointer (HotSpot even calls them 'oops' — ordinary object pointers), but the language hides all pointer operations, which removes whole categories of bugs (buffer overruns, dangling pointers, double frees)." },
+        { table: { head: ["", "Java reference", "C/C++ pointer"], rows: [
+          ["Holds", "Address of an object (opaque)", "Any address (visible, castable to int)"],
           ["Arithmetic", "No", "Yes (<code>p + 1</code>)"],
-          ["Multiple levels", "No reference to reference", "<code>int**</code>"],
-          ["Arrays of", "Not allowed", "Allowed"],
-          ["sizeof", "Size of referred object", "Size of pointer (8 on 64-bit)"]
+          ["Null", "<code>null</code>; dereferencing throws <code>NullPointerException</code>", "<code>NULL</code>; dereferencing is undefined behaviour"],
+          ["Re-pointing", "Yes", "Yes"],
+          ["Dangling", "Impossible — GC keeps the object alive while referenced", "Possible after <code>free</code>/<code>delete</code>"],
+          ["Points to", "Whole objects/arrays only", "Objects, fields, array elements, functions, stack variables"],
+          ["Size", "4 bytes (compressed oops) or 8", "8 bytes on 64-bit"]
         ] } },
-        { code: `#include <iostream>
-void byPtr(int* p) { if (p) *p += 1; }   // may receive nullptr
-void byRef(int& r) { r += 1; }           // always a valid int
+        { code: `class Node { int val; Node next; Node(int v) { val = v; } }
 
-int main() {
-    int a = 10, b = 20;
-    int& r = a;      // r is another name for a
-    r = b;           // assigns 20 to a - does NOT rebind r
-    int* p = &a;
-    p = &b;          // p now points to b
-    byPtr(nullptr);  // fine
-    byRef(a);        // a == 21
-    std::cout << a << " " << b << "\\n";  // 21 20
-}`, lang: "cpp" },
-        { tip: "Java has neither in this sense: all object variables are <i>references</i> that behave like nullable, reseatable pointers without arithmetic, and are passed by value. Follow-up: 'dangling reference' — returning a reference to a local variable is UB." }
-      ]
-    },
-    {
-      id: "smart-pointers",
-      q: "What are smart pointers? Explain unique_ptr, shared_ptr and weak_ptr.",
-      topic: "Memory & Pointers",
-      level: 2,
-      top: true,
-      short: "Smart pointers are RAII wrappers that own a heap object and delete it automatically. unique_ptr has sole, move-only ownership with zero overhead. shared_ptr has shared ownership via an atomic reference count; the object dies when the last owner goes. weak_ptr observes a shared_ptr-managed object without owning it, used to break reference cycles.",
-      a: [
-        { table: { head: ["", "unique_ptr", "shared_ptr", "weak_ptr"], rows: [
-          ["Ownership", "Exclusive", "Shared (ref-counted)", "None (observer)"],
-          ["Copyable", "No, move-only", "Yes (count++)", "Yes"],
-          ["Overhead", "None vs raw pointer", "Control block, atomic counts", "Uses shared_ptr's control block"],
-          ["Create with", "<code>std::make_unique&lt;T&gt;()</code>", "<code>std::make_shared&lt;T&gt;()</code>", "From a <code>shared_ptr</code>"],
-          ["Access", "<code>*</code>, <code>-&gt;</code>", "<code>*</code>, <code>-&gt;</code>", "<code>lock()</code> gives a shared_ptr or empty"],
-          ["Use for", "Default choice for ownership", "Truly shared lifetime", "Caches, parent back-pointers, observers"]
-        ] } },
-        { code: `#include <iostream>
-#include <memory>
-#include <string>
-struct Node {
-    std::string name;
-    std::shared_ptr<Node> next;       // owning
-    std::weak_ptr<Node>   prev;        // non-owning: breaks the cycle
-    explicit Node(std::string n) : name(std::move(n)) {}
-    ~Node() { std::cout << "~" << name << "\\n"; }
-};
+public class Main {
+    public static void main(String[] args) {
+        Node a = new Node(1);
+        Node b = a;                       // copies the reference: two names, one object
+        b.val = 7;
+        System.out.println(a.val);        // 7
 
-int main() {
-    auto u = std::make_unique<Node>("U");
-    // auto u2 = u;                    // error: unique_ptr can't be copied
-    auto u2 = std::move(u);            // ownership transferred, u is null
+        b = new Node(2);                  // b re-pointed; a still refers to the first node
+        System.out.println(a.val);        // 7
 
-    auto a = std::make_shared<Node>("A");
-    auto b = std::make_shared<Node>("B");
-    a->next = b;                       // b.use_count() == 2
-    b->prev = a;                       // weak: a.use_count() stays 1
-    if (auto p = b->prev.lock())       // temporarily promote
-        std::cout << "prev = " << p->name << "\\n";
-}   // ~A, ~B, ~U all printed. With shared_ptr for prev: A and B would LEAK.`, lang: "cpp" },
+        Node c = null;                    // reference to nothing
+        // c.val = 1;                     // NullPointerException at run time
+
+        System.out.println(a == b);       // false: different objects
+        System.out.println(a.equals(b));  // false too: Object.equals is ==
+    }
+}`, lang: "java" },
         { ul: [
-          "Prefer <code>make_unique</code>/<code>make_shared</code>: exception-safe, and <code>make_shared</code> does one allocation for object + control block.",
-          "Pass <code>unique_ptr</code> by value to transfer ownership; pass <code>T&amp;</code>/<code>T*</code> when a function just uses the object.",
-          "<code>auto_ptr</code> is removed in C++17 (broken copy semantics)."
+          "<code>==</code> on references compares addresses (same object?), never contents — use <code>equals()</code>.",
+          "Since Java 14, NPE messages say <i>what</i> was null: 'Cannot read field \"val\" because \"c\" is null'.",
+          "<code>Optional&lt;T&gt;</code> and <code>Objects.requireNonNull</code> are the idiomatic tools for making 'may be absent' explicit."
         ] },
-        { warn: "Two <code>shared_ptr</code>s created separately from the same raw pointer (<code>shared_ptr&lt;T&gt;(raw)</code> twice) get two control blocks → double delete. Use <code>enable_shared_from_this</code> to get a shared_ptr to <code>this</code>." }
+        { tip: "Answer to 'does Java have pointers?': 'Yes internally — every object variable is a pointer — but no pointer <i>arithmetic</i> or address access, which is what people mean by pointers.' <code>NullPointerException</code> in the name is the giveaway." }
       ]
     },
     {
-      id: "raii",
-      q: "What is RAII?",
-      topic: "Memory & Pointers",
-      level: 2,
-      top: false,
-      short: "Resource Acquisition Is Initialisation: tie a resource's lifetime to an object's lifetime — acquire it in the constructor and release it in the destructor. Because destructors run automatically when objects go out of scope, even during exceptions, resources can't leak. Smart pointers, lock_guard, fstream and containers are RAII types.",
-      a: [
-        { p: "C++ guarantees that destructors of fully-constructed automatic objects run when control leaves their scope — by <code>return</code>, <code>break</code> or <b>exception</b> (stack unwinding). RAII exploits this for any resource: memory, files, locks, sockets, DB transactions." },
-        { code: `#include <cstdio>
-#include <mutex>
-#include <stdexcept>
-class File {                                    // hand-written RAII wrapper
-    std::FILE* f;
-public:
-    explicit File(const char* path) : f(std::fopen(path, "r")) {
-        if (!f) throw std::runtime_error("open failed");
-    }
-    ~File() { std::fclose(f); }                 // always released
-    File(const File&) = delete;                 // non-copyable resource
-    File& operator=(const File&) = delete;
-    std::FILE* get() const { return f; }
-};
-
-std::mutex m;
-void work() {
-    std::lock_guard<std::mutex> lock(m);        // lock acquired
-    File in("data.txt");
-    // ... if anything throws here, file is closed and mutex unlocked
-}                                               // automatic cleanup, reverse order`, lang: "cpp" },
-        { tip: "Java's closest equivalents are <code>try-with-resources</code> (<code>AutoCloseable</code>) and <code>finally</code>; they're explicit at the call site, whereas RAII is automatic. Destructors must not throw — an exception during unwinding calls <code>std::terminate</code>." }
-      ]
-    },
-
-    /* ───────────── C++ Specifics ───────────── */
-    {
-      id: "templates-vs-generics",
-      q: "What are templates in C++ and generics in Java? How do they differ?",
-      topic: "C++ Specifics",
+      id: "java-pass-by-value",
+      q: "Is Java pass-by-value or pass-by-reference?",
+      topic: "Memory & References",
       level: 2,
       top: true,
-      short: "Both provide parametric (compile-time) polymorphism: write code once for many types. C++ templates generate a separate specialised copy per type at compile time (monomorphisation), work with primitives and allow specialisation. Java generics use type erasure: one compiled class using Object internally, with type checks at compile time only; primitives need wrapper types.",
+      short: "Java is always pass-by-value. For objects, the value passed is a copy of the reference, so a method can mutate the object the caller sees, but reassigning the parameter does not affect the caller's variable. There is no way to make a method rebind the caller's variable.",
       a: [
-        { p: "<b>Generic programming</b> lets you write type-independent code — a <code>max</code> function or a <code>Stack</code> class — and have the compiler enforce type safety for each use." },
-        { code: [
-          { lang: "cpp", src: `#include <iostream>
-#include <string>
-#include <vector>
+        { p: "Every argument is copied into the parameter. For a primitive, the copy is the number; for an object, the copy is the <b>reference</b> (address). Both the caller and callee references point to the same object, but they are separate variables." },
+        { code: `class Box { int v; Box(int v) { this.v = v; } }
 
-template <typename T>
-T maxOf(const T& a, const T& b) { return (a < b) ? b : a; }
+public class Main {
+    static void mutate(Box b)   { b.v = 99; }          // visible to caller: same object
+    static void reassign(Box b) { b = new Box(-1); }   // NOT visible: only the copy is rebound
+    static void swap(Box a, Box b) { Box t = a; a = b; b = t; }  // no effect on caller
+    static void inc(int x)      { x++; }               // primitives: plain copy
 
-template <typename T>
-class Stack {
-    std::vector<T> items;
-public:
-    void push(const T& x) { items.push_back(x); }
-    T pop() { T top = items.back(); items.pop_back(); return top; }
-    bool empty() const { return items.empty(); }
-};
-
-template <>                                    // full specialisation
-const char* maxOf(const char* const& a, const char* const& b) {
-    return std::string(a) < std::string(b) ? b : a;
-}
-
-int main() {
-    std::cout << maxOf(3, 7) << " " << maxOf(2.5, 1.5) << "\\n";  // 7 2.5
-    Stack<int> s; s.push(1); s.push(2);
-    std::cout << s.pop() << "\\n";                                // 2
-}` },
-          { lang: "java", src: `import java.util.ArrayList;
-import java.util.List;
-
-class Util {
-    static <T extends Comparable<T>> T maxOf(T a, T b) {  // bounded type
-        return a.compareTo(b) < 0 ? b : a;
+    public static void main(String[] args) {
+        Box x = new Box(1), y = new Box(2);
+        int n = 5;
+        mutate(x);     System.out.println(x.v);        // 99
+        reassign(x);   System.out.println(x.v);        // 99
+        swap(x, y);    System.out.println(x.v + " " + y.v);  // 99 2
+        inc(n);        System.out.println(n);          // 5
     }
-}
-
-class Stack<T> {
-    private final List<T> items = new ArrayList<>();
-    void push(T x) { items.add(x); }
-    T pop() { return items.remove(items.size() - 1); }
-    boolean isEmpty() { return items.isEmpty(); }
-}
-
-// Util.maxOf(3, 7);          // autoboxed to Integer
-// Stack<Integer> s = new Stack<>();   // Stack<int> not allowed` }
-        ] },
-        { table: { head: ["", "C++ templates", "Java generics"], rows: [
-          ["Implementation", "Code generated per type (monomorphisation)", "Type erasure: one class, casts inserted"],
-          ["Primitive types", "Yes (<code>vector&lt;int&gt;</code>)", "No — wrappers (<code>List&lt;Integer&gt;</code>)"],
-          ["Runtime type info", "Full (<code>Stack&lt;int&gt;</code> ≠ <code>Stack&lt;double&gt;</code>)", "Erased: <code>List&lt;String&gt;.class</code> doesn't exist; can't do <code>new T()</code>"],
-          ["Constraints", "Duck typing; C++20 <code>concepts</code>", "Bounds: <code>&lt;T extends Comparable&lt;T&gt;&gt;</code>, wildcards <code>? extends</code>/<code>? super</code>"],
-          ["Specialisation", "Full and partial", "No"],
-          ["Non-type params", "Yes (<code>array&lt;int, 5&gt;</code>)", "No"],
-          ["Cost", "Code bloat, longer compile, header-only", "Small bytecode, boxing overhead"]
+}`, lang: "java" },
+        { table: { head: ["Inside the method", "Effect on caller"], rows: [
+          ["Modify the object's fields via the parameter", "Visible — same heap object"],
+          ["Call a mutating method (<code>list.add</code>)", "Visible"],
+          ["Assign the parameter to a new object", "Invisible — only the local copy changes"],
+          ["Modify a primitive parameter", "Invisible"],
+          ["Modify a <code>String</code> parameter", "Invisible — Strings are immutable, so any change creates a new object"]
         ] } },
-        { tip: "Templates are compile-time polymorphism: no virtual call overhead and full inlining — that's why the STL is fast. Template errors are notoriously long; C++20 concepts fix that." }
+        { tip: "The swap test is the proof: you cannot write a working <code>swap(a, b)</code> for two object variables in Java, which you could with real pass-by-reference (C++ <code>T&amp;</code>, C# <code>ref</code>). To return two values, return an object or fill an array." }
       ]
     },
     {
-      id: "exception-handling-oop",
-      q: "How does exception handling work in OOP? How do you design custom exceptions?",
-      topic: "C++ Specifics",
+      id: "garbage-collection",
+      q: "How does garbage collection work in Java? When does an object become eligible?",
+      topic: "Memory & References",
       level: 2,
       top: true,
-      short: "Exceptions separate error handling from normal flow: throw an object, the runtime unwinds the stack (running destructors in C++) until a matching catch. Exceptions are classes in a hierarchy, so you catch by base type polymorphically. Custom exceptions derive from std::exception / std::runtime_error in C++ or Exception / RuntimeException in Java. Catch by reference in C++.",
+      short: "The JVM's garbage collector automatically frees objects that are no longer reachable from GC roots (thread stacks, static fields, JNI references). It marks everything reachable, sweeps the rest and usually compacts. Modern collectors are generational: most objects die young in the Young Generation (cheap minor GCs); survivors are promoted to the Old Generation.",
       a: [
-        { p: "When an exception is thrown, control jumps to the nearest enclosing <code>catch</code> whose type matches (including a base class). In C++ every local object between throw and catch is destroyed (<b>stack unwinding</b>), which is why RAII makes code exception-safe." },
-        { code: [
-          { lang: "cpp", src: `#include <iostream>
-#include <stdexcept>
-#include <string>
-
-class InsufficientFunds : public std::runtime_error {
-    double shortBy;
-public:
-    explicit InsufficientFunds(double s)
-        : std::runtime_error("insufficient funds"), shortBy(s) {}
-    double amount() const noexcept { return shortBy; }
-};
-
-void withdraw(double bal, double amt) {
-    if (amt > bal) throw InsufficientFunds(amt - bal);   // throw by value
-}
-
-int main() {
-    try {
-        withdraw(100, 150);
-    } catch (const InsufficientFunds& e) {                // most specific first
-        std::cout << e.what() << " by " << e.amount() << "\\n";
-    } catch (const std::exception& e) {                   // base: catches the rest
-        std::cout << "error: " << e.what() << "\\n";
-    } catch (...) {                                       // anything
-        std::cout << "unknown\\n";
-    }
-}` },
-          { lang: "java", src: `class InsufficientFundsException extends Exception {    // checked
-    private final double shortBy;
-    InsufficientFundsException(double shortBy) {
-        super("insufficient funds");
-        this.shortBy = shortBy;
-    }
-    double getShortBy() { return shortBy; }
-}
-
-class Account {
-    void withdraw(double bal, double amt) throws InsufficientFundsException {
-        if (amt > bal) throw new InsufficientFundsException(amt - bal);
-    }
-}
-
-// try { acc.withdraw(100, 150); }
-// catch (InsufficientFundsException e) { System.out.println(e.getMessage()); }
-// catch (Exception e) { ... }
-// finally { /* always runs: cleanup */ }` }
+        { p: "An object becomes <b>eligible for GC</b> when no chain of references from a <b>GC root</b> reaches it — reference counting is not used, so cycles (A → B → A) are collected fine." },
+        { ol: [
+          "<b>Mark</b>: traverse from roots (local variables on thread stacks, static fields, JNI refs, active threads) and mark every reachable object.",
+          "<b>Sweep</b>: reclaim unmarked objects.",
+          "<b>Compact</b> (most collectors): move live objects together to avoid fragmentation and make allocation a pointer bump."
         ] },
-        { table: { head: ["", "C++", "Java"], rows: [
-          ["Can throw", "Any type (even <code>int</code>)", "Only <code>Throwable</code> subclasses"],
-          ["Checked exceptions", "No", "Yes — must be declared with <code>throws</code> or caught"],
-          ["Cleanup", "Destructors (RAII)", "<code>finally</code>, try-with-resources"],
-          ["No-throw spec", "<code>noexcept</code>", "—"],
-          ["Root", "<code>std::exception</code>", "<code>Throwable</code> → <code>Error</code> / <code>Exception</code> → <code>RuntimeException</code>"]
+        { table: { head: ["Region", "Contents", "Collection"], rows: [
+          ["Young Gen (Eden + 2 Survivor)", "New objects", "Minor GC — frequent, fast (copying)"],
+          ["Old Gen (Tenured)", "Long-lived objects that survived several minor GCs", "Major / full GC — slower"],
+          ["Metaspace (Java 8+)", "Class metadata (native memory)", "On class unloading"]
         ] } },
-        { warn: "C++: catch by <b>reference</b> (<code>const E&amp;</code>) — catching by value slices derived exceptions and copies. Order catch blocks from most-derived to base, otherwise the base handler swallows everything (Java makes this a compile error)." }
+        { code: `class Demo {
+    public static void main(String[] args) {
+        Object a = new Object();
+        a = null;                      // 1. nullify: old object unreachable
+
+        Object b = new Object();
+        b = new Object();              // 2. reassign: first object unreachable
+
+        make();                        // 3. object created in a finished method
+        island();                      // 4. cycle with no outside reference: collected too
+
+        System.gc();                   // only a HINT; the JVM may ignore it
+    }
+    static void make() { Object tmp = new Object(); }
+    static void island() {
+        Node p = new Node(), q = new Node();
+        p.next = q; q.next = p;        // p <-> q, but nothing points at them after return
+    }
+    static class Node { Node next; }
+}`, lang: "java", title: "Ways an object becomes eligible" },
+        { table: { head: ["Collector", "Notes"], rows: [
+          ["Serial", "Single thread; tiny heaps, client apps"],
+          ["Parallel", "Multi-threaded stop-the-world; throughput-oriented"],
+          ["<b>G1</b>", "Default since Java 9; region-based, predictable pauses"],
+          ["ZGC / Shenandoah", "Concurrent, sub-10ms pauses on huge heaps"]
+        ] } },
+        { tip: "Memory leaks are still possible in Java — objects kept reachable by mistake (static collections, listeners never removed) are never collected. GC frees <i>memory</i>, never files or sockets — those need <code>close()</code>." }
       ]
     },
     {
-      id: "name-hiding-cpp",
-      q: "What is name hiding in C++ inheritance? Why does a derived overload make base overloads disappear?",
-      topic: "C++ Specifics",
+      id: "reference-types",
+      q: "What are strong, soft, weak and phantom references?",
+      topic: "Memory & References",
       level: 3,
       top: false,
-      short: "Name lookup stops at the first scope where the name is found. If a derived class declares any function named f, every base-class f (all overloads, virtual or not) is hidden when looked up through the derived type. Bring them back with 'using Base::f;'.",
+      short: "A normal variable is a strong reference: the object is never collected while one exists. java.lang.ref adds three weaker kinds. Soft references are cleared only when memory is low (caches). Weak references are cleared at the next GC once no strong refs remain (canonicalising maps, listeners). Phantom references are enqueued after the object is finalized, for post-mortem cleanup, and get() always returns null.",
       a: [
-        { p: "C++ first performs <b>name lookup</b>, then <b>overload resolution</b> only among the names found. Declaring <code>f</code> in Derived means lookup finds Derived's <code>f</code> and never looks in Base." },
-        { code: `#include <iostream>
-struct Base {
-    void f(int)    { std::cout << "Base::f(int)\\n"; }
-    void f(double) { std::cout << "Base::f(double)\\n"; }
-};
-struct Derived : Base {
-    void f(const char*) { std::cout << "Derived::f(char*)\\n"; }
-};
-struct Fixed : Base {
-    using Base::f;                      // re-expose all base overloads
-    void f(const char*) { std::cout << "Fixed::f(char*)\\n"; }
-};
+        { table: { head: ["Kind", "Cleared when", "<code>get()</code>", "Use"], rows: [
+          ["Strong (<code>Object o = ...</code>)", "Never while reachable", "The object", "Everything by default"],
+          ["<code>SoftReference</code>", "Only when the JVM is about to run out of memory", "Object or <code>null</code>", "Memory-sensitive caches"],
+          ["<code>WeakReference</code>", "At the next GC after strong refs disappear", "Object or <code>null</code>", "<code>WeakHashMap</code>, listener lists, metadata keyed by object"],
+          ["<code>PhantomReference</code>", "Enqueued after finalization, before memory reuse", "Always <code>null</code>", "Cleanup of native resources (<code>Cleaner</code> uses this)"]
+        ] } },
+        { code: `import java.lang.ref.*;
+import java.util.*;
 
-int main() {
-    Derived d;
-    // d.f(5);                          // error: Base::f(int) is hidden
-    d.Base::f(5);                       // qualified call still works
-    Fixed x;
-    x.f(5);                             // Base::f(int)
-    x.f("hi");                          // Fixed::f(char*)
-}`, lang: "cpp" },
+public class Main {
+    public static void main(String[] args) {
+        Object strong = new Object();                        // never collected while 'strong' lives
+
+        WeakReference<Object> weak = new WeakReference<>(new Object());
+        System.gc();                                         // hint, but usually honoured here
+        System.out.println(weak.get());                      // null: collected, nothing strong held it
+
+        SoftReference<byte[]> cache = new SoftReference<>(new byte[1024 * 1024]);
+        System.out.println(cache.get() != null);             // true: kept until memory pressure
+
+        Map<Object, String> m = new WeakHashMap<>();        // keys held weakly
+        Object key = new Object();
+        m.put(key, "v");
+        key = null;                                          // entry vanishes after the next GC
+    }
+}`, lang: "java" },
         { ul: [
-          "Also happens with virtual functions: overriding one overload of a virtual set hides the others (compilers warn with <code>-Woverloaded-virtual</code>).",
-          "Java does <b>not</b> hide overloads this way: a subclass method with a different signature simply adds an overload."
+          "Reachability order: strongly &gt; softly &gt; weakly &gt; phantom reachable &gt; unreachable.",
+          "Pair any of them with a <code>ReferenceQueue</code> to be notified when the referent is cleared.",
+          "<code>ThreadLocal</code> and <code>WeakHashMap</code> use weak references to avoid pinning keys in memory."
         ] },
-        { tip: "This is why the 'overloading doesn't work across inheritance' claim is heard in interviews — it's name hiding, fixable with a <code>using</code>-declaration." }
+        { tip: "Interview follow-up: 'Why not use a <code>WeakHashMap</code> as a cache?' — values are held strongly and keys such as <code>String</code> literals are never collected; caches want <code>SoftReference</code> values or a real library (Caffeine)." }
+      ]
+    },
+    {
+      id: "memory-leaks-java",
+      q: "Can a Java program leak memory even though it has a garbage collector? Give examples.",
+      topic: "Memory & References",
+      level: 2,
+      top: true,
+      short: "Yes. The GC only frees objects that are unreachable; a leak in Java is an object that is still reachable but will never be used again. Classic causes: ever-growing static collections, listeners and callbacks never unregistered, inner classes pinning their outer instance, ThreadLocals not removed in thread pools, caches without eviction and unclosed resources holding native memory.",
+      a: [
+        { p: "In Java a 'leak' is a <b>logical</b> leak: something you consider dead is still on a path from a GC root. The symptom is a heap that grows until <code>OutOfMemoryError: Java heap space</code>." },
+        { code: `import java.util.*;
+
+class LeakDemo {
+    static final List<byte[]> LOG = new ArrayList<>();          // 1. static collection, never trimmed
+    void handle(byte[] request) { LOG.add(request); }           //    every request pinned forever
+
+    interface Listener { void on(String e); }
+    static final List<Listener> LISTENERS = new ArrayList<>();
+    void register() {
+        LISTENERS.add(e -> System.out.println(e + this));       // 2. lambda/inner class captures 'this'
+    }                                                           //    -> the whole LeakDemo stays alive
+
+    static final ThreadLocal<Map<String, String>> CTX = ThreadLocal.withInitial(HashMap::new);
+    void work() {
+        CTX.get().put("user", "asha");                          // 3. pool thread never dies,
+        // CTX.remove();  <- forgotten                          //    so the map is never released
+    }
+
+    static final Map<String, Object> CACHE = new HashMap<>();    // 4. cache with no eviction
+}`, lang: "java" },
+        { table: { head: ["Cause", "Fix"], rows: [
+          ["Static / long-lived collections that only grow", "Bound them, evict, or don't use static state"],
+          ["Listeners, observers, callbacks never removed", "Unregister in <code>close()</code>; hold them via <code>WeakReference</code>"],
+          ["Non-static inner / anonymous classes outliving the outer object", "Use <code>static</code> nested classes"],
+          ["<code>ThreadLocal</code> in thread pools", "Always <code>remove()</code> in a <code>finally</code>"],
+          ["Unbounded caches, memoisation maps", "LRU with a size limit, <code>SoftReference</code> values, Caffeine"],
+          ["Unclosed streams, connections, direct buffers", "try-with-resources"],
+          ["Class-loader leaks on redeploy", "Clear static references, stop threads on undeploy"]
+        ] } },
+        { tip: "How to find one: run with <code>-XX:+HeapDumpOnOutOfMemoryError</code>, open the dump in Eclipse MAT / VisualVM, look at the dominator tree for the biggest retained set. Knowing the tool names impresses more than the theory." }
       ]
     },
 
@@ -2200,8 +2007,7 @@ int main() {
           ["Purpose", "Restrict change / extension", "Guaranteed cleanup", "Last-chance cleanup before GC"],
           ["Status", "Widely used", "Widely used (or try-with-resources)", "Deprecated since Java 9, for removal"]
         ] } },
-        { code: [
-          { lang: "java", src: `final class Constants {                     // cannot be subclassed
+        { code: `final class Constants {                     // cannot be subclassed
     static final double PI = 3.14159;       // constant
 }
 
@@ -2212,8 +2018,8 @@ class Base {
 class Demo {
     void read() {
         final int[] arr = {1, 2};
-        arr[0] = 10;                        // OK: object mutable
-        // arr = new int[3];                // error: reference is final
+        arr[0] = 10;                        // OK: the array object is mutable
+        // arr = new int[3];                // error: the reference is final
         try {
             System.out.println(10 / 0);
         } catch (ArithmeticException e) {
@@ -2222,73 +2028,9 @@ class Demo {
             System.out.println("always runs"); // even after return in try
         }
     }
-}` },
-          { lang: "cpp", src: `// C++ counterparts
-class Constants final {                 // C++11: class cannot be derived
-public:
-    static constexpr double PI = 3.14159;  // const / constexpr for values
-};
-class Base {
-public:
-    virtual void audit() final {}       // C++11: cannot be overridden
-    virtual ~Base() = default;
-};
-// No 'finally': destructors (RAII) do the cleanup.
-// No 'finalize': destructors run deterministically.` }
-        ] },
+}`, lang: "java" },
         { warn: "When does <code>finally</code> NOT run? If <code>System.exit()</code> is called, the JVM crashes, or the thread is killed. A <code>return</code> in <code>finally</code> overrides the try's return and swallows exceptions — avoid it." },
-        { tip: "A <code>final</code> reference does not make the object immutable — only the variable can't be reassigned. Blank final fields must be assigned exactly once in every constructor." }
-      ]
-    },
-    {
-      id: "super-keyword",
-      q: "What is the super keyword in Java? What is the C++ equivalent?",
-      topic: "Java Specifics",
-      level: 1,
-      top: true,
-      short: "super refers to the immediate parent class: super(...) calls the parent constructor (must be the first statement; inserted implicitly as super() if omitted), super.method() calls the parent's version of an overridden method, and super.field accesses a hidden parent field. C++ has no super; it uses the base class name: Base::method() and the initializer list for constructors.",
-      a: [
-        { ul: [
-          "<code>super(args)</code> — invoke the parent constructor. Must be the <b>first statement</b>; if absent the compiler inserts <code>super()</code>, which fails to compile if the parent has no no-arg constructor.",
-          "<code>super.method()</code> — call the overridden parent implementation (extend, not replace).",
-          "<code>super.field</code> — access a parent field hidden by a same-named child field.",
-          "<code>this()</code> and <code>super()</code> cannot both appear in one constructor (both must be first).",
-          "Not usable in a static context."
-        ] },
-        { code: [
-          { lang: "java", src: `class Employee {
-    protected String name;
-    Employee(String name) { this.name = name; }
-    double salary() { return 50000; }
-}
-
-class Manager extends Employee {
-    Manager(String name) {
-        super(name);                       // parent constructor, first line
-    }
-    @Override
-    double salary() {
-        return super.salary() + 20000;     // reuse parent logic
-    }
-}` },
-          { lang: "cpp", src: `class Employee {
-protected:
-    std::string name;
-public:
-    explicit Employee(std::string n) : name(std::move(n)) {}
-    virtual double salary() const { return 50000; }
-    virtual ~Employee() = default;
-};
-
-class Manager : public Employee {
-public:
-    explicit Manager(std::string n) : Employee(std::move(n)) {}  // base ctor
-    double salary() const override {
-        return Employee::salary() + 20000;                     // qualified call
-    }
-};` }
-        ] },
-        { tip: "Why no <code>super</code> in C++? Multiple inheritance — with several bases, 'the' parent is ambiguous, so you name the base explicitly. Some codebases add <code>using super = Employee;</code> as a convention." }
+        { tip: "A <code>final</code> reference does not make the object immutable — only the variable can't be reassigned. Blank final fields must be assigned exactly once in every constructor. <code>final</code> also lets the JIT inline methods and is required for lambda capture (effectively final)." }
       ]
     },
     {
@@ -2347,7 +2089,7 @@ public:
           ["Immutable", "Mutable", "Mutable"],
           ["Thread-safe (immutable)", "Not synchronised, fastest", "Synchronised, slower"]
         ] } },
-        { tip: "How to make your own class immutable: <code>final</code> class, <code>private final</code> fields, no setters, defensive copies of mutable fields in constructor and getters. C++ contrast: <code>std::string</code> is mutable; use <code>const std::string</code> or <code>std::string_view</code>." }
+        { tip: "How is immutability enforced? <code>String</code> is a <code>final</code> class with a <code>private final byte[] value</code> and no mutators. Follow-up: 'How many objects does <code>new String(\"hi\")</code> create?' — up to two: the literal in the pool (if not already there) and the new heap object." }
       ]
     },
     {
@@ -2366,8 +2108,7 @@ public:
           "Unequal objects <i>may</i> share a hash code (collision) — allowed but hurts performance.",
           "<code>hashCode</code> must be consistent while the fields used in <code>equals</code> don't change."
         ] },
-        { code: [
-          { lang: "java", src: `import java.util.*;
+        { code: `import java.util.*;
 
 final class Point {
     private final int x, y;
@@ -2393,68 +2134,238 @@ public class Main {
         set.add(a);
         System.out.println(set.contains(b));  // true  (false if hashCode not overridden!)
     }
-}` },
-          { lang: "cpp", src: `// C++ equivalent: operator== for equality, std::hash specialisation
-// for unordered containers. Same contract: equal => equal hash.
-#include <functional>
-#include <unordered_set>
-struct Point {
-    int x, y;
-    bool operator==(const Point& o) const { return x == o.x && y == o.y; }
-};
-namespace std {
-template <> struct hash<Point> {
-    size_t operator()(const Point& p) const noexcept {
-        return hash<int>()(p.x) * 31 + hash<int>()(p.y);
-    }
-};
-}
-// std::unordered_set<Point> s{{1, 2}};  s.count({1, 2}) == 1
-// Pointer comparison (&a == &b) is the analogue of Java's ==` }
-        ] },
+}`, lang: "java" },
+        { p: "<b>How HashMap uses both</b>: <code>hashCode()</code> picks the bucket, then <code>equals()</code> finds the key within the bucket. Equal keys with different hash codes land in different buckets and are never compared." },
         { warn: "Override equals but not hashCode → two 'equal' keys land in different buckets, so <code>HashMap.get</code> returns null and HashSet stores duplicates. Also don't use mutable fields in hashCode for objects stored in hash collections." },
-        { tip: "Integer caching trap: <code>Integer a = 127, b = 127; a == b</code> is true but for 128 it's false (cache covers -128..127). Always use <code>equals</code> for wrappers." }
+        { tip: "Integer caching trap: <code>Integer a = 127, b = 127; a == b</code> is true but for 128 it's false (cache covers -128..127). Always use <code>equals</code> for wrappers and Strings." }
       ]
     },
     {
-      id: "garbage-collection",
-      q: "How does garbage collection work in Java? How does C++ manage memory instead?",
+      id: "wrapper-autoboxing",
+      q: "What are wrapper classes? Explain autoboxing and unboxing and their pitfalls.",
+      topic: "Java Specifics",
+      level: 1,
+      top: true,
+      short: "Wrapper classes (Integer, Double, Boolean, Character...) are immutable objects that hold a primitive value, so primitives can be used where objects are required: collections, generics, null. Autoboxing (Java 5) converts primitive to wrapper automatically and unboxing does the reverse. Pitfalls: == on wrappers compares references (with a cache for -128..127), unboxing null throws NullPointerException, and boxing in loops is slow.",
+      a: [
+        { table: { head: ["Primitive", "Wrapper", "Primitive", "Wrapper"], rows: [
+          ["<code>byte</code>", "<code>Byte</code>", "<code>float</code>", "<code>Float</code>"],
+          ["<code>short</code>", "<code>Short</code>", "<code>double</code>", "<code>Double</code>"],
+          ["<code>int</code>", "<code>Integer</code>", "<code>char</code>", "<code>Character</code>"],
+          ["<code>long</code>", "<code>Long</code>", "<code>boolean</code>", "<code>Boolean</code>"]
+        ] } },
+        { code: `import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Integer a = 127, b = 127;          // autoboxing = Integer.valueOf(127): cached -128..127
+        Integer c = 128, d = 128;
+        System.out.println(a == b);        // true  (same cached object)
+        System.out.println(c == d);        // false (two objects) -> always use equals()
+        System.out.println(c.equals(d));   // true
+
+        int sum = 0;
+        for (Integer i = 0; i < 1000; i++) sum += i;   // boxes/unboxes every iteration: slow
+
+        Integer nothing = null;
+        // int x = nothing;                // NullPointerException on unboxing
+
+        List<Integer> list = new ArrayList<>(List.of(1, 2, 3));
+        list.add(4);                       // boxing: generics need objects
+        list.remove(1);                    // remove(int index) -> removes element at index 1!
+        list.remove(Integer.valueOf(1));   // remove(Object) -> removes the value 1
+        System.out.println(list);          // [3, 4]
+
+        int n = Integer.parseInt("42");    // utility methods live on the wrapper
+    }
+}`, lang: "java" },
+        { ul: [
+          "Why wrappers exist: generics and collections work only with reference types (<code>List&lt;int&gt;</code> is illegal); they can be <code>null</code>; they carry utilities (<code>parseInt</code>, <code>MAX_VALUE</code>, <code>compare</code>).",
+          "Wrappers are <b>immutable</b> and <code>final</code>; <code>Integer.valueOf</code> caches small values, <code>new Integer()</code> is deprecated.",
+          "Prefer primitives in hot loops and fields; use wrappers only where an object is required."
+        ] },
+        { warn: "Ternary trap: <code>Integer x = flag ? 1 : null;</code> compiles, but when <code>flag</code> is true the expression type is <code>int</code>… and when false the <code>null</code> is unboxed → <code>NullPointerException</code>. Also <code>Long l = 1;</code> does not compile (int can't box to Long)." }
+      ]
+    },
+    {
+      id: "enums-in-java",
+      q: "What is an enum in Java? How is it more than a list of constants?",
       topic: "Java Specifics",
       level: 2,
       top: true,
-      short: "The JVM's garbage collector automatically frees objects that are no longer reachable from GC roots (stack variables, static fields, active threads). Modern collectors are generational: most objects die young in the Young Generation (cheap minor GCs); survivors are promoted to the Old Generation. C++ has no GC; it uses deterministic destruction, RAII and smart pointers.",
+      short: "An enum is a special final class whose instances are a fixed set of named singletons created by the JVM. Unlike int constants it is type-safe, can have fields, constructors and methods, can implement interfaces, and each constant can even override methods. All enums extend java.lang.Enum, so they cannot extend another class.",
       a: [
-        { p: "An object becomes <b>eligible for GC</b> when no chain of references from a <b>GC root</b> reaches it — reference counting is not used, so cycles are collected fine." },
-        { ol: [
-          "<b>Mark</b>: traverse from roots (local variables on thread stacks, static fields, JNI refs) and mark every reachable object.",
-          "<b>Sweep</b>: reclaim unmarked objects.",
-          "<b>Compact</b> (optional): move live objects together to avoid fragmentation."
-        ] },
-        { table: { head: ["Region", "Contents", "Collection"], rows: [
-          ["Young Gen (Eden + 2 Survivor)", "New objects", "Minor GC — frequent, fast (copying)"],
-          ["Old Gen (Tenured)", "Long-lived objects that survived several minor GCs", "Major / full GC — slower"],
-          ["Metaspace (Java 8+)", "Class metadata (native memory)", "On class unloading"]
-        ] } },
-        { code: `class Demo {
+        { code: `interface Priced { double price(); }
+
+enum Coffee implements Priced {
+    ESPRESSO(100), LATTE(150) {                        // constant-specific body
+        @Override public String label() { return "Latte (with milk)"; }
+    }, MOCHA(180);
+
+    private final double base;                         // fields: one per constant
+    Coffee(double base) { this.base = base; }          // constructor: implicitly private
+
+    @Override public double price() { return base; }
+    public String label() { return name().toLowerCase(); }
+}
+
+public class Main {
     public static void main(String[] args) {
-        Object a = new Object();
-        a = null;                      // 1. nullify: old object unreachable
-
-        Object b = new Object();
-        b = new Object();              // 2. reassign: first object unreachable
-
-        make();                        // 3. local in finished method: unreachable
-        System.gc();                   // only a HINT; JVM may ignore it
+        Coffee c = Coffee.valueOf("LATTE");           // by name (throws if unknown)
+        System.out.println(c.ordinal() + " " + c.label() + " " + c.price());   // 1 Latte (with milk) 150.0
+        for (Coffee x : Coffee.values()) System.out.println(x);               // ESPRESSO LATTE MOCHA
+        switch (c) { case LATTE -> System.out.println("milky"); default -> {} }
+        System.out.println(c == Coffee.LATTE);        // true: singletons, == is safe
     }
-    static void make() { Object tmp = new Object(); }
-}`, lang: "java", title: "Ways an object becomes eligible" },
-        { table: { head: ["", "Java", "C++"], rows: [
-          ["Freeing", "Automatic, non-deterministic", "Deterministic: scope end or <code>delete</code>"],
-          ["Cleanup hook", "try-with-resources / Cleaner", "Destructor"],
-          ["Cycles", "Collected", "Leak with <code>shared_ptr</code> unless <code>weak_ptr</code> used"],
-          ["Pauses", "GC pauses (G1, ZGC keep them short)", "None"]
+}`, lang: "java" },
+        { table: { head: ["", "<code>static final int</code> constants", "<code>enum</code>"], rows: [
+          ["Type safety", "Any int accepted", "Only the declared constants"],
+          ["Namespace", "Prefixes by convention", "<code>Coffee.LATTE</code>"],
+          ["Printable", "Prints a number", "<code>toString()</code> gives the name"],
+          ["Behaviour", "None", "Fields, methods, interfaces, per-constant overrides"],
+          ["Iteration", "Manual array", "<code>values()</code>, <code>EnumSet</code>, <code>EnumMap</code>"],
+          ["Switch", "Yes", "Yes, with exhaustiveness checks in <code>switch</code> expressions"]
         ] } },
-        { tip: "Collectors to name: Serial, Parallel, <b>G1</b> (default since Java 9), ZGC / Shenandoah (low-latency). Memory leaks are still possible in Java — e.g. objects kept in a static collection stay reachable forever." }
+        { ul: [
+          "Every enum implicitly extends <code>java.lang.Enum</code> and is <code>final</code> (unless it has constant-specific bodies), so it cannot <code>extends</code> anything else — but it can <code>implements</code> interfaces.",
+          "Constructors are private; you cannot <code>new</code> an enum. Instances are created once during class initialisation — the JVM guarantees this even under reflection and serialization.",
+          "<code>compareTo</code> uses ordinal; <code>equals</code>/<code>hashCode</code> are final and identity-based."
+        ] },
+        { tip: "Two interview links: an <b>enum with one constant is the safest Singleton</b> (Effective Java), and enums are the natural home for the <b>Strategy</b> pattern when the set of strategies is fixed (each constant overrides <code>apply()</code>). Never persist <code>ordinal()</code> — store <code>name()</code>." }
+      ]
+    },
+    {
+      id: "java-generics",
+      q: "What are generics? What is type erasure? Explain bounded types and wildcards (PECS).",
+      topic: "Java Specifics",
+      level: 2,
+      top: true,
+      short: "Generics let you write classes and methods parameterised by type (List<T>) so the compiler enforces type safety and you avoid casts. They are implemented by type erasure: after compilation T becomes Object (or its bound) and casts are inserted, so there is one class file, no List<String>.class, no new T() and primitives need wrappers. Bounds (<T extends Comparable<T>>) restrict T; wildcards (? extends / ? super) make APIs flexible: Producer extends, Consumer super.",
+      a: [
+        { p: "<b>Generic programming</b> lets you write type-independent code — a <code>Stack</code> class or a <code>maxOf</code> method — and have the compiler check each use. Before Java 5, collections held <code>Object</code> and every <code>get</code> needed a cast that could fail at run time." },
+        { code: `import java.util.*;
+
+class Stack<T> {                                         // generic class
+    private final List<T> items = new ArrayList<>();
+    void push(T x) { items.add(x); }
+    T pop() { return items.remove(items.size() - 1); }
+    boolean isEmpty() { return items.isEmpty(); }
+}
+
+class Util {
+    static <T extends Comparable<T>> T maxOf(T a, T b) {  // bounded type parameter
+        return a.compareTo(b) < 0 ? b : a;
+    }
+    static double sum(List<? extends Number> nums) {      // PRODUCER: read as Number
+        double s = 0;
+        for (Number n : nums) s += n.doubleValue();
+        return s;                                         // nums.add(1) would not compile
+    }
+    static void fill(List<? super Integer> out) {         // CONSUMER: write Integers
+        out.add(42);                                      // works for List<Integer>, List<Number>, List<Object>
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Stack<Integer> s = new Stack<>();                 // Stack<int> is not allowed
+        s.push(1); s.push(2);
+        System.out.println(s.pop());                      // 2, no cast needed
+        System.out.println(Util.maxOf("pear", "apple"));  // pear
+        System.out.println(Util.sum(List.of(1, 2.5)));    // 3.5
+    }
+}`, lang: "java" },
+        { h: "Type erasure and its consequences" },
+        { table: { head: ["Because T is erased to Object…", "Example"], rows: [
+          ["No runtime type information", "<code>new ArrayList&lt;String&gt;().getClass() == new ArrayList&lt;Integer&gt;().getClass()</code> is true"],
+          ["Cannot instantiate T", "<code>new T()</code>, <code>new T[10]</code> are illegal — pass a <code>Class&lt;T&gt;</code> or a <code>Supplier&lt;T&gt;</code>"],
+          ["Cannot use instanceof with a parameterised type", "<code>obj instanceof List&lt;String&gt;</code> is a compile error; only <code>List&lt;?&gt;</code>"],
+          ["No primitives", "<code>List&lt;int&gt;</code> is illegal → boxing to <code>List&lt;Integer&gt;</code>"],
+          ["Overloads can't differ only by type argument", "<code>f(List&lt;String&gt;)</code> and <code>f(List&lt;Integer&gt;)</code> clash"],
+          ["Static fields are shared", "One <code>static</code> per raw class, not per <code>T</code>"],
+          ["Invariance", "<code>List&lt;Integer&gt;</code> is <b>not</b> a <code>List&lt;Number&gt;</code> — hence wildcards"]
+        ] } },
+        { ul: [
+          "<b>PECS</b> — <i>Producer Extends, Consumer Super</i>: use <code>? extends T</code> when you only read from the structure, <code>? super T</code> when you only write into it; a plain <code>T</code> when you do both.",
+          "Arrays are covariant (<code>Integer[]</code> is an <code>Object[]</code>) but checked at run time (<code>ArrayStoreException</code>); generics are invariant and checked at compile time.",
+          "Raw types (<code>List</code> without <code>&lt;&gt;</code>) exist only for backward compatibility and produce unchecked warnings."
+        ] },
+        { tip: "Why erasure instead of C++-style templates or C#-style reified generics? Backward compatibility: Java 5 generics run on old JVMs and old libraries keep working. Follow-up: the compiler emits <b>bridge methods</b> so that <code>compareTo(T)</code> still overrides <code>compareTo(Object)</code> after erasure." }
+      ]
+    },
+    {
+      id: "exception-handling-oop",
+      q: "How does exception handling use OOP in Java? Checked vs unchecked, and how do you design custom exceptions?",
+      topic: "Java Specifics",
+      level: 2,
+      top: true,
+      short: "Exceptions are objects in a class hierarchy rooted at Throwable, so catch clauses match polymorphically: a catch for a superclass handles all its subclasses. Checked exceptions (extend Exception, not RuntimeException) must be declared or caught; unchecked ones (RuntimeException, Error) need not. Custom exceptions extend Exception for recoverable conditions the caller must handle, or RuntimeException for programming errors, and add fields for context.",
+      a: [
+        { p: "When an exception is thrown, the JVM unwinds the call stack until it finds a <code>catch</code> whose type is the exception's class <b>or a superclass</b> — that is inheritance and polymorphism at work. <code>finally</code> and try-with-resources run cleanup on the way out." },
+        { svg: `<svg viewBox="0 0 620 200" width="620" class="dg">
+  <rect class="box-a" x="250" y="10" width="120" height="30" rx="6"/>
+  <text class="tx tx-b" x="310" y="25" text-anchor="middle" dominant-baseline="middle">Throwable</text>
+  <rect class="box-r" x="90" y="70" width="120" height="30" rx="6"/>
+  <text class="tx tx-b" x="150" y="85" text-anchor="middle" dominant-baseline="middle">Error</text>
+  <rect class="box" x="410" y="70" width="120" height="30" rx="6"/>
+  <text class="tx tx-b" x="470" y="85" text-anchor="middle" dominant-baseline="middle">Exception</text>
+  <rect class="box-p" x="330" y="140" width="130" height="30" rx="6"/>
+  <text class="tx tx-b" x="395" y="155" text-anchor="middle" dominant-baseline="middle">RuntimeException</text>
+  <rect class="box-g" x="480" y="140" width="130" height="30" rx="6"/>
+  <text class="tx tx-b" x="545" y="155" text-anchor="middle" dominant-baseline="middle">IOException, SQLException</text>
+  <line class="ln" x1="150" y1="70" x2="270" y2="42" marker-end="url(#dg-arr)"/>
+  <line class="ln" x1="470" y1="70" x2="350" y2="42" marker-end="url(#dg-arr)"/>
+  <line class="ln" x1="395" y1="140" x2="450" y2="102" marker-end="url(#dg-arr)"/>
+  <line class="ln" x1="545" y1="140" x2="490" y2="102" marker-end="url(#dg-arr)"/>
+  <text class="tx-m" x="150" y="120" text-anchor="middle">unchecked: OutOfMemoryError,</text>
+  <text class="tx-m" x="150" y="136" text-anchor="middle">StackOverflowError</text>
+  <text class="tx-m" x="395" y="190" text-anchor="middle">unchecked: NPE, IllegalArgument</text>
+  <text class="tx-m" x="545" y="190" text-anchor="middle">checked: must declare or catch</text>
+</svg>`, caption: "Everything under RuntimeException and Error is unchecked; every other Exception subclass is checked." },
+        { code: `class InsufficientFundsException extends Exception {    // checked: caller must deal with it
+    private final double shortBy;                            // extra context
+    InsufficientFundsException(double shortBy) {
+        super("insufficient funds, short by " + shortBy);
+        this.shortBy = shortBy;
+    }
+    double getShortBy() { return shortBy; }
+}
+
+class Account {
+    private double balance = 100;
+    void withdraw(double amt) throws InsufficientFundsException {
+        if (amt <= 0) throw new IllegalArgumentException("amount must be positive");  // unchecked
+        if (amt > balance) throw new InsufficientFundsException(amt - balance);
+        balance -= amt;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Account acc = new Account();
+        try {
+            acc.withdraw(150);
+        } catch (InsufficientFundsException e) {             // most specific first
+            System.out.println(e.getMessage() + " / " + e.getShortBy());
+        } catch (RuntimeException e) {                       // base type catches all subclasses
+            System.out.println("bug: " + e);
+        } finally {
+            System.out.println("audit logged");              // always
+        }
+    }
+}`, lang: "java" },
+        { table: { head: ["", "Checked", "Unchecked"], rows: [
+          ["Extends", "<code>Exception</code> (but not <code>RuntimeException</code>)", "<code>RuntimeException</code> or <code>Error</code>"],
+          ["Compiler", "Must be caught or declared with <code>throws</code>", "No requirement"],
+          ["Represents", "Recoverable, expected failures: file missing, network down", "Programming errors (NPE, bad argument) or JVM failures"],
+          ["Examples", "<code>IOException</code>, <code>SQLException</code>, <code>ParseException</code>", "<code>NullPointerException</code>, <code>IllegalStateException</code>, <code>OutOfMemoryError</code>"]
+        ] } },
+        { ul: [
+          "Catch order matters: a superclass catch before a subclass catch is a <b>compile error</b> ('exception has already been caught').",
+          "Overriding methods may throw narrower checked exceptions, never broader ones.",
+          "Multi-catch <code>catch (IOException | SQLException e)</code> for unrelated types; wrap and rethrow with a cause to keep the stack trace: <code>throw new ServiceException(\"...\", e)</code>."
+        ] },
+        { tip: "Design rule from Effective Java: checked for conditions the caller can reasonably recover from, unchecked for programming errors. Modern frameworks (Spring, streams) lean towards unchecked to avoid <code>throws</code> clutter — mention the trade-off." }
       ]
     },
     {
@@ -2490,7 +2401,7 @@ class Car implements Vehicle {
           "Interfaces still cannot have instance fields or constructors, so the abstract class vs interface distinction remains about <b>state</b>.",
           "An interface with exactly one abstract method is a <b>functional interface</b> usable with lambdas."
         ] },
-        { tip: "C++ analogue: a base class with pure virtual functions plus some non-pure virtual functions that provide default behaviour." }
+        { tip: "Follow-up: 'Now that interfaces have default methods, why still use abstract classes?' — fields, constructors, non-public members, and the ability to hold state across the template methods." }
       ]
     },
     {
@@ -2502,90 +2413,138 @@ class Car implements Vehicle {
       short: "If a subclass declares a static method with the same signature as a static method in the parent, it hides it rather than overriding: which one runs depends on the reference's compile-time type, not the object. Private methods are not inherited, so a same-named subclass method is unrelated. Neither can be overridden.",
       a: [
         { p: "Overriding requires dynamic dispatch on an instance. Static methods belong to the class and are bound at compile time, so redeclaring one in a subclass only <b>hides</b> the parent's version." },
-        { code: [
-          { lang: "java", src: `class Parent {
+        { code: `class Parent {
     static void greet()   { System.out.println("Parent static"); }
     void show()           { System.out.println("Parent instance"); }
-    private void secret() { }
+    private void secret() { System.out.println("Parent secret"); }
+    void reveal()         { secret(); }                              // always Parent.secret
 }
 class Child extends Parent {
     static void greet()   { System.out.println("Child static"); }   // hides
     @Override void show() { System.out.println("Child instance"); } // overrides
-    private void secret() { }        // new method, not an override
+    private void secret() { System.out.println("Child secret"); }   // new method, not an override
+    // @Override static void greet() {}   // compile error: static methods cannot be annotated @Override
 }
 
 public class Main {
     public static void main(String[] args) {
         Parent p = new Child();
-        p.greet();   // "Parent static"  - reference type decides (hiding)
-        p.show();    // "Child instance" - object type decides (overriding)
+        p.greet();    // "Parent static"   - reference type decides (hiding)
+        p.show();     // "Child instance"  - object type decides (overriding)
+        p.reveal();   // "Parent secret"   - private: no dispatch
     }
-}` },
-          { lang: "cpp", src: `#include <iostream>
-struct Parent {
-    static void greet() { std::cout << "Parent static\\n"; }
-    virtual void show() { std::cout << "Parent instance\\n"; }
-    virtual ~Parent() = default;
-};
-struct Child : Parent {
-    static void greet() { std::cout << "Child static\\n"; }   // hides
-    void show() override { std::cout << "Child instance\\n"; }
-};
-
-int main() {
-    Parent* p = new Child;
-    p->greet();   // Parent static (static binding)
-    p->show();    // Child instance
-    delete p;
-}` }
-        ] },
+}`, lang: "java" },
+        { table: { head: ["", "Overriding", "Hiding"], rows: [
+          ["Applies to", "Instance methods", "Static methods (and fields)"],
+          ["Resolved by", "Runtime object type", "Compile-time reference type"],
+          ["<code>@Override</code>", "Allowed", "Compile error"],
+          ["Access rule", "Same or wider", "Same or wider (still enforced)"]
+        ] } },
         { ul: [
-          "A static method cannot hide an instance method, and an instance method cannot 'override' a static one — both are compile errors in Java.",
-          "Adding <code>@Override</code> to a static method is a compile error — a quick way to prove it's not overriding.",
-          "C++ differs: a private virtual function <b>can</b> be overridden (the Non-Virtual Interface idiom relies on it)."
+          "A static method cannot hide an instance method, and an instance method cannot 'override' a static one — both are compile errors.",
+          "Fields are also hidden, never overridden: <code>p.name</code> uses the reference type.",
+          "Adding <code>@Override</code> to a static method is a compile error — a quick way to prove it's not overriding."
         ] }
       ]
     },
     {
-      id: "java-pass-by-value",
-      q: "Is Java pass-by-value or pass-by-reference?",
+      id: "marker-functional-interfaces",
+      q: "What are marker interfaces and functional interfaces?",
       topic: "Java Specifics",
       level: 2,
       top: false,
-      short: "Java is always pass-by-value. For objects, the value passed is a copy of the reference, so a method can mutate the object the caller sees, but reassigning the parameter does not affect the caller's variable. C++ supports true pass-by-reference with T&.",
+      short: "A marker interface has no methods; implementing it tags the class so the JVM or library can check it with instanceof (Serializable, Cloneable, RandomAccess). A functional interface has exactly one abstract method (default and static methods don't count), so a lambda or method reference can implement it (Runnable, Comparator, Function); @FunctionalInterface asks the compiler to enforce that.",
       a: [
-        { p: "Every argument is copied into the parameter. For a primitive, the copy is the number; for an object, the copy is the <b>reference</b> (address). Both the caller and callee references point to the same object, but they are separate variables." },
-        { code: [
-          { lang: "java", src: `class Box { int v; Box(int v) { this.v = v; } }
+        { code: `import java.io.Serializable;
+import java.util.*;
+import java.util.function.*;
+
+class Token implements Serializable, Cloneable { }   // markers: no methods to implement
+
+@FunctionalInterface
+interface Validator<T> {
+    boolean validate(T t);                              // exactly one abstract method
+    default Validator<T> and(Validator<T> o) {          // defaults allowed
+        return t -> validate(t) && o.validate(t);
+    }
+}
 
 public class Main {
-    static void mutate(Box b)   { b.v = 99; }          // visible to caller
-    static void reassign(Box b) { b = new Box(-1); }   // NOT visible
-    static void swap(Box a, Box b) { Box t = a; a = b; b = t; }  // no effect
-
     public static void main(String[] args) {
-        Box x = new Box(1), y = new Box(2);
-        mutate(x);     System.out.println(x.v);        // 99
-        reassign(x);   System.out.println(x.v);        // 99
-        swap(x, y);    System.out.println(x.v + " " + y.v);  // 99 2
+        System.out.println(new Token() instanceof Serializable);   // true: the tag is checked at run time
+
+        Validator<String> notEmpty = s -> !s.isEmpty();            // lambda implements the interface
+        Validator<String> shortStr = s -> s.length() < 5;
+        System.out.println(notEmpty.and(shortStr).validate("abc")); // true
+
+        Comparator<String> byLen = Comparator.comparingInt(String::length);   // built-in functional interfaces
+        Function<Integer, Integer> square = x -> x * x;
+        Supplier<List<String>> newList = ArrayList::new;                      // method reference
+        Runnable r = () -> System.out.println("run");
     }
-}` },
-          { lang: "cpp", src: `#include <iostream>
-#include <utility>
-struct Box { int v; };
-
-void byValue(Box b) { b.v = 99; }          // copy: caller unaffected
-void byRef(Box& b)  { b.v = 99; }          // true reference
-void swapRef(Box& a, Box& b) { std::swap(a, b); }   // works in C++
-
-int main() {
-    Box x{1}, y{2};
-    byValue(x);  std::cout << x.v << "\\n";          // 1
-    byRef(x);    std::cout << x.v << "\\n";          // 99
-    swapRef(x, y); std::cout << x.v << " " << y.v;   // 2 99
-}` }
+}`, lang: "java" },
+        { table: { head: ["", "Marker interface", "Functional interface"], rows: [
+          ["Methods", "None", "Exactly one abstract (plus any defaults/statics)"],
+          ["Purpose", "Metadata / capability tag checked with <code>instanceof</code>", "Target type for lambdas and method references"],
+          ["Examples", "<code>Serializable</code>, <code>Cloneable</code>, <code>RandomAccess</code>", "<code>Runnable</code>, <code>Callable</code>, <code>Comparator</code>, <code>Function</code>, <code>Predicate</code>"],
+          ["Modern alternative", "Annotations (<code>@Entity</code>) — but they aren't types, so no <code>instanceof</code> or generics bound", "—"]
+        ] } },
+        { ul: [
+          "A functional interface may also declare <code>Object</code>'s methods abstractly (<code>Comparator</code> declares <code>equals</code>) — they don't count.",
+          "<code>@FunctionalInterface</code> is optional; it only makes the compiler reject a second abstract method.",
+          "Lambdas are compiled with <code>invokedynamic</code>, not as anonymous classes — no extra <code>.class</code> files."
         ] },
-        { tip: "The swap test is the proof: you cannot write a working <code>swap(a, b)</code> for two object variables in Java, which you could with real pass-by-reference." }
+        { tip: "Why is <code>Serializable</code> a marker rather than an annotation? Historical (1997), but also because <code>ObjectOutputStream</code> can do <code>instanceof Serializable</code> and generic bounds like <code>&lt;T extends Serializable&gt;</code> work." }
+      ]
+    },
+    {
+      id: "records-sealed-classes",
+      q: "What are records and sealed classes? How do they relate to OOP?",
+      topic: "Java Specifics",
+      level: 2,
+      top: false,
+      short: "A record (Java 16) is a concise final class for immutable data: you declare the components and the compiler generates the private final fields, canonical constructor, accessors, equals, hashCode and toString. A sealed class or interface (Java 17) restricts which classes may extend it with permits, giving a closed hierarchy the compiler can check exhaustively in pattern-matching switch.",
+      a: [
+        { code: `record Point(int x, int y) {                     // final class, private final fields,
+    Point {                                      // canonical ctor + equals/hashCode/toString
+        if (x < 0 || y < 0) throw new IllegalArgumentException("negative");   // compact constructor
+    }
+    double dist() { return Math.sqrt(x * x + y * y); }      // extra methods are fine
+    static Point origin() { return new Point(0, 0); }       // static members are fine
+}
+
+sealed interface Shape permits Circle, Square { }          // closed hierarchy
+record Circle(double r) implements Shape { }
+record Square(double s) implements Shape { }
+
+public class Main {
+    static double area(Shape s) {
+        return switch (s) {                                 // Java 21: exhaustive, no default needed
+            case Circle c -> Math.PI * c.r() * c.r();       // accessor is r(), not getR()
+            case Square q -> q.s() * q.s();
+        };
+    }
+    public static void main(String[] args) {
+        Point p = new Point(3, 4);
+        System.out.println(p + " " + p.dist());             // Point[x=3, y=4] 5.0
+        System.out.println(p.equals(new Point(3, 4)));      // true: value-based
+        System.out.println(area(new Circle(1)));            // 3.14159...
+    }
+}`, lang: "java" },
+        { table: { head: ["", "Record", "Ordinary class"], rows: [
+          ["Fields", "Implicit <code>private final</code>, from the header", "Anything"],
+          ["Mutability", "Shallowly immutable — no setters, no instance fields beyond components", "Your choice"],
+          ["Inheritance", "Implicitly <code>final</code>; extends <code>Record</code>, so cannot extend a class; may implement interfaces", "Free"],
+          ["equals / hashCode / toString", "Generated from all components", "Hand-written"],
+          ["Accessors", "<code>x()</code> not <code>getX()</code>", "Convention"],
+          ["Use for", "DTOs, value objects, map keys, tuples", "Entities with identity and behaviour"]
+        ] } },
+        { ul: [
+          "<b>Sealed</b>: <code>permits</code> lists the allowed subclasses, which must be <code>final</code>, <code>sealed</code> or <code>non-sealed</code>, and live in the same module/package.",
+          "Sealed types + records = <b>algebraic data types</b>; the compiler knows every case, so a <code>switch</code> without <code>default</code> is safe and adding a case becomes a compile error everywhere it matters.",
+          "This is a deliberate alternative to the Visitor pattern and to 'open' polymorphism for <i>closed</i> sets of types."
+        ] },
+        { tip: "Interview angle: records enforce the immutable-class recipe by construction (but still need defensive copies for mutable components), and sealed classes give you the exhaustiveness of enums with per-case data. Both are heavily asked at companies on Java 17+." }
       ]
     },
 
@@ -2599,20 +2558,22 @@ int main() {
       short: "DRY (Don't Repeat Yourself): every piece of knowledge should have a single authoritative place in the code. KISS (Keep It Simple, Stupid): prefer the simplest design that works. YAGNI (You Aren't Gonna Need It): don't build features or abstractions until they are actually required.",
       a: [
         { table: { head: ["Principle", "Meaning", "Violation", "Fix"], rows: [
-          ["<b>DRY</b>", "One source of truth for each rule/logic", "Same GST calculation copy-pasted in 5 places", "Extract a function / class / constant"],
+          ["<b>DRY</b>", "One source of truth for each rule/logic", "Same GST calculation copy-pasted in 5 places", "Extract a method / class / constant"],
           ["<b>KISS</b>", "Simplest solution that meets the requirement", "Abstract factory + reflection to create one object", "A plain constructor call"],
           ["<b>YAGNI</b>", "Implement only what is needed now", "Plugin system 'in case we need it later'", "Build it when a real requirement appears"]
         ] } },
-        { code: `// Violates DRY: discount rule duplicated
-double cartTotal(double amt)    { return amt > 1000 ? amt * 0.9 : amt; }
-double invoiceTotal(double amt) { return amt > 1000 ? amt * 0.9 : amt; }
+        { code: `class Billing {
+    // Violates DRY: discount rule duplicated
+    double cartTotal(double amt)    { return amt > 1000 ? amt * 0.9 : amt; }
+    double invoiceTotal(double amt) { return amt > 1000 ? amt * 0.9 : amt; }
 
-// DRY: single place to change the rule
-constexpr double kDiscountThreshold = 1000, kDiscountRate = 0.10;
-double applyDiscount(double amt) {
-    return amt > kDiscountThreshold ? amt * (1 - kDiscountRate) : amt;
-}`, lang: "cpp" },
-        { warn: "DRY is about duplicated <b>knowledge</b>, not identical-looking code. Two functions that look alike today but change for different reasons should stay separate — merging them couples unrelated features (the 'wrong abstraction')." },
+    // DRY: single place to change the rule
+    private static final double DISCOUNT_THRESHOLD = 1000, DISCOUNT_RATE = 0.10;
+    double applyDiscount(double amt) {
+        return amt > DISCOUNT_THRESHOLD ? amt * (1 - DISCOUNT_RATE) : amt;
+    }
+}`, lang: "java" },
+        { warn: "DRY is about duplicated <b>knowledge</b>, not identical-looking code. Two methods that look alike today but change for different reasons should stay separate — merging them couples unrelated features (the 'wrong abstraction')." },
         { tip: "These principles balance each other: aggressive DRY can violate KISS/YAGNI by creating premature abstractions. Mention 'rule of three' — abstract after the third repetition." }
       ]
     },
@@ -2627,61 +2588,64 @@ double applyDiscount(double amt) {
         { table: { head: ["Letter", "Principle", "One-liner"], rows: [
           ["S", "Single Responsibility", "A class should have only one reason to change"],
           ["O", "Open / Closed", "Add behaviour by adding code, not editing tested code"],
-          ["L", "Liskov Substitution", "A subclass must honour the base class's contract"],
+          ["L", "Liskov Substitution", "A subclass must honour the superclass's contract"],
           ["I", "Interface Segregation", "Clients shouldn't depend on methods they don't use"],
           ["D", "Dependency Inversion", "High-level modules depend on abstractions; details implement them"]
         ] } },
         { h: "S — Single Responsibility" },
         { code: `// Bad: Invoice calculates, prints and saves (3 reasons to change)
 // Good:
-class Invoice        { public: double total() const; };
-class InvoicePrinter { public: void print(const Invoice&); };
-class InvoiceRepo    { public: void save(const Invoice&); };`, lang: "cpp" },
+class Invoice        { double total() { /* ... */ return 0; } }
+class InvoicePrinter { void print(Invoice inv) { /* ... */ } }
+class InvoiceRepo    { void save(Invoice inv)  { /* ... */ } }`, lang: "java" },
         { h: "O — Open/Closed" },
-        { code: `struct Discount { virtual double apply(double amt) const = 0; virtual ~Discount() = default; };
-struct Festive : Discount { double apply(double a) const override { return a * 0.8; } };
-struct Student : Discount { double apply(double a) const override { return a * 0.9; } };
-// New discount = new class. Checkout code (below) never changes, no if/else on type.
-double checkout(double amt, const Discount& d) { return d.apply(amt); }`, lang: "cpp" },
+        { code: `interface Discount { double apply(double amt); }
+class Festive implements Discount { public double apply(double a) { return a * 0.8; } }
+class Student implements Discount { public double apply(double a) { return a * 0.9; } }
+// New discount = new class. Checkout never changes, no if/else on type.
+class Checkout { double total(double amt, Discount d) { return d.apply(amt); } }`, lang: "java" },
         { h: "L — Liskov Substitution" },
-        { code: `// Classic violation: Square IS-A Rectangle mathematically, but
-class Rectangle { public: virtual void setW(int w) { w_ = w; } virtual void setH(int h) { h_ = h; }
-                  int area() const { return w_ * h_; } virtual ~Rectangle() = default;
-                  protected: int w_ = 0, h_ = 0; };
-class Square : public Rectangle {
-public: void setW(int w) override { w_ = h_ = w; }   // changes both!
-        void setH(int h) override { w_ = h_ = h; } };
-// void f(Rectangle& r) { r.setW(5); r.setH(4); assert(r.area() == 20); }  // fails for Square
-// Fix: don't derive Square from Rectangle; both implement an immutable Shape.`, lang: "cpp" },
+        { code: `// Classic violation: Square IS-A Rectangle mathematically, but...
+class Rectangle {
+    protected int w, h;
+    void setW(int w) { this.w = w; }
+    void setH(int h) { this.h = h; }
+    int area() { return w * h; }
+}
+class Square extends Rectangle {
+    @Override void setW(int w) { this.w = this.h = w; }   // changes both!
+    @Override void setH(int h) { this.w = this.h = h; }
+}
+// void f(Rectangle r) { r.setW(5); r.setH(4); assert r.area() == 20; }  // fails for Square
+// Fix: don't derive Square from Rectangle; make both immutable implementations of Shape.`, lang: "java" },
         { h: "I — Interface Segregation" },
-        { code: `// Bad: struct Worker { virtual void work() = 0; virtual void eat() = 0; };  Robot can't eat
-struct Workable { virtual void work() = 0; virtual ~Workable() = default; };
-struct Eatable  { virtual void eat()  = 0; virtual ~Eatable()  = default; };
-struct Human : Workable, Eatable { void work() override {} void eat() override {} };
-struct Robot : Workable          { void work() override {} };`, lang: "cpp" },
+        { code: `// Bad: interface Worker { void work(); void eat(); }   -> Robot can't eat
+interface Workable { void work(); }
+interface Eatable  { void eat();  }
+class Human implements Workable, Eatable { public void work() {} public void eat() {} }
+class Robot implements Workable          { public void work() {} }`, lang: "java" },
         { h: "D — Dependency Inversion" },
-        { code: `struct MessageSender { virtual void send(const std::string&) = 0; virtual ~MessageSender() = default; };
-struct EmailSender : MessageSender { void send(const std::string&) override {} };
-struct SmsSender   : MessageSender { void send(const std::string&) override {} };
+        { code: `interface MessageSender { void send(String msg); }
+class EmailSender implements MessageSender { public void send(String m) { /* SMTP */ } }
+class SmsSender   implements MessageSender { public void send(String m) { /* SMS  */ } }
 
-class OrderService {                   // high-level: knows only the abstraction
-    MessageSender& sender;
-public:
-    explicit OrderService(MessageSender& s) : sender(s) {}   // injected
+class OrderService {                                   // high-level: knows only the abstraction
+    private final MessageSender sender;
+    OrderService(MessageSender s) { this.sender = s; } // injected (Spring's @Autowired does this)
     void place() { /* ... */ sender.send("Order placed"); }
-};`, lang: "cpp" },
-        { tip: "Tie each to a benefit: SRP → cohesion, OCP → fewer regressions, LSP → safe polymorphism, ISP/DIP → low coupling and easy mocking in unit tests. Many patterns (Strategy, Observer, Factory) are SOLID in action." }
+}`, lang: "java" },
+        { tip: "Tie each to a benefit: SRP → cohesion, OCP → fewer regressions, LSP → safe polymorphism, ISP/DIP → low coupling and easy mocking in unit tests. Many patterns (Strategy, Observer, Factory) are SOLID in action, and Spring's DI container exists to make DIP the default." }
       ]
     },
     {
       id: "singleton-pattern",
-      q: "What is the Singleton pattern? Write a thread-safe Singleton in C++ and Java.",
+      q: "What is the Singleton pattern? Write a thread-safe Singleton in Java.",
       topic: "Design Principles & Patterns",
       level: 2,
       top: true,
-      short: "Singleton ensures a class has exactly one instance and provides a global access point to it: private constructor, deleted copy, and a static getInstance(). In C++11+ a function-local static (Meyers singleton) is thread-safe. In Java use the holder idiom, an enum, or double-checked locking with a volatile field.",
+      short: "Singleton ensures a class has exactly one instance and provides a global access point to it: private constructor, a static instance and a static getInstance(). Thread-safe options in Java: eager static initialisation, the holder (Bill Pugh) idiom for lazy init without locking, double-checked locking with a volatile field, or an enum, which is also safe against reflection and serialization.",
       a: [
-        { p: "Used for truly single resources: configuration, logger, connection pool, cache. Ingredients: <b>private constructor</b>, <b>no copying</b>, <b>static accessor</b> returning the one instance." },
+        { p: "Used for truly single resources: configuration, logger, connection pool, cache. Ingredients: <b>private constructor</b>, <b>static instance</b>, <b>static accessor</b> returning the one instance." },
         { svg: `<svg viewBox="0 0 560 185" width="560" class="dg">
   <rect class="box-a" x="190" y="20" width="180" height="36" rx="6"/>
   <text class="tx tx-b" x="280" y="38" text-anchor="middle" dominant-baseline="middle">Singleton</text>
@@ -2701,36 +2665,23 @@ public:
   <line class="ln-a" x1="440" y1="80" x2="372" y2="110" marker-end="url(#dg-arr-a)"/>
   <text class="tx-m" x="280" y="165" text-anchor="middle">every getInstance() call returns the same object</text>
 </svg>`, caption: "Singleton structure: private constructor, one static instance, global accessor." },
-        { code: [
-          { lang: "cpp", src: `#include <string>
-class Logger {
-public:
-    static Logger& getInstance() {
-        static Logger instance;     // C++11: initialised once, thread-safe
-        return instance;            // (compiler inserts a guard)
-    }
-    Logger(const Logger&) = delete;             // no copies
-    Logger& operator=(const Logger&) = delete;
-    Logger(Logger&&) = delete;
-    Logger& operator=(Logger&&) = delete;
+        { code: `// 1) Eager: simplest; thread-safe because class init is guarded by the JVM
+final class AppConfig {
+    private static final AppConfig INSTANCE = new AppConfig();
+    private AppConfig() {}
+    static AppConfig getInstance() { return INSTANCE; }
+}
 
-    void log(const std::string& msg) { /* ... */ }
-private:
-    Logger() = default;             // private constructor
-    ~Logger() = default;
-};
-
-// Logger::getInstance().log("started");` },
-          { lang: "java", src: `// 1) Bill Pugh / holder idiom: lazy + thread-safe, no locking
+// 2) Bill Pugh / holder idiom: LAZY + thread-safe, no locking
 public final class Logger {
     private Logger() {}
     private static class Holder {
-        static final Logger INSTANCE = new Logger();  // loaded on first use
+        static final Logger INSTANCE = new Logger();  // Holder loaded on first getInstance()
     }
     public static Logger getInstance() { return Holder.INSTANCE; }
 }
 
-// 2) Double-checked locking (volatile is essential)
+// 3) Double-checked locking (volatile is essential)
 final class Config {
     private static volatile Config instance;
     private Config() {}
@@ -2745,11 +2696,16 @@ final class Config {
     }
 }
 
-// 3) Enum: also safe against reflection and serialisation
-enum Registry { INSTANCE; void register(String s) {} }` }
-        ], title: "Thread-safe Singleton" },
-        { warn: "Without <code>volatile</code>, double-checked locking in Java is broken: another thread may see a non-null reference to a partially constructed object due to instruction reordering. Reflection and deserialisation can also break non-enum Java singletons." },
-        { tip: "Criticisms to mention: global mutable state, hidden dependencies, hard to unit test (can't mock). Prefer dependency injection of a single instance where possible." }
+// 4) Enum: also safe against reflection and serialization
+enum Registry { INSTANCE; void register(String s) { /* ... */ } }`, lang: "java", title: "Four thread-safe Singletons" },
+        { table: { head: ["Variant", "Lazy", "Locking", "Reflection/serialization safe"], rows: [
+          ["Eager static field", "No", "None", "No (needs <code>readResolve</code>, ctor guard)"],
+          ["Holder idiom", "Yes", "None (JVM class-init lock)", "No"],
+          ["Double-checked locking", "Yes", "Once, on first call", "No"],
+          ["Enum", "Class-load time", "None", "<b>Yes</b> — recommended by Effective Java"]
+        ] } },
+        { warn: "Without <code>volatile</code>, double-checked locking is broken: another thread may see a non-null reference to a partially constructed object due to instruction reordering. Also, a naive <code>synchronized getInstance()</code> works but locks on every call." },
+        { tip: "Criticisms to mention: global mutable state, hidden dependencies, hard to unit test (can't mock). Prefer dependency injection of a single instance — Spring beans are singletons <i>per container</i>, not per JVM." }
       ]
     },
     {
@@ -2761,37 +2717,42 @@ enum Registry { INSTANCE; void register(String s) {} }` }
       short: "A creational pattern that moves object creation into a factory method or class, so client code asks for an object by type/parameters and receives it through an interface without knowing the concrete class. Use it when the exact type is decided at run time or creation logic is complex, to keep clients decoupled (OCP, DIP).",
       a: [
         { p: "Instead of scattering <code>new ConcreteX()</code> across the code, a <b>factory</b> centralises the decision of which concrete class to instantiate. Variants: <b>Simple Factory</b> (one static method with a switch), <b>Factory Method</b> (subclasses decide which product to create), <b>Abstract Factory</b> (creates families of related products, e.g. Windows vs Mac widgets)." },
-        { code: `#include <memory>
-#include <stdexcept>
-#include <string>
+        { code: `import java.util.*;
+import java.util.function.Supplier;
 
-struct Notification {
-    virtual void send(const std::string& msg) = 0;
-    virtual ~Notification() = default;
-};
-struct Email : Notification { void send(const std::string&) override { /* SMTP */ } };
-struct Sms   : Notification { void send(const std::string&) override { /* SMS gw */ } };
-struct Push  : Notification { void send(const std::string&) override { /* FCM */ } };
+interface Notification { void send(String msg); }
+class Email implements Notification { public void send(String m) { /* SMTP */ } }
+class Sms   implements Notification { public void send(String m) { /* SMS gateway */ } }
+class Push  implements Notification { public void send(String m) { /* FCM */ } }
 
 class NotificationFactory {
-public:
-    static std::unique_ptr<Notification> create(const std::string& type) {
-        if (type == "email") return std::make_unique<Email>();
-        if (type == "sms")   return std::make_unique<Sms>();
-        if (type == "push")  return std::make_unique<Push>();
-        throw std::invalid_argument("unknown type: " + type);
+    static Notification create(String type) {                 // simple factory
+        switch (type) {
+            case "email": return new Email();
+            case "sms":   return new Sms();
+            case "push":  return new Push();
+            default: throw new IllegalArgumentException("unknown type: " + type);
+        }
     }
-};
 
-int main() {
-    auto n = NotificationFactory::create("sms");   // client knows only the interface
-    n->send("OTP 4821");
-}`, lang: "cpp", title: "Simple factory" },
+    // Open/Closed variant: register new types without editing the factory
+    private static final Map<String, Supplier<Notification>> REGISTRY = new HashMap<>();
+    static void register(String type, Supplier<Notification> s) { REGISTRY.put(type, s); }
+    static Notification make(String type) { return REGISTRY.get(type).get(); }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Notification n = NotificationFactory.create("sms");   // client knows only the interface
+        n.send("OTP 4821");
+    }
+}`, lang: "java", title: "Simple factory (+ registry variant)" },
         { ul: [
           "Pros: clients depend on the interface only; creation logic in one place; easy to add pooling/caching.",
-          "Cons: a simple factory's if-chain must be edited for every new type (use a registration map to stay open/closed).",
-          "Real examples: <code>std::make_unique</code>, Java's <code>Calendar.getInstance()</code>, <code>List.of()</code>, JDBC <code>DriverManager.getConnection()</code>."
-        ] }
+          "Cons: a simple factory's switch must be edited for every new type (use the registration map to stay open/closed).",
+          "JDK examples: <code>Integer.valueOf()</code>, <code>List.of()</code>, <code>Calendar.getInstance()</code>, <code>DriverManager.getConnection()</code>, <code>Executors.newFixedThreadPool()</code>."
+        ] },
+        { tip: "Factory Method proper: an abstract <code>createProduct()</code> in a base class, overridden by subclasses — e.g. <code>Collection.iterator()</code>. Abstract Factory: an interface with several such methods (<code>createButton()</code>, <code>createMenu()</code>) per theme." }
       ]
     },
     {
@@ -2809,7 +2770,7 @@ int main() {
   <rect class="box" x="20" y="76" width="170" height="66" rx="6"/>
   <text class="tx-c" x="105" y="92" text-anchor="middle" dominant-baseline="middle">+ attach(o)</text>
   <text class="tx-c" x="105" y="110" text-anchor="middle" dominant-baseline="middle">+ detach(o)</text>
-  <text class="tx-c" x="105" y="128" text-anchor="middle" dominant-baseline="middle">+ notify()</text>
+  <text class="tx-c" x="105" y="128" text-anchor="middle" dominant-baseline="middle">+ notifyObservers()</text>
   <rect class="box-p" x="380" y="40" width="200" height="36" rx="6"/>
   <text class="tx tx-b" x="480" y="58" text-anchor="middle" dominant-baseline="middle">Observer (interface)</text>
   <rect class="box" x="380" y="76" width="200" height="30" rx="6"/>
@@ -2822,48 +2783,45 @@ int main() {
   <text class="tx" x="550" y="177" text-anchor="middle" dominant-baseline="middle">MobileApp</text>
   <line class="ln ln-d" x1="400" y1="160" x2="450" y2="108" marker-end="url(#dg-arr)"/>
   <line class="ln ln-d" x1="550" y1="160" x2="510" y2="108" marker-end="url(#dg-arr)"/>
-  <text class="tx-m" x="105" y="165" text-anchor="middle">notify(): for each o,</text>
-  <text class="tx-m" x="105" y="181" text-anchor="middle">o-&gt;update(price)</text>
+  <text class="tx-m" x="105" y="165" text-anchor="middle">notifyObservers(): for each o,</text>
+  <text class="tx-m" x="105" y="181" text-anchor="middle">o.update(price)</text>
 </svg>`, caption: "Subject holds a list of Observer interfaces; concrete observers implement update()." },
-        { code: `#include <algorithm>
-#include <iostream>
-#include <vector>
+        { code: `import java.util.*;
 
-struct Observer {
-    virtual void update(double price) = 0;
-    virtual ~Observer() = default;
-};
+interface Observer { void update(double price); }
 
-class Stock {                                   // Subject
-    std::vector<Observer*> observers;
-    double price = 0;
-public:
-    void attach(Observer* o) { observers.push_back(o); }
-    void detach(Observer* o) {
-        observers.erase(std::remove(observers.begin(), observers.end(), o),
-                        observers.end());
+class Stock {                                              // Subject
+    private final List<Observer> observers = new ArrayList<>();
+    private double price;
+
+    void attach(Observer o) { observers.add(o); }
+    void detach(Observer o) { observers.remove(o); }
+    void setPrice(double p) { price = p; notifyObservers(); }
+    private void notifyObservers() {
+        for (Observer o : new ArrayList<>(observers)) o.update(price);   // copy: safe if one detaches mid-loop
     }
-    void setPrice(double p) { price = p; notify(); }
-private:
-    void notify() { for (Observer* o : observers) o->update(price); }
-};
+}
 
-struct EmailAlert : Observer {
-    void update(double p) override { std::cout << "Email: price " << p << "\\n"; }
-};
-struct MobileApp : Observer {
-    void update(double p) override { std::cout << "Push: price " << p << "\\n"; }
-};
+class EmailAlert implements Observer {
+    public void update(double p) { System.out.println("Email: price " + p); }
+}
+class MobileApp implements Observer {
+    public void update(double p) { System.out.println("Push: price " + p); }
+}
 
-int main() {
-    Stock infy; EmailAlert e; MobileApp m;
-    infy.attach(&e); infy.attach(&m);
-    infy.setPrice(1520.5);                      // both notified
-    infy.detach(&e);
-    infy.setPrice(1531.0);                      // only MobileApp
-}`, lang: "cpp" },
-        { warn: "Pitfalls: dangling observers if one is destroyed without detaching (use <code>weak_ptr</code> or RAII subscriptions); unexpected update order; memory leaks from forgotten listeners (the 'lapsed listener' problem in Java)." },
-        { tip: "Push vs pull model: pass the new data in <code>update()</code> (push) or let observers query the subject (pull). Java examples: <code>PropertyChangeListener</code>, Swing listeners, reactive streams." }
+public class Main {
+    public static void main(String[] args) {
+        Stock infy = new Stock();
+        EmailAlert e = new EmailAlert(); MobileApp m = new MobileApp();
+        infy.attach(e); infy.attach(m);
+        infy.attach(p -> System.out.println("Lambda: " + p));   // functional interface: lambda works too
+        infy.setPrice(1520.5);                              // all three notified
+        infy.detach(e);
+        infy.setPrice(1531.0);                              // MobileApp + lambda
+    }
+}`, lang: "java" },
+        { warn: "Pitfalls: the <b>lapsed listener</b> leak (observers never detached stay reachable forever — use <code>WeakReference</code> or unsubscribe in <code>close()</code>); <code>ConcurrentModificationException</code> if an observer detaches during notification (iterate a copy or use <code>CopyOnWriteArrayList</code>); slow or throwing observers block the subject." },
+        { tip: "Push vs pull model: pass the new data in <code>update()</code> (push) or let observers query the subject (pull). JDK examples: <code>PropertyChangeListener</code>, Swing/Android listeners, <code>java.util.concurrent.Flow</code> (reactive streams). <code>java.util.Observable</code> is deprecated — don't cite it." }
       ]
     },
     {
@@ -2875,37 +2833,34 @@ int main() {
       short: "Strategy encapsulates a family of interchangeable algorithms behind a common interface and lets the client (context) choose or swap one at run time. It replaces growing if-else/switch chains on type with polymorphism, so new algorithms are added as new classes without touching the context (Open/Closed).",
       a: [
         { p: "The <b>Context</b> holds a reference to a <b>Strategy</b> interface and delegates the varying behaviour to it. Examples: payment methods, sorting/compression algorithms, route calculation (car/bike/walk), pricing rules." },
-        { code: `#include <iostream>
-#include <memory>
+        { code: `interface PaymentStrategy { void pay(double amount); }
+class UpiPayment  implements PaymentStrategy { public void pay(double a) { System.out.println("UPI "  + a); } }
+class CardPayment implements PaymentStrategy { public void pay(double a) { System.out.println("Card " + a); } }
 
-struct PaymentStrategy {
-    virtual void pay(double amount) = 0;
-    virtual ~PaymentStrategy() = default;
-};
-struct UpiPayment  : PaymentStrategy { void pay(double a) override { std::cout << "UPI "  << a << "\\n"; } };
-struct CardPayment : PaymentStrategy { void pay(double a) override { std::cout << "Card " << a << "\\n"; } };
+class Checkout {                                           // Context
+    private PaymentStrategy strategy;
+    void setStrategy(PaymentStrategy s) { strategy = s; }
+    void pay(double amount) { strategy.pay(amount); }      // delegate
+}
 
-class Checkout {                                          // Context
-    std::unique_ptr<PaymentStrategy> strategy;
-public:
-    void setStrategy(std::unique_ptr<PaymentStrategy> s) { strategy = std::move(s); }
-    void pay(double amount) { strategy->pay(amount); }    // delegate
-};
-
-int main() {
-    Checkout c;
-    c.setStrategy(std::make_unique<UpiPayment>());
-    c.pay(499);
-    c.setStrategy(std::make_unique<CardPayment>());       // swap at run time
-    c.pay(1299);
-}`, lang: "cpp" },
+public class Main {
+    public static void main(String[] args) {
+        Checkout c = new Checkout();
+        c.setStrategy(new UpiPayment());
+        c.pay(499);
+        c.setStrategy(new CardPayment());                  // swap at run time
+        c.pay(1299);
+        c.setStrategy(a -> System.out.println("Wallet " + a));   // lambda: one-method strategy
+        c.pay(99);
+    }
+}`, lang: "java" },
         { table: { head: ["if-else / switch", "Strategy"], rows: [
-          ["Every new option edits the same function", "New option = new class (OCP)"],
+          ["Every new option edits the same method", "New option = new class (OCP)"],
           ["All algorithms compiled into one place", "Each algorithm isolated and unit-testable"],
           ["Fixed at compile time", "Swappable at run time"],
           ["Fine for 2–3 stable cases", "Better when options grow or vary independently"]
         ] } },
-        { tip: "In modern C++/Java a strategy can simply be a <code>std::function</code> / lambda (Java: functional interface such as <code>Comparator</code> — <code>Collections.sort(list, comparator)</code> is the Strategy pattern)." }
+        { tip: "In modern Java a strategy is often just a functional interface + lambda: <code>Collections.sort(list, comparator)</code> and <code>Comparator</code> <i>are</i> the Strategy pattern. If the set of strategies is fixed, an <code>enum</code> with an abstract method is a tidy alternative." }
       ]
     },
     {
@@ -2916,50 +2871,35 @@ int main() {
       top: false,
       short: "Builder constructs a complex object step by step through a separate builder object with chained setter-like methods and a final build(), instead of a constructor with many (often optional) parameters. It avoids telescoping constructors, makes calls readable and lets the product be immutable and validated once.",
       a: [
-        { p: "Problem: <code>Pizza(size, cheese, pepperoni, olives, mushrooms, extraSauce)</code> — long, error-prone parameter lists (the <b>telescoping constructor</b> anti-pattern). The Builder collects parameters by name and creates the object in one validated step." },
-        { code: [
-          { lang: "java", src: `public final class User {
+        { p: "Problem: <code>Pizza(size, cheese, pepperoni, olives, mushrooms, extraSauce)</code> — long, error-prone parameter lists (the <b>telescoping constructor</b> anti-pattern), and Java has no named or default arguments. The Builder collects parameters by name and creates the object in one validated step." },
+        { code: `public final class User {
     private final String name;          // required
     private final int age;              // optional
     private final String phone;         // optional
 
-    private User(Builder b) { name = b.name; age = b.age; phone = b.phone; }
+    private User(Builder b) { name = b.name; age = b.age; phone = b.phone; }   // only the builder may call
 
-    public static class Builder {
+    public static class Builder {                                 // static nested class
         private final String name;
         private int age;
         private String phone = "";
-        public Builder(String name) { this.name = name; }
-        public Builder age(int a)      { this.age = a; return this; }
+        public Builder(String name) { this.name = name; }        // required params in the ctor
+        public Builder age(int a)      { this.age = a; return this; }     // return this: chaining
         public Builder phone(String p) { this.phone = p; return this; }
         public User build() {
-            if (age < 0) throw new IllegalStateException("age");
+            if (age < 0) throw new IllegalStateException("age");  // validate once, here
             return new User(this);
         }
     }
 }
 
-// User u = new User.Builder("Asha").age(22).phone("98xxxx").build();` },
-          { lang: "cpp", src: `#include <string>
-class User {
-    std::string name; int age = 0; std::string phone;
-    User() = default;
-public:
-    class Builder;
-};
-
-class User::Builder {
-    User u;
-public:
-    explicit Builder(std::string name) { u.name = std::move(name); }
-    Builder& age(int a)                 { u.age = a; return *this; }
-    Builder& phone(std::string p)       { u.phone = std::move(p); return *this; }
-    User build() { return u; }          // validate here
-};
-
-// User u = User::Builder("Asha").age(22).phone("98xxxx").build();` }
+// User u = new User.Builder("Asha").age(22).phone("98xxxx").build();`, lang: "java" },
+        { ul: [
+          "The product stays <b>immutable</b> (all fields final, no setters) while still being configurable.",
+          "Optional parameters get sensible defaults; required ones go in the builder's constructor.",
+          "Pairs well with records for the product and with <code>toBuilder()</code> for 'copy with changes'."
         ] },
-        { tip: "Real examples: Java <code>StringBuilder</code>, <code>HttpRequest.newBuilder()</code>, Lombok <code>@Builder</code>. Contrast with Factory: Factory decides <i>which</i> class to create in one call; Builder controls <i>how</i> one complex object is assembled." }
+        { tip: "Real examples: <code>StringBuilder</code>, <code>HttpRequest.newBuilder()</code>, <code>Stream.builder()</code>, Lombok <code>@Builder</code>. Contrast with Factory: Factory decides <i>which</i> class to create in one call; Builder controls <i>how</i> one complex object is assembled." }
       ]
     },
     {
@@ -2968,42 +2908,40 @@ public:
       topic: "Design Principles & Patterns",
       level: 2,
       top: false,
-      short: "Adapter is a structural pattern that converts the interface of an existing class into the interface a client expects, letting incompatible classes work together without modifying them — like a travel plug adapter. Implemented by wrapping (object adapter, via composition) or by multiple inheritance (class adapter).",
+      short: "Adapter is a structural pattern that converts the interface of an existing class into the interface a client expects, letting incompatible classes work together without modifying them — like a travel plug adapter. In Java it is usually an object adapter: a class that implements the target interface and wraps (composes) the adaptee.",
       a: [
         { p: "Typical use: integrating a third-party or legacy class whose method names/types don't match your interface." },
-        { code: `#include <iostream>
-#include <string>
+        { code: `// Target interface our app uses
+interface PaymentGateway { boolean charge(double rupees); }
 
-// Target interface our app uses
-struct PaymentGateway {
-    virtual bool charge(double rupees) = 0;
-    virtual ~PaymentGateway() = default;
-};
-
-// Third-party class we cannot change (expects paise, different name)
+// Third-party class we cannot change (expects paise, different method name)
 class LegacyPayApi {
-public:
-    int makePayment(long paise, const std::string& currency) {
-        std::cout << "paid " << paise << " " << currency << "\\n";
-        return 0;                                // 0 = success
+    int makePayment(long paise, String currency) {
+        System.out.println("paid " + paise + " " + currency);
+        return 0;                                          // 0 = success
     }
-};
+}
 
 // Object adapter: implements Target, wraps Adaptee
-class LegacyPayAdapter : public PaymentGateway {
-    LegacyPayApi api;
-public:
-    bool charge(double rupees) override {
-        return api.makePayment(static_cast<long>(rupees * 100), "INR") == 0;
+class LegacyPayAdapter implements PaymentGateway {
+    private final LegacyPayApi api = new LegacyPayApi();
+    @Override public boolean charge(double rupees) {
+        return api.makePayment(Math.round(rupees * 100), "INR") == 0;
     }
-};
+}
 
-int main() {
-    LegacyPayAdapter gw;
-    PaymentGateway& g = gw;                      // client sees only Target
-    g.charge(249.50);
-}`, lang: "cpp" },
-        { tip: "Java examples: <code>Arrays.asList()</code> (array → List), <code>InputStreamReader</code> (byte stream → char reader). STL example: <code>std::stack</code>/<code>std::queue</code> are 'container adapters' over <code>deque</code>." }
+public class Main {
+    public static void main(String[] args) {
+        PaymentGateway g = new LegacyPayAdapter();         // client sees only Target
+        g.charge(249.50);                                  // paid 24950 INR
+    }
+}`, lang: "java" },
+        { table: { head: ["Object adapter", "Class adapter"], rows: [
+          ["Implements target, <b>holds</b> the adaptee", "Implements target, <b>extends</b> the adaptee"],
+          ["Works with any subclass of the adaptee; can adapt several", "Limited by single inheritance; can override adaptee methods"],
+          ["The Java default", "Rare in Java"]
+        ] } },
+        { tip: "JDK examples: <code>Arrays.asList()</code> (array → List), <code>InputStreamReader</code> (byte stream → char reader), <code>Collections.enumeration()</code>. Difference from Decorator: Adapter <i>changes</i> the interface; Decorator keeps it and adds behaviour." }
       ]
     },
     {
@@ -3015,48 +2953,39 @@ int main() {
       short: "Decorator attaches extra responsibilities to an object dynamically by wrapping it in another object that implements the same interface and forwards calls, adding behaviour before or after. Decorators can be stacked at run time, avoiding a subclass for every combination of features.",
       a: [
         { p: "Each decorator <b>is-a</b> Component (same interface) and <b>has-a</b> Component (the wrapped object). Clients can't tell the difference, so wrappers compose freely." },
-        { code: `#include <iostream>
-#include <memory>
-#include <string>
+        { code: `interface Coffee { double cost(); String desc(); }
+class Espresso implements Coffee {
+    public double cost() { return 100; }
+    public String desc() { return "Espresso"; }
+}
 
-struct Coffee {
-    virtual double cost() const = 0;
-    virtual std::string desc() const = 0;
-    virtual ~Coffee() = default;
-};
-struct Espresso : Coffee {
-    double cost() const override { return 100; }
-    std::string desc() const override { return "Espresso"; }
-};
+abstract class AddOn implements Coffee {          // base decorator: is-a Coffee, has-a Coffee
+    protected final Coffee inner;
+    AddOn(Coffee c) { inner = c; }
+}
+class Milk extends AddOn {
+    Milk(Coffee c) { super(c); }
+    public double cost() { return inner.cost() + 30; }
+    public String desc() { return inner.desc() + " + milk"; }
+}
+class Caramel extends AddOn {
+    Caramel(Coffee c) { super(c); }
+    public double cost() { return inner.cost() + 45; }
+    public String desc() { return inner.desc() + " + caramel"; }
+}
 
-class AddOn : public Coffee {                   // base decorator
-protected:
-    std::unique_ptr<Coffee> inner;
-public:
-    explicit AddOn(std::unique_ptr<Coffee> c) : inner(std::move(c)) {}
-};
-struct Milk : AddOn {
-    using AddOn::AddOn;
-    double cost() const override { return inner->cost() + 30; }
-    std::string desc() const override { return inner->desc() + " + milk"; }
-};
-struct Caramel : AddOn {
-    using AddOn::AddOn;
-    double cost() const override { return inner->cost() + 45; }
-    std::string desc() const override { return inner->desc() + " + caramel"; }
-};
-
-int main() {
-    std::unique_ptr<Coffee> c = std::make_unique<Caramel>(
-        std::make_unique<Milk>(std::make_unique<Espresso>()));
-    std::cout << c->desc() << " = " << c->cost() << "\\n";  // Espresso + milk + caramel = 175
-}`, lang: "cpp" },
+public class Main {
+    public static void main(String[] args) {
+        Coffee c = new Caramel(new Milk(new Espresso()));
+        System.out.println(c.desc() + " = " + c.cost());   // Espresso + milk + caramel = 175.0
+    }
+}`, lang: "java" },
         { table: { head: ["Inheritance", "Decorator"], rows: [
           ["Behaviour fixed at compile time", "Added/removed at run time"],
           ["N features → up to 2<sup>N</sup> subclasses", "N small decorator classes, combined freely"],
           ["Affects every instance of the subclass", "Affects only the wrapped object"]
         ] } },
-        { tip: "Java I/O is the textbook example: <code>new BufferedReader(new InputStreamReader(new FileInputStream(f)))</code>. Difference from Adapter: Decorator keeps the <i>same</i> interface and adds behaviour; Adapter <i>changes</i> the interface." }
+        { tip: "Java I/O is the textbook example: <code>new BufferedReader(new InputStreamReader(new FileInputStream(f)))</code>; also <code>Collections.unmodifiableList()</code> and <code>synchronizedList()</code>. Difference from Adapter: Decorator keeps the <i>same</i> interface and adds behaviour; Adapter <i>changes</i> the interface." }
       ]
     }
   ]
