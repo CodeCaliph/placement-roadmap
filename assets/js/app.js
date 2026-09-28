@@ -375,6 +375,20 @@
       });
     });
 
+    if (window.STUDYUI) {
+      STUDYUI.all().forEach(function (l) {
+        var w = STUDYUI.whereUsed(l.id);
+        if (!w) return;
+        var s = STUDYUI.SUBJECTS[l.subject] || { label: l.subject };
+        idx.push({
+          kind: "Lesson", title: l.title,
+          sub: s.label + " · Day " + w.day + " " + w.slot + " · ~" + (l.minutes || 30) + " min",
+          hash: "#/plan/" + w.day + "/study/" + l.id,
+          extra: (l.crux || []).join(" ").replace(/<[^>]+>/g, " ") + " " + (l.sections || []).map(function (x) { return x.h; }).join(" ")
+        });
+      });
+    }
+
     ["day", "week", "month", "year", "someday"].forEach(function (sc) {
       idx.push({ kind: "Planner", title: sc.charAt(0).toUpperCase() + sc.slice(1) + " view", sub: "To-Do Planner", hash: "#/todo/" + sc });
     });

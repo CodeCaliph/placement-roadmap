@@ -211,14 +211,22 @@
     return null;
   }
 
-  function answer(q) {
+  function renderBlocks(list, where) {
     var out = el("div", { class: "doc cq-doc" });
-    (q.a || []).forEach(function (b) {
+    (list || []).forEach(function (b) {
       try { var n = block(b); if (n) out.appendChild(n); }
-      catch (e) { console.error("core block", q.id, e); }
+      catch (e) { console.error("doc block", where, e); }
     });
     return out;
   }
+  function answer(q) { return renderBlocks(q.a, q.id); }
+
+  /* shared with the plan's study lessons, so both render identically */
+  window.DOC = {
+    render: renderBlocks,
+    ensureDefs: function () { ensureDefs(); },
+    callout: callout
+  };
 
   /* global arrowheads for every diagram — defined once, styled by theme */
   function ensureDefs() {

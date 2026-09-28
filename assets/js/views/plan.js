@@ -7,6 +7,7 @@
   var el = U.el, H = window.HANDBOOK;
   var filter = { q: "", show: "all" };
   var openDay = null;
+  var focusStudy = null;      // lesson id from a #/plan/<day>/study/<lesson> link
 
   /* ---- focus timer (one at a time) ------------------------------------- */
   var timer = null;
@@ -129,6 +130,12 @@
       ]));
     }
 
+    /* our own study material for this block (theory, design, aptitude, interview prep) */
+    if (window.STUDYUI) {
+      var study = STUDYUI.panel(block, day, { focusLesson: focusStudy });
+      if (study) body.appendChild(study);
+    }
+
     /* mock links */
     if ((block.mocks || []).length) {
       body.appendChild(el("div", { class: "row", style: "margin-top:9px" }, block.mocks.map(function (m) {
@@ -229,7 +236,20 @@
     blockRow: blockRow,
 
     route: function (param) {
-      if (param) openDay = Number(param) || null;
+      var parts = (param || "").split("/");
+      if (parts[0]) openDay = Number(parts[0]) || null;
+      focusStudy = parts[1] === "study" && parts[2] ? parts[2] : null;
+      if (focusStudy) {
+        filter.q = ""; filter.show = "all";
+        /* after App.render resets the scroll, bring the lesson into view */
+        var target = focusStudy;
+        setTimeout(function () {
+          var host = null;
+          U.$$(".st").forEach(function (n) { if (!host && n.classList.contains("is-open")) host = n; });
+          if (host) window.scrollTo({ top: window.scrollY + host.getBoundingClientRect().top - 70, behavior: "smooth" });
+          if (focusStudy === target) focusStudy = null;
+        }, 60);
+      }
     },
 
     rerender: function (scroll) {
@@ -251,10 +271,16 @@
         "The 60-Day Plan",
         "Every day is four blocks: <b>Morning</b> (new concept + hard problems) · <b>Afternoon</b> (pattern drilling) · " +
         "<b>Evening</b> (theory / SQL / design / project) · <b>Night</b> (revision, Redo List, aptitude). " +
-        "Tick a block when it is genuinely done — the numbers are only useful if they are honest.",
+        "Tick a block when it is genuinely done — the numbers are only useful if they are honest. " +
+        "Theory, design, aptitude and interview-prep blocks come with built-in lessons: open <b>📖 Study this here</b> under the block.",
         el("div", { style: "text-align:right;flex:none;min-width:150px" }, [
           R.meter({ done: p.plan.done, total: p.plan.total, label: "All blocks", size: "lg" }),
-          el("div", { class: "tiny muted", style: "margin-top:6px", text: p.daysComplete + " of 60 days complete" })
+          el("div", { class: "tiny muted", style: "margin-top:6px", text: p.daysComplete + " of 60 days complete" }),
+          (window.STUDYUI && STUDYUI.stats().total) ? el("div", {
+            class: "tiny muted", style: "margin-top:2px",
+            title: "Built-in lessons attached to theory, design, aptitude and interview-prep blocks",
+            text: "📖 " + STUDYUI.stats().done + "/" + STUDYUI.stats().total + " lessons studied"
+          }) : null
         ])
       ));
 
@@ -294,7 +320,8 @@
         if (!q) return true;
         if (String(d.day) === q) return true;
         var hay = d.title + " " + d.phaseName + " " + (d.blocks || []).map(function (b) {
-          return b.text + " " + (b.problems || []).map(function (x) { return x.n; }).join(" ");
+          return b.text + " " + (b.problems || []).map(function (x) { return x.n; }).join(" ") +
+            (window.STUDYUI ? " " + STUDYUI.lessonsFor(b.id).map(function (l) { return l.title; }).join(" ") : "");
         }).join(" ");
         return hay.toLowerCase().indexOf(q) >= 0;
       });
