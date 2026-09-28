@@ -186,6 +186,75 @@
   }
 
   /* ======================================================================
+     Storage meter — how much of the browser's localStorage allowance is used.
+     ====================================================================== */
+  function fmtSize(chars) {
+    if (chars < 1024) return chars + " B";
+    if (chars < 1024 * 1024) return (chars / 1024).toFixed(chars < 10240 ? 1 : 0) + " KB";
+    return (chars / 1024 / 1024).toFixed(2) + " MB";
+  }
+  function fmtPct(p) {
+    if (p > 0 && p < 0.1) return "<0.1%";
+    return (p < 10 ? p.toFixed(1) : Math.round(p)) + "%";
+  }
+
+  function storageCard() {
+    var u = S.storageUsage();
+    var level = u.pct >= 90 ? "crit" : u.pct >= 70 ? "warn" : "ok";
+    var appPct = Math.min(100, u.app / u.limit * 100);
+    var otherPct = Math.min(100 - appPct, u.other / u.limit * 100);
+    var biggest = u.sections[0] ? u.sections[0].chars : 1;
+
+    var verdict = {
+      ok: "Plenty of room. A full 60-day run with notes on every question typically stays under 1.5 MB.",
+      warn: "Over 70% full. Export a backup, then trim old timer entries or finished to-dos.",
+      crit: "Almost full — new changes may fail to save. Export a backup now, then clear old data."
+    }[level];
+
+    return el("div", { class: "card card-pad-lg", style: "margin-bottom:14px" }, [
+      el("div", { class: "row", style: "align-items:baseline" }, [
+        el("h3", { style: "font-size:15.5px", text: "Storage" }),
+        el("span", { style: "flex:1" }),
+        el("button", {
+          class: "btn btn-sm btn-ghost", text: "↻ Recheck",
+          onclick: function () { Views.settings.rerender(); }
+        })
+      ]),
+      el("p", { class: "small dim", style: "margin-top:4px", text:
+        "How much of this browser's local storage your progress uses. The limit is set by the browser, about 5 MB per site." }),
+
+      el("div", { class: "stor-figs" }, [
+        el("div", {}, [el("b", { class: "tnum", text: fmtSize(u.used) }), el("span", { class: "small muted", text: " used" })]),
+        el("div", { class: "stor-pct stor-" + level + " tnum", text: fmtPct(u.pct) + " full" }),
+        el("div", { style: "text-align:right" }, [el("b", { class: "tnum", text: fmtSize(u.free) }), el("span", { class: "small muted", text: " free of " + fmtSize(u.limit) })])
+      ]),
+      el("div", {
+        class: "stor-track", role: "meter",
+        "aria-label": "Storage used", "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": Math.round(u.pct),
+        "aria-valuetext": fmtSize(u.used) + " of " + fmtSize(u.limit) + " used"
+      }, [
+        /* a sliver stays visible even at a fraction of a percent, so the bar never looks broken */
+        el("i", { class: "stor-app stor-" + level, style: "width:max(3px," + appPct + "%)", title: "This app: " + fmtSize(u.app) }),
+        u.other ? el("i", { class: "stor-other", style: "width:" + otherPct + "%", title: "Other data on this site: " + fmtSize(u.other) }) : null
+      ]),
+      el("p", { class: "small stor-verdict stor-" + level + "-text", text: verdict }),
+
+      el("div", { class: "blk-sublabel", style: "margin-top:14px", text: "What's using it" }),
+      el("div", { class: "stor-rows" }, u.sections.map(function (s) {
+        return el("div", { class: "stor-row" }, [
+          el("span", { class: "small", text: s.label }),
+          el("span", { class: "stor-mini" }, [el("i", { style: "width:" + (s.chars ? Math.max(2, s.chars / biggest * 100) : 0) + "%" })]),
+          el("span", { class: "small tnum muted", text: fmtSize(s.chars) })
+        ]);
+      }).concat(u.other ? [el("div", { class: "stor-row" }, [
+        el("span", { class: "small", text: "Other data on this site" }),
+        el("span", { class: "stor-mini stor-mini-other" }, [el("i", { style: "width:" + Math.max(2, Math.min(100, u.other / biggest * 100)) + "%" })]),
+        el("span", { class: "small tnum muted", text: fmtSize(u.other) + " · " + U.plural(u.otherKeys, "key") })
+      ])] : []))
+    ]);
+  }
+
+  /* ======================================================================
      Full fresh start — day 1 again, with control over what survives.
      ====================================================================== */
   function freshStartCard() {
@@ -376,6 +445,9 @@
           })
         ])
       ]));
+
+      /* ---- storage meter ---- */
+      root.appendChild(storageCard());
 
       /* ---- stats ---- */
       root.appendChild(el("div", { class: "card card-pad-lg", style: "margin-bottom:14px" }, [

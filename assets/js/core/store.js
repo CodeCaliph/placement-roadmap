@@ -82,6 +82,50 @@
 
   S.state = function () { return state; };
 
+  /* ---- storage usage -----------------------------------------------------
+     Browsers cap localStorage per site at about 5 MB (Chrome/Edge ≈ 5 million
+     characters, Firefox 5 MiB, Safari ≈ 5 MB). We use 5 MiB of characters as a
+     conservative common limit. The data is almost all ASCII, so 1 char ≈ 1 byte. */
+  S.STORAGE_LIMIT = 5 * 1024 * 1024;
+
+  S.storageUsage = function () {
+    var app = KEY.length + JSON.stringify(state).length;   // what the next save writes
+    var other = 0, otherKeys = 0;
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k === KEY) continue;
+        other += k.length + (localStorage.getItem(k) || "").length;
+        otherKeys++;
+      }
+    } catch (e) { /* storage blocked: report the app's own size only */ }
+
+    /* what's taking the space, largest first */
+    var groups = [
+      ["Notes", ["notes"]],
+      ["To-dos & routines", ["todos", "routines", "routineDone"]],
+      ["Timer log", ["timeLog"]],
+      ["Ticks & stars", ["done", "coreStar"]],
+      ["Trackers", ["redo", "weakness", "mistakeLog"]],
+      ["Scores", ["scores", "mockScores"]]
+    ];
+    var counted = 0;
+    var sections = groups.map(function (g) {
+      var n = g[1].reduce(function (a, k) { return a + JSON.stringify(state[k] || null).length; }, 0);
+      counted += n;
+      return { label: g[0], chars: n };
+    });
+    sections.push({ label: "Settings & misc", chars: Math.max(0, app - counted) });
+    sections.sort(function (a, b) { return b.chars - a.chars; });
+
+    var used = app + other;
+    return {
+      app: app, other: other, otherKeys: otherKeys, used: used,
+      limit: S.STORAGE_LIMIT, free: Math.max(0, S.STORAGE_LIMIT - used),
+      pct: used / S.STORAGE_LIMIT * 100, sections: sections
+    };
+  };
+
   S.onChange = function (fn) { listeners.push(fn); };
   S.emit = function (reason) {
     S.save();
