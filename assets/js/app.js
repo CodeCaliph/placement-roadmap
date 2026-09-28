@@ -193,12 +193,18 @@
       node.style.display = v ? "" : "none";
     });
 
+    /* Core Subjects is a separate track from the 60-day roadmap, so its header
+       shows its own mastery instead of the roadmap's percent and day counter. */
+    var isCore = route.id === "core" && Views.core && Views.core.stats;
+    var coreSub = isCore && r.param ? Views.core.subject(r.param.split("/")[0]) : null;
+
     var crumb = U.$("#crumb");
     if (crumb) {
       U.clear(crumb);
+      var crumbTail = coreSub ? coreSub.title : (r.param ? r.param.split("/")[0] : null);
       U.append(crumb, [
         el("b", { text: (Views[route.id] || {}).title || route.label }),
-        r.param ? el("span", { text: " · " + r.param.split("/")[0] }) : null
+        crumbTail ? el("span", { text: " · " + crumbTail }) : null
       ]);
     }
 
@@ -206,6 +212,7 @@
     var dayPill = U.$("#daypill");
     if (dayPill) {
       U.clear(dayPill);
+      dayPill.style.display = isCore ? "none" : "";
       U.append(dayPill, ["Day", el("b", { text: String(cur) }), "of 60"]);
     }
 
@@ -222,9 +229,16 @@
 
     var pp = U.$("#progpill");
     if (pp) {
-      var p = S.progress();
       U.clear(pp);
-      U.append(pp, [el("b", { text: p.overall + "%" }), "complete"]);
+      if (isCore) {
+        var cs = Views.core.stats(coreSub ? coreSub.id : null);
+        U.append(pp, [el("b", { text: cs.done + "/" + cs.total }), (coreSub ? coreSub.short + " " : "") + "mastered"]);
+        pp.title = cs.pct + "% of " + (coreSub ? coreSub.title : "all core subject") + " questions mastered";
+      } else {
+        var p = S.progress();
+        U.append(pp, [el("b", { text: p.overall + "%" }), "complete"]);
+        pp.title = "Overall 60-day roadmap progress";
+      }
     }
   };
 

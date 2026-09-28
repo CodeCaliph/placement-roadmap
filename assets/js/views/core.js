@@ -701,11 +701,14 @@
     },
 
     /* used by the command palette and the dashboard */
-    stats: function () {
+    /* mastery counts: all subjects, or just one when a subject id is given */
+    stats: function (subId) {
       var done = 0, total = 0;
-      subjects().forEach(function (s) { var p = C.progress(s, false); done += p.done; total += p.total; });
-      return { done: done, total: total };
+      var list = subId ? [subjectById(subId)].filter(Boolean) : subjects();
+      list.forEach(function (s) { var p = C.progress(s, false); done += p.done; total += p.total; });
+      return { done: done, total: total, pct: U.pct(done, total) };
     },
+    subject: subjectById,
     quiz: openQuiz
   };
 })();
