@@ -26,6 +26,8 @@
     return null;
   }
   function key(sub, q) { return sub.id + ":" + q.id; }
+  function noteKey(sub, q) { return S.ids.coreNote(sub.id, q.id); }
+  function noteOf(sub, q) { return S.note(noteKey(sub, q)); }
 
   /* ---- state ------------------------------------------------------------ */
   var C = {
@@ -263,7 +265,8 @@
       if (ui.status === "open" && C.mastered(sub, q)) return false;
       if (ui.status === "done" && !C.mastered(sub, q)) return false;
       if (ui.status === "star" && !C.starred(sub, q)) return false;
-      if (term && haystack(q).indexOf(term) < 0) return false;
+      if (ui.status === "notes" && !noteOf(sub, q)) return false;
+      if (term && haystack(q).indexOf(term) < 0 && noteOf(sub, q).toLowerCase().indexOf(term) < 0) return false;
       return true;
     });
   }
@@ -293,6 +296,7 @@
       class: "cq-star", title: "Star for revision",
       onclick: function () { C.star(sub, q, !C.starred(sub, q)); rebuild(); }
     });
+    var noteTag = el("span", { class: "cq-f cq-notetag", title: "You have notes on this question", text: "✎ Note" });
     var toggle = el("button", {
       class: "cq-toggle",
       onclick: function () { setOpen(!ui.open[k]); }
@@ -305,7 +309,8 @@
           el("span", { class: "lvl lvl-" + q.level, title: LEVELS[q.level] }, [el("i"), el("i"), el("i"), " " + (LEVELS[q.level] || "")]),
           el("span", { class: "cq-topic", text: q.topic }),
           f.code ? el("span", { class: "cq-f", title: "Has code", text: "</>" }) : null,
-          f.svg ? el("span", { class: "cq-f", title: "Has a diagram", text: "◫" }) : null
+          f.svg ? el("span", { class: "cq-f", title: "Has a diagram", text: "◫" }) : null,
+          noteTag
         ])
       ]),
       el("span", { class: "cq-caret", "aria-hidden": "true", text: "›" })
@@ -325,10 +330,16 @@
       star.classList.toggle("on", starred);
       star.setAttribute("aria-pressed", starred ? "true" : "false");
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      noteTag.hidden = !noteOf(sub, q);
       if (open && !body) {
         body = el("div", { class: "cq-body" }, [
           el("div", { class: "cq-short" }, [el("span", { class: "cq-short-k", text: "30-second answer" }), el("p", { text: q.short })]),
           answer(q),
+          el("div", { class: "cq-notes" }, [
+            R.noteBox(noteKey(sub, q),
+              "Your own version of the answer, a project example to quote, what an interviewer actually asked, a mnemonic…",
+              { label: "My notes", onChange: function (v) { noteTag.hidden = !v; } })
+          ]),
           el("div", { class: "cq-foot" }, [
             el("button", {
               class: "btn btn-sm " + (done ? "" : "btn-primary"),
@@ -461,6 +472,11 @@
       }
 
       cardHost.appendChild(el("div", { class: "cq-short quiz-short" }, [el("span", { class: "cq-short-k", text: "30-second answer" }), el("p", { text: cur.q.short })]));
+      var myNote = noteOf(cur.sub, cur.q);
+      if (myNote) cardHost.appendChild(el("div", { class: "quiz-note" }, [
+        el("span", { class: "cq-short-k", text: "✎ My notes" }),
+        el("p", { text: myNote })
+      ]));
       cardHost.appendChild(el("button", {
         class: "btn btn-sm btn-ghost", style: "margin:4px 0 8px",
         text: full ? "▾ Hide full answer" : "▸ Show full answer (F)",
@@ -593,7 +609,7 @@
         return el("button", { text: o[1], "aria-pressed": ui.scope === o[0] ? "true" : "false", onclick: function () { ui.scope = o[0]; ui.topic = ""; rer(); } });
       })));
     }
-    segs.push(el("div", { class: "seg" }, [["all", "All"], ["open", "To learn"], ["done", "Mastered"], ["star", "★ Starred"]].map(function (o) {
+    segs.push(el("div", { class: "seg" }, [["all", "All"], ["open", "To learn"], ["done", "Mastered"], ["star", "★ Starred"], ["notes", "✎ Notes"]].map(function (o) {
       return el("button", { text: o[1], "aria-pressed": ui.status === o[0] ? "true" : "false", onclick: function () { ui.status = o[0]; rer(); } });
     })));
     var lvl = el("select", {

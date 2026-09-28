@@ -88,10 +88,10 @@
       /* filters */
       root.appendChild(el("div", { class: "filterbar" }, [
         el("input", {
-          class: "inp", type: "search", placeholder: "Filter within this set…", value: q,
+          class: "inp", type: "search", placeholder: "Filter this set and your notes…", value: q,
           oninput: U.debounce(function (e) { q = e.target.value.trim(); Views.banks.rerender(); }, 200)
         }),
-        el("div", { class: "seg" }, [["all", "All"], ["open", "Not done"], ["done", "Done"]].map(function (o) {
+        el("div", { class: "seg" }, [["all", "All"], ["open", "Not done"], ["done", "Done"], ["notes", "✎ With notes"]].map(function (o) {
           return el("button", {
             text: o[1], "aria-pressed": only === o[0] ? "true" : "false",
             onclick: function () { only = o[0]; Views.banks.rerender(); }
@@ -118,11 +118,14 @@
         var rows = [];
         tier.items.forEach(function (item, ii) {
           var id = S.ids.bankItem(bank, ti, ii);
+          var noteKey = S.ids.bankNote(bank, ti, ii);
+          var note = S.note(noteKey);
           var done = S.isDone(id);
           if (only === "open" && done) return;
           if (only === "done" && !done) return;
-          if (q && item.n.toLowerCase().indexOf(q.toLowerCase()) < 0) return;
-          rows.push(R.checkRow({ id: id, n: offset + ii + 1, text: item.n, item: item }));
+          if (only === "notes" && !note) return;
+          if (q && (item.n + " " + note).toLowerCase().indexOf(q.toLowerCase()) < 0) return;
+          rows.push(R.checkRow({ id: id, n: offset + ii + 1, text: item.n, item: item, noteKey: noteKey }));
         });
         offset += tier.items.length;
         if (!rows.length) return;

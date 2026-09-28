@@ -191,7 +191,7 @@
   function freshStartCard() {
     var keeps = [
       ["trackers", "Redo List, Weakness sheet & mistake log", true],
-      ["notes", "My day and topic notes", true],
+      ["notes", "My day, topic and question notes", true],
       ["scores", "Weekly readiness & mock scores", false],
       ["banks", "Question-bank ticks (929 items)", false],
       ["checklist", "Final placement checklist", false],

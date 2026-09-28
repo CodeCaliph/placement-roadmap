@@ -147,7 +147,31 @@
     mistake: function (n) { return "m:" + n; },
     mock: function (n) { return "mk:" + n; },
     oa: function (day) { return "oa:" + day; },
-    core: function (subjectId, qid) { return "cs:" + subjectId + ":" + qid; }
+    core: function (subjectId, qid) { return "cs:" + subjectId + ":" + qid; },
+    /* note keys (in state.notes, not the done-set) */
+    coreNote: function (subjectId, qid) { return "cn:" + subjectId + ":" + qid; },
+    bankNote: function (bank, t, i) { return "qn:" + bank.id + ":" + t + ":" + i; }
+  };
+
+  /** Every per-question note, resolved to what it's attached to (for search and counts). */
+  S.questionNotes = function () {
+    var out = [];
+    Object.keys(state.notes).forEach(function (k) {
+      var text = state.notes[k];
+      if (!text) return;
+      var p = k.split(":");
+      if (p[0] === "cn") {
+        var sub = (window.CORE || []).filter(function (s) { return s.id === p[1]; })[0];
+        var q = sub && sub.questions.filter(function (x) { return x.id === p.slice(2).join(":"); })[0];
+        if (q) out.push({ key: k, text: text, kind: sub.short, title: q.q, where: sub.title + " · " + q.topic, hash: "#/core/" + sub.id + "/" + q.id });
+      } else if (p[0] === "qn") {
+        var bank = (H.banks || []).filter(function (b) { return b.id === p[1]; })[0];
+        var tier = bank && bank.tiers[Number(p[2])];
+        var item = tier && tier.items[Number(p[3])];
+        if (item) out.push({ key: k, text: text, kind: "Set", title: item.n, where: bank.title, hash: "#/banks/" + bank.id });
+      }
+    });
+    return out;
   };
 
   /* ---- day helpers ----------------------------------------------------- */

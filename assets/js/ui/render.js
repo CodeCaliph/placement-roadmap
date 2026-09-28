@@ -133,14 +133,59 @@
         if (opts.onToggle) opts.onToggle(S.isDone(id));
       }
     });
+    var noteBtn = opts.noteKey ? el("button", {
+      class: "qrow-note", type: "button",
+      onclick: function () { setNoteOpen(!noteOpen, true); }
+    }) : null;
     var row = el("div", { class: "qrow" + (done ? " is-done" : "") }, [
       opts.n !== undefined ? el("span", { class: "qrow-n", text: opts.n }) : null,
       input,
       el("label", { class: "qrow-text qrow-lab", html: opts.html || U.esc(opts.text) }),
-      opts.item ? R.links(opts.item) : null
+      opts.item ? R.links(opts.item) : null,
+      noteBtn
     ]);
     row.querySelector("label").addEventListener("click", function () { input.click(); });
-    return row;
+    if (!opts.noteKey) return row;
+
+    /* ---- optional per-row notes: ✎ toggles an editor, a saved note shows as a preview ---- */
+    var wrap = el("div", { class: "qitem" }, [row]);
+    var noteOpen = false, panel = null, preview = null;
+
+    function paintNote() {
+      var text = S.note(opts.noteKey);
+      noteBtn.textContent = text ? "✎ Note" : "✎";
+      noteBtn.classList.toggle("has", !!text);
+      noteBtn.title = noteOpen ? "Close note" : (text ? "Edit your note" : "Add a note");
+      noteBtn.setAttribute("aria-expanded", noteOpen ? "true" : "false");
+      noteBtn.setAttribute("aria-label", (text ? "Edit note: " : "Add note: ") + (opts.text || ""));
+      if (preview) { wrap.removeChild(preview); preview = null; }
+      if (text && !noteOpen) {
+        preview = el("button", {
+          class: "qnote-preview", type: "button", title: "Edit note",
+          onclick: function () { setNoteOpen(true, true); }
+        }, [el("span", { "aria-hidden": "true", text: "✎ " }), R.noteSnippet(text)]);
+        wrap.appendChild(preview);
+      }
+    }
+    function setNoteOpen(on, focus) {
+      noteOpen = on;
+      if (on && !panel) {
+        panel = el("div", { class: "qnote-panel" }, [
+          R.noteBox(opts.noteKey, opts.notePlaceholder || "Approach, edge cases, where you got stuck, links…", {
+            rows: 2, autofocus: focus, onChange: function () { paintNote(); }
+          })
+        ]);
+        wrap.appendChild(panel);
+      } else if (!on && panel) {
+        var ta = panel.querySelector("textarea");
+        if (ta) ta.blur();                     // flushes any pending save
+        wrap.removeChild(panel);
+        panel = null;
+      }
+      paintNote();
+    }
+    paintNote();
+    return wrap;
   };
 
   /* ---- problem chip --------------------------------------------------- */
@@ -195,15 +240,54 @@
   };
 
   /* ---- note editor ---------------------------------------------------- */
-  R.noteBox = function (key, placeholder) {
+  /* opts: { label, rows, onChange(value), autofocus }
+     Autosaves while typing, saves immediately on blur, and grows with its content. */
+  R.noteBox = function (key, placeholder, opts) {
+    opts = opts || {};
+    var status = el("span", { class: "notebox-status", "aria-live": "polite" });
+    var last = S.note(key);
+    var statusTimer = null;
+
+    function grow() {
+      ta.style.height = "auto";
+      ta.style.height = Math.min(ta.scrollHeight + 2, 480) + "px";
+    }
+    function commit() {
+      var v = ta.value.replace(/\s+$/, "");
+      if (v === last) return;
+      last = v;
+      S.note(key, v);
+      status.textContent = v ? "Saved" : "Cleared";
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(function () { status.textContent = ""; }, 1600);
+      if (opts.onChange) opts.onChange(v);
+    }
+    var save = U.debounce(commit, 350);
+
     var ta = el("textarea", {
-      class: "inp", rows: 3, placeholder: placeholder || "Notes…",
-      oninput: U.debounce(function () { S.note(key, ta.value); }, 350)
+      class: "inp notebox-ta", rows: opts.rows || 3, placeholder: placeholder || "Notes…",
+      "aria-label": opts.label || "Your notes",
+      oninput: function () { grow(); save(); },
+      onblur: commit
     });
-    ta.value = S.note(key);
+    ta.value = last;
+    if (last) setTimeout(grow, 0);
+    if (opts.autofocus) setTimeout(function () { ta.focus(); }, 0);
+
     return el("div", { class: "notebox" }, [
-      el("div", { class: "blk-sublabel", text: "Your notes" }), ta
+      el("div", { class: "notebox-head" }, [
+        el("span", { class: "blk-sublabel", text: opts.label || "Your notes" }),
+        status
+      ]),
+      ta
     ]);
+  };
+
+  /* first line of a note, trimmed for one-line previews */
+  R.noteSnippet = function (text, max) {
+    var s = String(text || "").replace(/\s+/g, " ").trim();
+    max = max || 110;
+    return s.length > max ? s.slice(0, max - 1) + "…" : s;
   };
 
   window.R = R;

@@ -419,8 +419,12 @@
         idx.filter(function (r) { return /^Day /.test(r.kind); }).slice(Math.max(0, S.currentDay() - 2), S.currentDay() + 3)
       );
     }
+    /* notes change constantly, so they're added per search rather than cached in the index */
+    var noteRows = S.questionNotes().map(function (n) {
+      return { kind: "✎ Note", title: R.noteSnippet(n.text, 90), sub: n.kind + " · " + n.title, hash: n.hash, extra: n.text + " " + n.title };
+    });
     var scored = [];
-    idx.forEach(function (r) {
+    idx.concat(noteRows).forEach(function (r) {
       var s = Math.max(
         U.match(r.title, term),
         U.match(r.kind, term) - 4,
