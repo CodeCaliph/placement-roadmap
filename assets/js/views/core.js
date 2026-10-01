@@ -516,8 +516,8 @@
 
     root.appendChild(R.pageHead(
       "Core CS Subjects",
-      "The theory rounds: the <b>most-asked interview questions</b> for OS, OOPS, CN and DBMS — 50 each — plus more " +
-      "subjects and deeper extras. Every answer has a 30-second version to say out loud, then the full depth with " +
+      "The theory rounds: the <b>most-asked interview questions</b> for OS, OOPS, CN and DBMS, plus SQL, system design, " +
+      "<b>AI &amp; machine learning</b> and more. Every answer has a 30-second version to say out loud, then the full depth with " +
       "code, SQL and diagrams. Tick what you can explain unaided; star what needs another pass.",
       el("div", { style: "min-width:190px;flex:none" }, [R.meter({ done: done, total: all, label: "Mastered", size: "lg" })])
     ));
