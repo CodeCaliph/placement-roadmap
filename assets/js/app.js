@@ -16,6 +16,7 @@
     { id: "banks", label: "Problem Sets", icon: "☰", group: "Coverage", count: function () { var p = S.progress().bank; return p.done + "/" + p.total; } },
     { id: "topics", label: "DSA Topics", icon: "◈", group: "Coverage", count: function () { return S.topicTotals().pct + "%"; } },
     { id: "core", label: "Core Subjects", icon: "⌬", group: "Coverage", count: function () { if (!Views.core) return null; var p = Views.core.stats(); return p.total ? p.done + "/" + p.total : null; } },
+    { id: "tech", label: "Tech Stack", icon: "⚒", group: "Coverage", count: function () { if (!Views.tech) return null; var p = Views.tech.stats(); return p.total ? p.done + "/" + p.total : null; } },
     { id: "mocks", label: "Mocks", icon: "◎", group: "Coverage", count: function () { var p = S.progress().mocks; return p.done + "/" + p.total; } },
     { id: "readiness", label: "Readiness", icon: "▲", group: "Review", count: function () { var l = S.latestScore(); return l ? String(l.score.total) : null; } },
     { id: "checklist", label: "Final Checklist", icon: "✓", group: "Review", count: function () { var p = S.progress().checklist; return p.done + "/" + p.total; } },
@@ -193,10 +194,11 @@
       node.style.display = v ? "" : "none";
     });
 
-    /* Core Subjects is a separate track from the 60-day roadmap, so its header
-       shows its own mastery instead of the roadmap's percent and day counter. */
-    var isCore = route.id === "core" && Views.core && Views.core.stats;
-    var coreSub = isCore && r.param ? Views.core.subject(r.param.split("/")[0]) : null;
+    /* Core Subjects and Tech Stack are separate tracks from the 60-day roadmap, so
+       their header shows their own mastery instead of the roadmap's percent and day. */
+    var qaView = (route.id === "core" || route.id === "tech") && Views[route.id] && Views[route.id].stats ? Views[route.id] : null;
+    var isCore = !!qaView;
+    var coreSub = isCore && r.param ? qaView.subject(r.param.split("/")[0]) : null;
 
     var crumb = U.$("#crumb");
     if (crumb) {
@@ -231,9 +233,9 @@
     if (pp) {
       U.clear(pp);
       if (isCore) {
-        var cs = Views.core.stats(coreSub ? coreSub.id : null);
+        var cs = qaView.stats(coreSub ? coreSub.id : null);
         U.append(pp, [el("b", { text: cs.done + "/" + cs.total }), (coreSub ? coreSub.short + " " : "") + "mastered"]);
-        pp.title = cs.pct + "% of " + (coreSub ? coreSub.title : "all core subject") + " questions mastered";
+        pp.title = cs.pct + "% of " + (coreSub ? coreSub.title : (route.id === "tech" ? "all tech-stack" : "all core subject")) + " questions mastered";
       } else {
         var p = S.progress();
         U.append(pp, [el("b", { text: p.overall + "%" }), "complete"]);
@@ -372,6 +374,13 @@
       idx.push({ kind: "Subject", title: s.title, sub: s.questions.length + " interview questions", hash: "#/core/" + s.id });
       s.questions.forEach(function (q) {
         idx.push({ kind: s.short, title: q.q, sub: s.title + " · " + q.topic + (q.top ? " · Top list" : ""), hash: "#/core/" + s.id + "/" + q.id });
+      });
+    });
+
+    (window.TECH || []).forEach(function (s) {
+      idx.push({ kind: "Tech", title: s.title, sub: s.questions.length + " interview questions · Tech Stack", hash: "#/tech/" + s.id });
+      s.questions.forEach(function (q) {
+        idx.push({ kind: s.short, title: q.q, sub: s.title + " · " + q.topic + " · Tech Stack" + (q.top ? " · Top list" : ""), hash: "#/tech/" + s.id + "/" + q.id });
       });
     });
 

@@ -11,46 +11,16 @@
 
   var el = U.el;
   var LEVELS = { 1: "Basic", 2: "Intermediate", 3: "Advanced" };
-  var LANGS = { cpp: "C++", c: "C", java: "Java", python: "Python", sql: "SQL", bash: "Shell", text: "Text" };
-
-  var ui = {
-    sub: null, focus: null,       // subject id, question to open + scroll to
-    q: "", scope: "top", status: "all", level: 0, topic: "",
-    open: {}                      // "<sub>:<qid>" -> true
-  };
-
-  function subjects() { return window.CORE || []; }
-  function subjectById(id) {
-    var list = subjects();
-    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
-    return null;
-  }
-  function key(sub, q) { return sub.id + ":" + q.id; }
-  function noteKey(sub, q) { return S.ids.coreNote(sub.id, q.id); }
-  function noteOf(sub, q) { return S.note(noteKey(sub, q)); }
-
-  /* ---- state ------------------------------------------------------------ */
-  var C = {
-    id: function (sub, q) { return S.ids.core(sub.id, q.id); },
-    mastered: function (sub, q) { return S.isDone(C.id(sub, q)); },
-    starred: function (sub, q) { return !!S.state().coreStar[key(sub, q)]; },
-    star: function (sub, q, on) {
-      var s = S.state().coreStar;
-      if (on) s[key(sub, q)] = new Date().toISOString(); else delete s[key(sub, q)];
-      S.emit("core-star");
-    },
-    master: function (sub, q, on) { S.setDone(C.id(sub, q), on); S.emit("toggle"); },
-    progress: function (sub, onlyTop) {
-      var list = sub.questions.filter(function (q) { return !onlyTop || q.top; });
-      var done = list.filter(function (q) { return C.mastered(sub, q); }).length;
-      return { done: done, total: list.length, pct: U.pct(done, list.length) };
-    },
-    starCount: function (sub) {
-      return sub.questions.filter(function (q) { return C.starred(sub, q); }).length;
-    }
+  var LANGS = {
+    cpp: "C++", c: "C", java: "Java", python: "Python", sql: "SQL", bash: "Shell", text: "Text",
+    javascript: "JavaScript", jsx: "JSX", typescript: "TypeScript", json: "JSON", yaml: "YAML",
+    dockerfile: "Dockerfile", html: "HTML"
   };
 
   /* ---- syntax highlighting (small, dependency-free) --------------------- */
+  var JS_KW = "async await break case catch class const continue debugger default delete do else export extends false " +
+    "finally for from function if import in instanceof let new null of return static super switch this throw true try " +
+    "typeof undefined var void while yield require module exports console";
   var C_KW = "auto break case char const continue default do double else enum extern float for goto if inline int long " +
     "register return short signed sizeof static struct switch typedef union unsigned void volatile while NULL";
   var KW = {
@@ -71,7 +41,13 @@
       "rollback transaction grant revoke truncate top if rows range preceding following current row unbounded " +
       "int integer varchar char date decimal numeric text boolean serial cast extract interval year month day",
     bash: "if then else elif fi for in do done while case esac function echo export cd sudo git ls grep cat chmod chown " +
-      "mkdir rm cp mv find ps kill top df du tail head curl docker"
+      "mkdir rm cp mv find ps kill top df du tail head curl docker",
+    javascript: JS_KW,
+    jsx: JS_KW,
+    typescript: JS_KW + " interface type enum implements private public protected readonly namespace declare abstract " +
+      "string number boolean any unknown never",
+    dockerfile: "FROM RUN CMD COPY ADD WORKDIR EXPOSE ENV ENTRYPOINT ARG USER VOLUME AS HEALTHCHECK LABEL SHELL ONBUILD STOPSIGNAL",
+    yaml: "true false null yes no on off"
   };
   var KWSET = {};
   Object.keys(KW).forEach(function (l) {
@@ -80,7 +56,7 @@
   });
 
   function tokenRe(lang) {
-    var com = (lang === "python" || lang === "bash") ? "#.*"
+    var com = (lang === "python" || lang === "bash" || lang === "dockerfile" || lang === "yaml") ? "#.*"
       : lang === "sql" ? "--.*|\\/\\*[\\s\\S]*?\\*\\/"
       : "\\/\\/.*|\\/\\*[\\s\\S]*?\\*\\/";
     var pre = (lang === "c" || lang === "cpp") ? "^[ \\t]*#[ \\t]*\\w+.*$" : "(?!x)x";
@@ -245,6 +221,54 @@
     document.body.appendChild(host);
   }
 
+  /* ======================================================================
+     makeSubjectView(cfg) — one Q&A page (Core Subjects, Tech Stack, …).
+     cfg: { route, title, data() -> subjects[], doneId(sid,qid), noteId(sid,qid),
+            starKey (state field), heading, intro (html), groupLabel, emptyHtml }
+     Each page keeps its own filters/open state and its own progress namespace.
+     ====================================================================== */
+  function makeSubjectView(cfg) {
+  var BASE = "#/" + cfg.route;
+  var view = null;                 // assigned at the bottom; used lazily by handlers
+
+  var ui = {
+    sub: null, focus: null,       // subject id, question to open + scroll to
+    q: "", scope: "top", status: "all", level: 0, topic: "",
+    open: {}                      // "<sub>:<qid>" -> true
+  };
+
+  function subjects() { return cfg.data() || []; }
+  function subjectById(id) {
+    var list = subjects();
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+  function key(sub, q) { return sub.id + ":" + q.id; }
+  function noteKey(sub, q) { return cfg.noteId(sub.id, q.id); }
+  function noteOf(sub, q) { return S.note(noteKey(sub, q)); }
+  function stars() { var st = S.state(); return st[cfg.starKey] || (st[cfg.starKey] = {}); }
+
+  /* ---- state ------------------------------------------------------------ */
+  var C = {
+    id: function (sub, q) { return cfg.doneId(sub.id, q.id); },
+    mastered: function (sub, q) { return S.isDone(C.id(sub, q)); },
+    starred: function (sub, q) { return !!stars()[key(sub, q)]; },
+    star: function (sub, q, on) {
+      var s = stars();
+      if (on) s[key(sub, q)] = new Date().toISOString(); else delete s[key(sub, q)];
+      S.emit(cfg.route + "-star");
+    },
+    master: function (sub, q, on) { S.setDone(C.id(sub, q), on); S.emit("toggle"); },
+    progress: function (sub, onlyTop) {
+      var list = sub.questions.filter(function (q) { return !onlyTop || q.top; });
+      var done = list.filter(function (q) { return C.mastered(sub, q); }).length;
+      return { done: done, total: list.length, pct: U.pct(done, list.length) };
+    },
+    starCount: function (sub) {
+      return sub.questions.filter(function (q) { return C.starred(sub, q); }).length;
+    }
+  };
+
   /* ---- filtering -------------------------------------------------------- */
   function hasTop(sub) { return sub.questions.some(function (q) { return q.top; }); }
   function topCount(sub) { return sub.questions.filter(function (q) { return q.top; }).length; }
@@ -362,7 +386,7 @@
             el("button", {
               class: "btn btn-sm btn-ghost", text: "⧉ Copy link",
               onclick: function () {
-                copyText(location.href.split("#")[0] + "#/core/" + sub.id + "/" + q.id, "Link copied");
+                copyText(location.href.split("#")[0] + BASE + "/" + sub.id + "/" + q.id, "Link copied");
               }
             }),
             el("button", { class: "btn btn-sm btn-ghost", text: "Collapse ↑", onclick: function () { setOpen(false); node.scrollIntoView({ block: "nearest" }); } })
@@ -418,7 +442,7 @@
       document.removeEventListener("keydown", onKey, true);
       if (scrim.parentNode) scrim.parentNode.removeChild(scrim);
       document.body.classList.remove("no-scroll");
-      Views.core.rerender();
+      view.rerender();
     }
 
     function next(result) {
@@ -515,20 +539,17 @@
     });
 
     root.appendChild(R.pageHead(
-      "Core CS Subjects",
-      "The theory rounds: the <b>most-asked interview questions</b> for OS, OOPS, CN and DBMS, plus SQL, system design, " +
-      "<b>AI &amp; machine learning</b> and more. Every answer has a 30-second version to say out loud, then the full depth with " +
-      "code, SQL and diagrams. Tick what you can explain unaided; star what needs another pass.",
+      cfg.heading, cfg.intro,
       el("div", { style: "min-width:190px;flex:none" }, [R.meter({ done: done, total: all, label: "Mastered", size: "lg" })])
     ));
 
     if (!list.length) {
-      root.appendChild(R.empty("No subject data loaded. Check that <code>assets/js/data/core/*.js</code> are included in index.html."));
+      root.appendChild(R.empty(cfg.emptyHtml));
       return root;
     }
 
     root.appendChild(el("div", { class: "grid g4", style: "margin-bottom:8px" }, [
-      R.tile({ label: "Subjects", value: list.length }),
+      R.tile({ label: cfg.groupLabel, value: list.length }),
       R.tile({ label: "Questions", value: all, foot: "with full answers" }),
       R.tile({ label: "Top-list mastered", value: topDone, unit: "/ " + topAll, meter: { done: topDone, total: topAll, showValue: false } }),
       R.tile({ label: "Starred", value: stars, foot: stars ? "your revision queue" : "star anything shaky" })
@@ -537,13 +558,13 @@
     var quizAllStar = [];
     list.forEach(function (s) { s.questions.forEach(function (q) { if (C.starred(s, q)) quizAllStar.push({ sub: s, q: q }); }); });
 
-    root.appendChild(R.sectionHead("Subjects", null, el("div", { class: "row", style: "margin-left:auto" }, [
+    root.appendChild(R.sectionHead(cfg.groupLabel, null, el("div", { class: "row", style: "margin-left:auto" }, [
       stars ? el("button", { class: "btn btn-sm", text: "★ Quiz my starred (" + stars + ")", onclick: function () { openQuiz(quizAllStar); } }) : null
     ])));
 
     root.appendChild(el("div", { class: "subj-grid" }, list.map(function (s) {
       var p = C.progress(s, false), t = C.progress(s, true), tc = topCount(s), sc = C.starCount(s);
-      var go = function () { location.hash = "#/core/" + s.id; };
+      var go = function () { location.hash = BASE + "/" + s.id; };
       return el("div", { class: "subj card", tabindex: "0", role: "link", onclick: go, onkeydown: function (e) { if (e.key === "Enter") go(); } }, [
         el("div", { class: "subj-head" }, [
           el("span", { class: "subj-ico", text: s.icon || "◆" }),
@@ -582,16 +603,16 @@
   /* ---- one subject ------------------------------------------------------ */
   function subjectView(sub) {
     var root = el("div", {});
-    var rer = Views.core.rerender;
+    var rer = view.rerender;
 
     /* subject switcher */
     root.appendChild(el("div", { class: "tabs tabs-scroll", role: "tablist" }, [
-      el("button", { class: "tab", role: "tab", "aria-selected": "false", onclick: function () { location.hash = "#/core"; } }, ["← All"])
+      el("button", { class: "tab", role: "tab", "aria-selected": "false", onclick: function () { location.hash = BASE; } }, ["← All"])
     ].concat(subjects().map(function (s) {
       var p = C.progress(s, false);
       return el("button", {
         class: "tab", role: "tab", "aria-selected": s.id === sub.id ? "true" : "false",
-        onclick: function () { if (s.id !== sub.id) location.hash = "#/core/" + s.id; }
+        onclick: function () { if (s.id !== sub.id) location.hash = BASE + "/" + s.id; }
       }, [s.short, el("span", { class: "nav-count tnum", text: p.done + "/" + p.total })]);
     }))));
 
@@ -676,8 +697,8 @@
     return root;
   }
 
-  Views.core = {
-    title: "Core Subjects",
+  view = {
+    title: cfg.title,
 
     route: function (param) {
       var parts = (param || "").split("/");
@@ -701,7 +722,7 @@
       if (!host) return;
       var active = document.activeElement, sel = null;
       if (keepFocus && active && active.type === "search") sel = active.selectionStart;
-      U.clear(host).appendChild(Views.core.render());
+      U.clear(host).appendChild(view.render());
       if (sel !== null) {
         var s = U.$('#view-root input[type="search"]');
         if (s) { s.focus(); try { s.setSelectionRange(sel, sel); } catch (e) { /* ignore */ } }
@@ -712,7 +733,7 @@
       ensureDefs();
       var sub = ui.sub && subjectById(ui.sub);
       if (!sub) return overview();
-      var view = subjectView(sub);
+      var page = subjectView(sub);
       if (ui.focus) {
         var target = ui.focus;
         ui.focus = null;
@@ -721,7 +742,7 @@
           if (n) n.scrollIntoView({ block: "start" });
         }, 60);
       }
-      return view;
+      return page;
     },
 
     /* used by the command palette and the dashboard */
@@ -733,6 +754,39 @@
       return { done: done, total: total, pct: U.pct(done, total) };
     },
     subject: subjectById,
+    subjects: subjects,
     quiz: openQuiz
   };
+  return view;
+  }   /* end makeSubjectView */
+
+  Views.core = makeSubjectView({
+    route: "core",
+    title: "Core Subjects",
+    data: function () { return window.CORE; },
+    doneId: function (sid, qid) { return S.ids.core(sid, qid); },
+    noteId: function (sid, qid) { return S.ids.coreNote(sid, qid); },
+    starKey: "coreStar",
+    heading: "Core CS Subjects",
+    intro: "The theory rounds: the <b>most-asked interview questions</b> for OS, OOPS, CN and DBMS, plus SQL, system design, " +
+      "<b>AI &amp; machine learning</b> and more. Every answer has a 30-second version to say out loud, then the full depth with " +
+      "code, SQL and diagrams. Tick what you can explain unaided; star what needs another pass.",
+    groupLabel: "Subjects",
+    emptyHtml: "No subject data loaded. Check that <code>assets/js/data/core/*.js</code> are included in index.html."
+  });
+
+  Views.tech = makeSubjectView({
+    route: "tech",
+    title: "Tech Stack",
+    data: function () { return window.TECH; },
+    doneId: function (sid, qid) { return S.ids.tech(sid, qid); },
+    noteId: function (sid, qid) { return S.ids.techNote(sid, qid); },
+    starKey: "techStar",
+    heading: "Tech Stack",
+    intro: "The questions interviewers ask <b>when a technology is on your resume</b>: how it works inside, the practical " +
+      "\"how would you…\" questions, and the traps that separate people who used it from people who listed it. " +
+      "Same format as Core Subjects — a 30-second answer first, then depth with runnable code and diagrams.",
+    groupLabel: "Technologies",
+    emptyHtml: "No tech-stack data loaded. Check that <code>assets/js/data/tech/*.js</code> are included in index.html."
+  });
 })();

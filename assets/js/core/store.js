@@ -12,6 +12,8 @@
      mk:<n>                   a mock interview         (13)
      oa:<day>                 a mock OA                 (8)
      cs:<subject>:<qid>       a mastered core-subject interview question
+     ts:<tech>:<qid>          a mastered tech-stack interview question
+     sl:<lessonId>            a studied 60-day-plan lesson
    ========================================================================== */
 (function () {
   "use strict";
@@ -40,6 +42,7 @@
       topicSolved: {},     // dsaMaster topic n -> count
       collapsed: {},
       coreStar: {},        // "<subject>:<questionId>" -> ISO time starred
+      techStar: {},        // "<tech>:<questionId>" -> ISO time starred
       todos: [],           // { id, text, scope, period, done, doneAt, prio, tag, notes, subs, order, at }
       routines: [],        // { id, text, days: [0-6], tag, at }
       routineDone: {},     // "YYYY-MM-DD" -> { routineId: ISO }
@@ -105,7 +108,7 @@
       ["Notes", ["notes"]],
       ["To-dos & routines", ["todos", "routines", "routineDone"]],
       ["Timer log", ["timeLog"]],
-      ["Ticks & stars", ["done", "coreStar"]],
+      ["Ticks & stars", ["done", "coreStar", "techStar"]],
       ["Trackers", ["redo", "weakness", "mistakeLog"]],
       ["Scores", ["scores", "mockScores"]]
     ];
@@ -194,6 +197,8 @@
     core: function (subjectId, qid) { return "cs:" + subjectId + ":" + qid; },
     /* note keys (in state.notes, not the done-set) */
     coreNote: function (subjectId, qid) { return "cn:" + subjectId + ":" + qid; },
+    tech: function (techId, qid) { return "ts:" + techId + ":" + qid; },
+    techNote: function (techId, qid) { return "tn:" + techId + ":" + qid; },
     bankNote: function (bank, t, i) { return "qn:" + bank.id + ":" + t + ":" + i; }
   };
 
@@ -204,10 +209,11 @@
       var text = state.notes[k];
       if (!text) return;
       var p = k.split(":");
-      if (p[0] === "cn") {
-        var sub = (window.CORE || []).filter(function (s) { return s.id === p[1]; })[0];
+      if (p[0] === "cn" || p[0] === "tn") {
+        var src = p[0] === "cn" ? window.CORE : window.TECH, route = p[0] === "cn" ? "core" : "tech";
+        var sub = (src || []).filter(function (s) { return s.id === p[1]; })[0];
         var q = sub && sub.questions.filter(function (x) { return x.id === p.slice(2).join(":"); })[0];
-        if (q) out.push({ key: k, text: text, kind: sub.short, title: q.q, where: sub.title + " · " + q.topic, hash: "#/core/" + sub.id + "/" + q.id });
+        if (q) out.push({ key: k, text: text, kind: sub.short, title: q.q, where: sub.title + " · " + q.topic, hash: "#/" + route + "/" + sub.id + "/" + q.id });
       } else if (p[0] === "qn") {
         var bank = (H.banks || []).filter(function (b) { return b.id === p[1]; })[0];
         var tier = bank && bank.tiers[Number(p[2])];
