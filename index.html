@@ -9,9 +9,10 @@
 <!-- brand mark: a rising check — the tick says "done", its long arm carries on upward -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23367fd9'/%3E%3Cstop%20offset='1'%20stop-color='%23163f7d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='32'%20height='32'%20rx='9'%20fill='url(%23g)'/%3E%3Cpath%20d='M0%209A9%209%200%200%201%209%200h14a9%209%200%200%201%209%209v4H0Z'%20fill='%23fff'%20opacity='.13'/%3E%3Cpath%20d='M8.4%2016.9l5.2%205.2L27%206.2'%20fill='none'%20stroke='%23fff'%20stroke-opacity='.34'%20stroke-width='3.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M8.4%2016.9l5.2%205.2L23.4%208.2'%20fill='none'%20stroke='%23fff'%20stroke-width='3.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E">
 <meta name="theme-color" content="#2a78d6">
-<link rel="stylesheet" href="assets/css/theme.css?v=76a7996716">
-<link rel="stylesheet" href="assets/css/app.css?v=76a7996716">
-<link rel="stylesheet" href="assets/css/study.css?v=76a7996716">
+<link rel="stylesheet" href="assets/css/theme.css?v=7301848c0a">
+<link rel="stylesheet" href="assets/css/app.css?v=7301848c0a">
+<link rel="stylesheet" href="assets/css/study.css?v=7301848c0a">
+<link rel="stylesheet" href="assets/css/gate.css?v=7301848c0a">
 </head>
 <body>
 
@@ -45,7 +46,12 @@
 
   window.__rescueExport = save;
 
-  setTimeout(function () {
+  function check() {
+    /* still on the sign-in screen: re-arm the watchdog for after sign-in */
+    if (window.__gateLocked) {
+      (window.__afterUnlock = window.__afterUnlock || []).push(function () { setTimeout(check, 3500); });
+      return;
+    }
     if (document.querySelector(".shell")) return;              // app booted fine
     var d = document.createElement("div");
     d.setAttribute("style",
@@ -74,7 +80,8 @@
     if (window.__bootError) {
       document.getElementById("__err").textContent = "Details: " + window.__bootError;
     }
-  }, 3500);
+  }
+  setTimeout(check, 3500);
 
   window.addEventListener("error", function (e) {
     if (!window.__bootError) window.__bootError = (e.message || "script error") + " @ " + (e.filename || "?");
@@ -82,76 +89,79 @@
 })();
 </script>
 
+<!-- sign-in gate: must load before the app so it can hold the boot until sign-in -->
+<script src="assets/js/core/gate.js?v=7301848c0a"></script>
+
 <!-- generated from the handbook markdown by build_handbook.py -->
-<script src="assets/js/data/handbook.data.js?v=76a7996716"></script>
+<script src="assets/js/data/handbook.data.js?v=7301848c0a"></script>
 
 <!-- core CS subjects: interview Q&A, one file per subject (hand-written, not generated) -->
-<script src="assets/js/data/core/os.js?v=76a7996716"></script>
-<script src="assets/js/data/core/oops.js?v=76a7996716"></script>
-<script src="assets/js/data/core/cn.js?v=76a7996716"></script>
-<script src="assets/js/data/core/dbms.js?v=76a7996716"></script>
-<script src="assets/js/data/core/sql.js?v=76a7996716"></script>
-<script src="assets/js/data/core/sd.js?v=76a7996716"></script>
-<script src="assets/js/data/core/ai.js?v=76a7996716"></script>
-<script src="assets/js/data/core/coa.js?v=76a7996716"></script>
-<script src="assets/js/data/core/se.js?v=76a7996716"></script>
+<script src="assets/js/data/core/os.js?v=7301848c0a"></script>
+<script src="assets/js/data/core/oops.js?v=7301848c0a"></script>
+<script src="assets/js/data/core/cn.js?v=7301848c0a"></script>
+<script src="assets/js/data/core/dbms.js?v=7301848c0a"></script>
+<script src="assets/js/data/core/sql.js?v=7301848c0a"></script>
+<script src="assets/js/data/core/sd.js?v=7301848c0a"></script>
+<script src="assets/js/data/core/ai.js?v=7301848c0a"></script>
+<script src="assets/js/data/core/coa.js?v=7301848c0a"></script>
+<script src="assets/js/data/core/se.js?v=7301848c0a"></script>
 
 <!-- tech stack: interview Q&A per technology on the resume (order = display order) -->
-<script src="assets/js/data/tech/java.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/python.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/javascript.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/c.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/react.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/nextjs.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/node.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/rest.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/postgres.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/mongodb.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/redis.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/docker.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/git.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/pytorch.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/langchain.js?v=76a7996716"></script>
-<script src="assets/js/data/tech/misc.js?v=76a7996716"></script>
+<script src="assets/js/data/tech/java.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/python.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/javascript.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/c.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/react.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/nextjs.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/node.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/rest.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/postgres.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/mongodb.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/redis.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/docker.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/git.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/pytorch.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/langchain.js?v=7301848c0a"></script>
+<script src="assets/js/data/tech/misc.js?v=7301848c0a"></script>
 
 <!-- study lessons attached to 60-day-plan blocks (hand-written; order = tab order on shared blocks) -->
-<script src="assets/js/data/study/os.js?v=76a7996716"></script>
-<script src="assets/js/data/study/dbms.js?v=76a7996716"></script>
-<script src="assets/js/data/study/sql.js?v=76a7996716"></script>
-<script src="assets/js/data/study/cn.js?v=76a7996716"></script>
-<script src="assets/js/data/study/oops.js?v=76a7996716"></script>
-<script src="assets/js/data/study/lld.js?v=76a7996716"></script>
-<script src="assets/js/data/study/hld.js?v=76a7996716"></script>
-<script src="assets/js/data/study/career.js?v=76a7996716"></script>
-<script src="assets/js/data/study/aptitude.js?v=76a7996716"></script>
+<script src="assets/js/data/study/os.js?v=7301848c0a"></script>
+<script src="assets/js/data/study/dbms.js?v=7301848c0a"></script>
+<script src="assets/js/data/study/sql.js?v=7301848c0a"></script>
+<script src="assets/js/data/study/cn.js?v=7301848c0a"></script>
+<script src="assets/js/data/study/oops.js?v=7301848c0a"></script>
+<script src="assets/js/data/study/lld.js?v=7301848c0a"></script>
+<script src="assets/js/data/study/hld.js?v=7301848c0a"></script>
+<script src="assets/js/data/study/career.js?v=7301848c0a"></script>
+<script src="assets/js/data/study/aptitude.js?v=7301848c0a"></script>
 
 <!-- core -->
-<script src="assets/js/core/util.js?v=76a7996716"></script>
-<script src="assets/js/core/store.js?v=76a7996716"></script>
+<script src="assets/js/core/util.js?v=7301848c0a"></script>
+<script src="assets/js/core/store.js?v=7301848c0a"></script>
 
 <!-- shared ui -->
-<script src="assets/js/ui/render.js?v=76a7996716"></script>
-<script src="assets/js/ui/charts.js?v=76a7996716"></script>
-<script src="assets/js/ui/momentum.js?v=76a7996716"></script>
-<script src="assets/js/ui/study.js?v=76a7996716"></script>
+<script src="assets/js/ui/render.js?v=7301848c0a"></script>
+<script src="assets/js/ui/charts.js?v=7301848c0a"></script>
+<script src="assets/js/ui/momentum.js?v=7301848c0a"></script>
+<script src="assets/js/ui/study.js?v=7301848c0a"></script>
 
 <!-- views -->
-<script src="assets/js/views/plan.js?v=76a7996716"></script>
-<script src="assets/js/views/dashboard.js?v=76a7996716"></script>
-<script src="assets/js/views/banks.js?v=76a7996716"></script>
-<script src="assets/js/views/topics.js?v=76a7996716"></script>
-<script src="assets/js/views/core.js?v=76a7996716"></script>
-<script src="assets/js/views/todo.js?v=76a7996716"></script>
-<script src="assets/js/views/mocks.js?v=76a7996716"></script>
-<script src="assets/js/views/readiness.js?v=76a7996716"></script>
-<script src="assets/js/views/checklist.js?v=76a7996716"></script>
-<script src="assets/js/views/mistakes.js?v=76a7996716"></script>
-<script src="assets/js/views/trackers.js?v=76a7996716"></script>
-<script src="assets/js/views/library.js?v=76a7996716"></script>
-<script src="assets/js/views/settings.js?v=76a7996716"></script>
+<script src="assets/js/views/plan.js?v=7301848c0a"></script>
+<script src="assets/js/views/dashboard.js?v=7301848c0a"></script>
+<script src="assets/js/views/banks.js?v=7301848c0a"></script>
+<script src="assets/js/views/topics.js?v=7301848c0a"></script>
+<script src="assets/js/views/core.js?v=7301848c0a"></script>
+<script src="assets/js/views/todo.js?v=7301848c0a"></script>
+<script src="assets/js/views/mocks.js?v=7301848c0a"></script>
+<script src="assets/js/views/readiness.js?v=7301848c0a"></script>
+<script src="assets/js/views/checklist.js?v=7301848c0a"></script>
+<script src="assets/js/views/mistakes.js?v=7301848c0a"></script>
+<script src="assets/js/views/trackers.js?v=7301848c0a"></script>
+<script src="assets/js/views/library.js?v=7301848c0a"></script>
+<script src="assets/js/views/settings.js?v=7301848c0a"></script>
 
 <!-- shell + router (last) -->
-<script src="assets/js/app.js?v=76a7996716"></script>
+<script src="assets/js/app.js?v=7301848c0a"></script>
 
 </body>
 </html>

@@ -616,6 +616,12 @@
     }
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", safeBoot);
-  else safeBoot();
+  /* nothing renders until the sign-in gate (core/gate.js) is passed */
+  function start() {
+    if (window.GATE && !GATE.unlocked()) GATE.onUnlock(safeBoot);
+    else safeBoot();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
 })();

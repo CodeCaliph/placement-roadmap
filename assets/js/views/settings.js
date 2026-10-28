@@ -446,6 +446,21 @@
         ])
       ]));
 
+      /* ---- access ---- */
+      if (window.GATE) {
+        root.appendChild(el("div", { class: "card card-pad-lg", style: "margin-bottom:14px" }, [
+          el("h3", { style: "font-size:15.5px", text: "Access" }),
+          el("p", { class: "small dim", style: "margin-top:4px", text:
+            "You are signed in on this device. Signing out shows the sign-in screen again. Your progress stays saved in this browser." }),
+          el("div", { class: "row", style: "margin-top:12px" }, [
+            el("button", {
+              class: "btn", text: "⎋ Sign out",
+              onclick: function () { if (confirm("Sign out of this device?")) GATE.lock(); }
+            })
+          ])
+        ]));
+      }
+
       /* ---- storage meter ---- */
       root.appendChild(storageCard());
 
